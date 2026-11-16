@@ -23,6 +23,50 @@
 .wordmark span{display:block}
 .wordmark .brandmark.big{display:block;width:100%;height:auto;vertical-align:top}
 </style>
+<style>
+/* ---------- Mobile fixes (phones) ---------- */
+html,body{max-width:100%;overflow-x:hidden}
+@media (max-width:700px){
+  :root{--pad:20px;--radius:28px}
+  .hero-title h1{font-size:34px;line-height:1.08;margin-top:-6vh}
+  .hero-foot{grid-template-columns:1fr 40px;bottom:24px}
+  .hero-foot>div:nth-child(1),.hero-foot>div:nth-child(2),.hero-foot>div:nth-child(4){display:none}
+  .hero-foot .down{display:block;height:60px}
+  h2.big{font-size:28px;line-height:1.12;text-indent:1.4em}
+  .clients{padding-top:90px;padding-bottom:90px}.clients .row{gap:40px;margin-bottom:24px}
+  .work,.bring,.who,.pricing,.faq,.footer{padding-top:90px}
+  .services,.testi,.blog{padding-top:calc(var(--radius) + 80px);padding-bottom:calc(var(--radius) + 80px)}
+  .work .head,.bring .head,.services .head,.who .head,.testi .head,.pricing .head,.blog .head{margin-bottom:40px}
+  .proj,.see{aspect-ratio:auto;height:300px}
+  .see a{width:200px;height:200px}
+  .person{min-height:460px}
+  .rate{min-height:260px}.counter{font-size:72px;height:72px;line-height:72px}.digit,.digit .col span{height:72px}
+  .tools{flex-direction:column;align-items:flex-start;gap:16px}.tools .marquee{width:100%}
+  .svc{gap:20px;min-height:0}.svc .num{font-size:48px}.svc h3{font-size:30px;line-height:36px;margin-bottom:12px}
+  .stack{height:190px}
+  .steps .step{height:220px}
+  .film{height:420px}.film h3{font-size:34px;line-height:40px}
+  .tcard,.quote{min-height:0}.quote{padding:32px 20px 20px}.quote blockquote{font-size:22px;line-height:30px;margin-bottom:28px}
+  .pp .who2{display:none}.pp.on .who2{display:block;max-width:none;margin-right:12px}
+  .plans{grid-template-columns:minmax(0,1fr);gap:16px}
+  .plan{min-height:0;padding:20px}
+  .plan.wide{grid-column:auto;grid-template-columns:minmax(0,1fr);gap:0}
+  .plan.wide .rr{padding-top:20px}
+  .plan.wide .price{margin-top:28px!important}
+  .price{margin:28px 0 24px}.price b{font-size:36px;line-height:40px}
+  .plan .cta{margin-top:24px}
+  .faq{gap:24px}.faq h2{font-size:56px;line-height:60px;margin-top:0}
+  .q button{padding:22px 4px;font-size:15px}.q .a p{padding:0 40px 22px 4px}
+  .post{height:380px}
+  .cta-band{padding:40px 0 0;gap:40px}.cta-band blockquote{font-size:22px;line-height:30px}
+  .news{margin:0}.news h3{font-size:34px}
+  .footer h2{font-size:48px;line-height:52px;margin-bottom:48px}
+  .footer .start a{font-size:24px}
+  .fcols{grid-template-columns:1fr 1fr;margin-top:48px}.fcols>div:first-child{grid-column:1/3}
+  .wordmark{margin:70px 0 40px}
+  .legal{flex-direction:column;gap:12px}
+}
+</style>
 </head>
 <body class="loading">
 
