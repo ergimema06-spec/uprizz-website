@@ -300,5 +300,48 @@
 </footer>
 
 <script src="js/main.js"></script>
+<script>
+/* ---------- Hero grain effect ----------
+   Edit the numbers in HERO to change the effect.
+   height: where the wave sits (0 = bottom, 1 = top) · hills: how wavy · speed: animation speed (0 = frozen)
+   grain: sandy speckle along the edge · softness: how blurry the edge is · glow: grey lift at the bottom (0 = none)
+   dark / light: the two colours · mouse: true/false for the cursor reaction */
+const HERO = { height:0.48, hills:1.85, speed:0.90, grain:0.0, softness:0.23, glow:0.0, dark:'#0d0d0d', light:'#f5f5f5', mouse:true };
+(function(){
+  const old=document.getElementById('gl'); const c=old.cloneNode(); old.replaceWith(c);
+  const gl=c.getContext('webgl');
+  if(!gl){c.style.background=`linear-gradient(${HERO.light} 45%,${HERO.dark} 70%)`;return}
+  const fs=`precision highp float;uniform vec2 r;uniform float t,H,A,G,E,L;uniform vec2 m;uniform vec3 D,W;
+  float h(vec2 p){return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453);}
+  float n(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h(i),h(i+vec2(1,0)),f.x),mix(h(i+vec2(0,1)),h(i+vec2(1,1)),f.x),f.y);}
+  void main(){vec2 uv=gl_FragCoord.xy/r;float x=uv.x*(r.x/r.y);
+    float b=H+A*(.11*sin(x*2.2+t*.35)+.06*sin(x*4.1-t*.27+1.3)+.035*sin(x*7.3+t*.5)+.05*(n(vec2(x*1.2,t*.15))-.5))+(m.y-.5)*.04*sin(x*3.+m.x*3.);
+    float g=h(gl_FragCoord.xy+fract(t*7.)*100.);float d=uv.y-b+(g-.5)*G;
+    float dark=1.-smoothstep(-E*.9,E*1.1,d);float b2=b-.24+.06*sin(x*2.7-t*.3+2.);
+    float lift=1.-smoothstep(-.25,.12,uv.y-b2+(g-.5)*.12);
+    vec3 dc=mix(D,mix(D,W,.45),lift*L/.42*.85);vec3 col=mix(W,dc,dark);col+=(g-.5)*.06*dark;gl_FragColor=vec4(col,1.);}`;
+  const sh=(ty,src)=>{const o=gl.createShader(ty);gl.shaderSource(o,src);gl.compileShader(o);return o};
+  const p=gl.createProgram();gl.attachShader(p,sh(gl.VERTEX_SHADER,'attribute vec2 p;void main(){gl_Position=vec4(p,0,1);}'));gl.attachShader(p,sh(gl.FRAGMENT_SHADER,fs));gl.linkProgram(p);gl.useProgram(p);
+  gl.bindBuffer(gl.ARRAY_BUFFER,gl.createBuffer());gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
+  const lo=gl.getAttribLocation(p,'p');gl.enableVertexAttribArray(lo);gl.vertexAttribPointer(lo,2,gl.FLOAT,false,0,0);
+  const U={};['r','t','H','A','G','E','L','m','D','W'].forEach(k=>U[k]=gl.getUniformLocation(p,k));
+  const hex=h=>[1,3,5].map(k=>parseInt(h.substr(k,2),16)/255);
+  let mx=.5,my=.5,tx=.5,ty=.5,T=0,last=performance.now();
+  if(HERO.mouse) addEventListener('mousemove',e=>{tx=e.clientX/innerWidth;ty=e.clientY/innerHeight});
+  function size(){const d=Math.min(devicePixelRatio,1.5);c.width=c.clientWidth*d;c.height=c.clientHeight*d;gl.viewport(0,0,c.width,c.height)}
+  addEventListener('resize',size);size();
+  (function draw(now){
+    T+=(now-last)/1000*HERO.speed;last=now;
+    if(scrollY<innerHeight*1.2){
+      mx+=(tx-mx)*.04;my+=(ty-my)*.04;
+      gl.uniform2f(U.r,c.width,c.height);gl.uniform1f(U.t,T);
+      gl.uniform1f(U.H,HERO.height);gl.uniform1f(U.A,HERO.hills);gl.uniform1f(U.G,HERO.grain);gl.uniform1f(U.E,HERO.softness);gl.uniform1f(U.L,HERO.glow);
+      gl.uniform2f(U.m,mx,my);gl.uniform3fv(U.D,hex(HERO.dark));gl.uniform3fv(U.W,hex(HERO.light));
+      gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
+    }
+    requestAnimationFrame(draw);
+  })(performance.now());
+})();
+</script>
 </body>
 </html>
