@@ -64,7 +64,7 @@ a.btn{color:var(--text)}
 .frameBox{position:relative;flex:1;width:100%;overflow:hidden}
 #frameWrap{position:absolute;left:50%;top:0;transform-origin:top center;background:#fff;border-radius:6px;overflow:hidden;box-shadow:0 0 0 1px #2a2a2a}
 #frame{border:0;display:block;width:100%;height:100%;background:#fff}
-#hint{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);background:var(--pin);color:#fff;padding:6px 12px;border-radius:20px;font-size:12px;box-shadow:0 6px 20px rgba(0,0,0,.4)}
+#hint{position:absolute;left:50%;bottom:52px;transform:translateX(-50%);background:var(--pin);color:#fff;padding:6px 12px;border-radius:20px;font-size:12px;box-shadow:0 6px 20px rgba(0,0,0,.4)}
 
 /* popover for new comment */
 #pop{position:fixed;z-index:20;width:260px;background:var(--panel);border:1px solid #333;border-radius:10px;padding:10px;box-shadow:0 12px 40px rgba(0,0,0,.5)}
@@ -138,6 +138,7 @@ a.btn{color:var(--text)}
 
 <!-- ============ Editor ============ -->
 <div id="app" class="hidden">
+  <div id="demoBar" class="hidden" style="position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:30;background:#3b2a0a;border:1px solid #6b4a12;color:#fcd34d;padding:6px 14px;border-radius:20px;font-size:12px">Demo mode — Claude's answers are samples and nothing is saved to the website</div>
   <header class="top">
     <div class="brand"><img src="/apple-touch-icon.png" alt="">Editor</div>
     <div class="seg" id="device">
@@ -210,11 +211,50 @@ a.btn{color:var(--text)}
 /* ===== Settings: the address of the private helper (Cloudflare Worker) ===== */
 const API = 'https://uprizz-editor.REPLACE-ME.workers.dev';
 
+const DEMO = new URLSearchParams(location.search).has('demo');
 const $ = id => document.getElementById(id);
+/* ---------- Demo mode (?demo): everything stays in this browser; nothing reaches the website ---------- */
+const demoStore = {
+  get() { try { return JSON.parse(localStorage.getItem('uprizzDemoComments') || '[]'); } catch (e) { return []; } },
+  set(v) { try { localStorage.setItem('uprizzDemoComments', JSON.stringify(v)); } catch (e) {} },
+};
+async function demoApi(path, body) {
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+  await wait(250);
+  if (path === '/api/login') return { token: 'demo' };
+  if (path === '/api/status') return { deploy: { status: 'completed', conclusion: 'success', sha: S.demoSha || 'demo' } };
+  if (path === '/api/comments' && !body) return { comments: demoStore.get() };
+  if (path === '/api/comments') {
+    let list = demoStore.get();
+    if (body.action === 'add') list.push({ id: Math.random().toString(36).slice(2, 10), status: 'open', created: new Date().toISOString(), ...body.comment });
+    if (body.action === 'update') list = list.map(c => c.id === body.id ? { ...c, ...body.patch } : c);
+    if (body.action === 'delete') list = list.filter(c => c.id !== body.id);
+    demoStore.set(list); return { comments: list };
+  }
+  if (path === '/api/ask') {
+    await wait(2500);
+    const ask = (body.message || 'apply my comments').trim();
+    const before = '<h1><span class="l l1"><span>Brands built</span></span> <span class="l l2"><span>as systems</span></span> <span class="l l3"><span>not decorations.</span></span></h1>';
+    const after = before.replace('Brands built', 'Brands that grow');
+    return {
+      reply: `Demo answer — in the real editor, Claude would now edit this page's files to do: “${ask}”${body.commentIds.length ? ` (plus your ${body.commentIds.length} comment${body.commentIds.length > 1 ? 's' : ''})` : ''}, then summarise what changed here. Below is a sample change so you can try reviewing and publishing.`,
+      changes: [{ path: 'index.html', before: 'line one\n' + before + '\nline three', after: 'line one\n' + after + '\nline three', baseSha: 'demo' }],
+      images: [],
+    };
+  }
+  if (path === '/api/publish') {
+    await wait(800); S.demoSha = 'demo' + Date.now();
+    if (body.resolveComments && body.resolveComments.length) demoStore.set(demoStore.get().map(c => body.resolveComments.includes(c.id) ? { ...c, status: 'resolved' } : c));
+    return { commit: S.demoSha };
+  }
+  if (path === '/api/undo') { await wait(800); S.demoSha = 'demo' + Date.now(); return { commit: S.demoSha }; }
+  throw new Error('Not available in demo mode.');
+}
 const S = { token: null, pages: [], page: '/', width: 1440, comments: [], showAll: false, commenting: false, chats: {}, busy: false, atts: [], lastCommit: null };
 try { S.token = sessionStorage.getItem('uprizzToken'); } catch (e) {}
 
 async function api(path, body) {
+  if (DEMO) return demoApi(path, body);
   const r = await fetch(API + path, {
     method: body ? 'POST' : 'GET',
     headers: { 'Content-Type': 'application/json', ...(S.token ? { Authorization: 'Bearer ' + S.token } : {}) },
@@ -455,7 +495,7 @@ function renderProposal(m, idx) {
   if (p.state === 'review') acts = `<button class="btn sm primary" data-a="publish">Publish</button><button class="btn sm" data-a="diff">Show changes</button><button class="btn sm" data-a="discard">Discard</button>`;
   if (p.state === 'publishing') acts = `<div class="working"><div class="spin"></div><span>Publishing…</span></div>`;
   if (p.state === 'deploying') acts = `<div class="working"><div class="spin"></div><span>Saved. Going live (about a minute)…</span></div>`;
-  if (p.state === 'live') acts = `<span style="color:var(--ok)">✓ Live on uprizz.com</span><button class="btn sm" data-a="undo">Undo</button>`;
+  if (p.state === 'live') acts = `<span style="color:var(--ok)">${DEMO ? '✓ Published (demo, the site was not changed)' : '✓ Live on uprizz.com'}</span><button class="btn sm" data-a="undo">Undo</button>`;
   if (p.state === 'discarded') acts = `<span style="color:var(--muted)">Discarded</span>`;
   if (p.state === 'undone') acts = `<span style="color:var(--muted)">Undone — the previous version is back</span>`;
   wrap.innerHTML = `<div style="color:var(--muted);font-size:11px;margin-bottom:4px">Files changed</div>${files}<div class="acts">${acts}</div>${p.showDiff ? diffHtml(p) : ''}`;
@@ -513,12 +553,12 @@ function reloadFrame() { $('frame').src = S.page + '?editor=' + Date.now(); }
 /* ---------- deploy status ---------- */
 async function waitForDeploy(sha) {
   for (let i = 0; i < 60; i++) {
-    await new Promise(r => setTimeout(r, i ? 6000 : 4000));
+    await new Promise(r => setTimeout(r, DEMO ? 1500 : i ? 6000 : 4000));
     try {
       const s = await api('/api/status'); setPill(s);
       if (s.deploy && s.deploy.sha === sha && s.deploy.status === 'completed') {
         if (s.deploy.conclusion !== 'success') throw new Error('The site build failed. The previous version is still live — ask Claude to check it, or undo.');
-        await new Promise(r => setTimeout(r, 4000)); return;
+        await new Promise(r => setTimeout(r, DEMO ? 200 : 4000)); return;
       }
     } catch (e) { if (/build failed/.test(e.message)) throw e; }
   }
@@ -583,7 +623,8 @@ function diffHtml(p) {
 
 function alertMsg(t) { chat().push({ role: 'assistant', text: t, error: true }); renderChat(); }
 
-if (S.token) start();
+if (DEMO) { document.title = 'Uprizz Editor (demo)'; $('demoBar').classList.remove('hidden'); $('logout').classList.add('hidden'); start(); }
+else if (S.token) start();
 </script>
 </body>
 </html>
