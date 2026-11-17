@@ -163,6 +163,7 @@ a.btn{color:var(--text)}
       <button data-m="preview" title="Use the page normally (P)"><svg viewBox="0 0 24 24"><path d="M7 4l12 8-12 8z"/></svg>Preview</button>
     </div>
     <a class="btn" id="openSite" target="_blank" rel="noopener" style="display:flex;align-items:center;text-decoration:none">Open page ↗</a>
+    <button class="btn" id="checkSetup" title="Check that the keys saved in Cloudflare work">Check setup</button>
     <button class="btn" id="logout">Sign out</button>
   </header>
 
@@ -625,7 +626,7 @@ async function send() {
     const r = await api('/api/ask', { page, message: text, commentIds: ids, selection: sel, history, attachments: atts.map(a => ({ name: a.name, base64: a.base64 })) });
     COST.lastAsk[page] = Date.now(); if (typeof r.cost === 'number') spentAdd(r.cost);
     msgs.pop(); msgs.push({ role: 'assistant', text: r.reply, cost: r.cost, proposal: { changes: r.changes, images: r.images, state: 'review', commentIds: ids, summary: r.reply } });
-  } catch (e) { msgs.pop(); msgs.push({ role: 'assistant', text: e.message, error: true }); }
+  } catch (e) { msgs.pop(); msgs.push({ role: 'assistant', text: /invalid x-api-key|authentication_error/.test(e.message) ? 'Anthropic rejected the Claude API key saved in Cloudflare. Click “Check setup” at the top to see what’s wrong with it.' : e.message, error: true }); }
   clearInterval(timer); S.busy = false; if (S.page === page) renderChat(); updateEstimate();
 }
 $('send').onclick = send;
@@ -700,6 +701,30 @@ function renderAtts() {
   $('atts').querySelectorAll('button').forEach(b => b.onclick = () => { S.atts.splice(+b.dataset.i, 1); renderAtts(); });
   updateEstimate();
 }
+
+/* ---------- setup check ---------- */
+$('checkSetup').onclick = async () => {
+  showTab('claude'); $('checkSetup').disabled = true;
+  chat().push({ role: 'assistant', working: true }); renderChat();
+  try {
+    if (DEMO) throw new Error('The setup check isn’t available in demo mode.');
+    const d = await api('/api/diagnose');
+    const k = d.anthropicKey, g = d.githubToken, ok = x => x ? '✓' : '✗';
+    const lines = ['Setup check'];
+    lines.push(`\nClaude API key: ${!k.saved ? '✗ not saved' : k.anthropicSays === 'accepted' ? '✓ working' : '✗ rejected by Anthropic'}`);
+    if (k.saved) {
+      lines.push(`  ${ok(k.startsRight)} starts with “sk-ant-”${k.startsRight ? '' : ' — this doesn’t look like a Claude API key'}`);
+      lines.push(`  ${ok(k.length > 90)} length ${k.length} characters${k.length > 90 ? '' : ' — too short, probably only part of the key was copied'}`);
+      if (k.hadInvisibleOrExtraCharacters) lines.push('  • had extra spaces or line breaks (cleaned automatically)');
+      lines.push(`  saved value looks like: ${k.looksLike}`);
+      if (k.anthropicSays !== 'accepted') lines.push(`  Anthropic says: ${k.anthropicSays}`);
+    }
+    lines.push(`\nGitHub key: ${!g.saved ? '✗ not saved' : g.githubSays === 'accepted' ? '✓ working' : '✗ ' + g.githubSays}`);
+    lines.push(`Password: ${ok(d.passwordSaved)} saved · Session code: ${ok(d.sessionSecretSaved)} saved`);
+    chat().pop(); chat().push({ role: 'assistant', text: lines.join('\n') });
+  } catch (e) { chat().pop(); chat().push({ role: 'assistant', text: e.message, error: true }); }
+  $('checkSetup').disabled = false; renderChat();
+};
 
 /* ---------- cost estimate + running total ---------- */
 const COST = { base: {}, lastAsk: {}, prices: { input: 2, cacheWrite: 2.5, cacheRead: 0.2, output: 10 } };
