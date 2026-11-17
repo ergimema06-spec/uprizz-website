@@ -213,8 +213,15 @@ All files in the repository:
 ${files.filter(p => !p.startsWith('images/') || p.split('/').length < 4).join('\n')}
 (plus image files under images/projects/<slug>/)`;
 
-  let intro = `Page being edited: ${page}\n\nThe page's main source files are below.\n`;
-  for (const p of starter) intro += `\n=== ${p} ===\n${work[p] ?? '(file does not exist)'}\n`;
+  let filesText = `The page's main source files, as they are now:\n`;
+  for (const p of starter) filesText += `\n=== ${p} ===\n${work[p] ?? '(file does not exist)'}\n`;
+  // Prompt caching: instructions + page files are re-read every round and on follow-ups,
+  // so they're marked cacheable (cache reads cost ~10% of normal input).
+  const systemBlocks = [
+    { type: 'text', text: system, cache_control: { type: 'ephemeral' } },
+    { type: 'text', text: filesText, cache_control: { type: 'ephemeral' } },
+  ];
+  let intro = `Page being edited: ${page}\n`;
   if (chosen.length) {
     intro += `\nThe owner left these comments on the page (address them):\n` + chosen.map((c, i) =>
       `${i + 1}. "${c.note}"\n   pinned on element: ${c.selector}\n   element content: ${c.snippet}`).join('\n');
@@ -235,15 +242,17 @@ ${files.filter(p => !p.startsWith('images/') || p.split('/').length < 4).join('\
   const messages = [...history, { role: 'user', content: userContent }];
   if (messages[0].role !== 'user') messages.shift();
 
-  let summary = '';
+  let summary = ''; const usage = { input: 0, cacheRead: 0, cacheWrite: 0, output: 0 };
   for (let turn = 0; turn < MAX_TURNS; turn++) {
     const r = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: { 'x-api-key': env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
-      body: JSON.stringify({ model: env.CLAUDE_MODEL || 'claude-sonnet-5-5', max_tokens: 16000, system, tools: TOOLS, messages }),
+      body: JSON.stringify({ model: env.CLAUDE_MODEL || 'claude-sonnet-5-5', max_tokens: 16000, system: systemBlocks, tools: TOOLS, messages: withMovingCache(messages) }),
     });
     if (!r.ok) throw err(502, `Claude API error ${r.status}: ${(await r.text()).slice(0, 300)}`);
     const res = await r.json();
+    const u = res.usage || {};
+    usage.input += u.input_tokens || 0; usage.cacheRead += u.cache_read_input_tokens || 0; usage.cacheWrite += u.cache_creation_input_tokens || 0; usage.output += u.output_tokens || 0;
     messages.push({ role: 'assistant', content: res.content });
     summary = res.content.filter(b => b.type === 'text').map(b => b.text).join('\n').trim() || summary;
     const uses = res.content.filter(b => b.type === 'tool_use');
@@ -283,7 +292,18 @@ ${files.filter(p => !p.startsWith('images/') || p.split('/').length < 4).join('\
   const changes = Object.keys(work).filter(p => work[p] != null && work[p] !== (original[p] ? original[p].text : null))
     .map(p => ({ path: p, before: original[p] ? original[p].text : '', after: work[p], baseSha: original[p] ? original[p].sha : null }));
   const images = Object.entries(binaries).map(([path, base64]) => ({ path, base64 }));
-  return { reply: summary || 'Done.', changes, images };
+  const cost = (usage.input * 2 + usage.cacheWrite * 2.5 + usage.cacheRead * 0.2 + usage.output * 10) / 1e6; // Sonnet 5.5 list prices, USD
+  return { reply: summary || 'Done.', changes, images, usage, cost: Math.round(cost * 1000) / 1000 };
+}
+
+/** Copy of messages with a cache marker on the last block, so the next round reads everything before it from cache. */
+function withMovingCache(messages) {
+  const out = messages.map(m => ({ ...m }));
+  const last = out[out.length - 1];
+  const blocks = typeof last.content === 'string' ? [{ type: 'text', text: last.content }] : last.content.map(b => ({ ...b }));
+  blocks[blocks.length - 1].cache_control = { type: 'ephemeral' };
+  last.content = blocks;
+  return out;
 }
 
 /* ---------------- publish / undo / status ---------------- */

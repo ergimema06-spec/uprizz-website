@@ -578,6 +578,7 @@ function renderChat() {
     div.textContent = m.text;
     if (m.thumbs && m.thumbs.length) { const t = document.createElement('div'); t.className = 'thumbs'; t.innerHTML = m.thumbs.map(s => `<img src="${s}">`).join(''); div.appendChild(t); }
     if (m.proposal) div.appendChild(renderProposal(m, i));
+    if (typeof m.cost === 'number') { const c = document.createElement('div'); c.style.cssText = 'margin-top:8px;font-size:11px;color:var(--muted)'; c.textContent = `Cost of this request: about $${m.cost < 0.01 ? '0.01' : m.cost.toFixed(2)}`; div.appendChild(c); }
     box.appendChild(div);
   });
   box.scrollTop = box.scrollHeight;
@@ -617,7 +618,7 @@ async function send() {
     const history = msgs.filter(m => !m.working && !m.error).slice(0, -1).map(m => ({ role: m.role, text: m.text }));
     S.sel = []; drawSelection();
     const r = await api('/api/ask', { page, message: text, commentIds: ids, selection: sel, history, attachments: atts.map(a => ({ name: a.name, base64: a.base64 })) });
-    msgs.pop(); msgs.push({ role: 'assistant', text: r.reply, proposal: { changes: r.changes, images: r.images, state: 'review', commentIds: ids, summary: r.reply } });
+    msgs.pop(); msgs.push({ role: 'assistant', text: r.reply, cost: r.cost, proposal: { changes: r.changes, images: r.images, state: 'review', commentIds: ids, summary: r.reply } });
   } catch (e) { msgs.pop(); msgs.push({ role: 'assistant', text: e.message, error: true }); }
   clearInterval(timer); S.busy = false; if (S.page === page) renderChat();
 }
