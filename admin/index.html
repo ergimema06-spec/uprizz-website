@@ -67,6 +67,10 @@ a.btn{color:var(--text)}
 .canvas{position:relative;overflow:hidden;background:#141414;display:flex;flex-direction:column;align-items:center}
 .frameHead{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:12px;padding:14px 0 8px}
 .frameHead b{color:var(--text);font-weight:500}
+.pv{display:flex;align-items:center;gap:8px;margin-left:10px;padding:3px 4px 3px 10px;border-radius:8px;background:#2a2108;border:1px solid #5c4511;color:#fcd34d}
+.pv.live{background:var(--panel2);border-color:var(--line);color:var(--muted)}
+.pv button{height:22px;padding:0 9px;border-radius:5px;background:#3d300d;color:#fde68a;font-size:11px}
+.pv.live button{background:#262626;color:var(--text)}
 .frameBox{position:relative;flex:1;width:100%;overflow:hidden}
 #frameWrap{position:absolute;left:50%;top:0;transform-origin:top center;background:#fff;border-radius:6px;overflow:hidden;box-shadow:0 0 0 1px #2a2a2a}
 #frame{border:0;display:block;width:100%;height:100%;background:#fff}
@@ -174,7 +178,7 @@ a.btn{color:var(--text)}
     </aside>
 
     <section class="canvas">
-      <div class="frameHead"><b id="devName">Desktop</b><span id="devW">1440</span></div>
+      <div class="frameHead"><b id="devName">Desktop</b><span id="devW">1440</span><span id="pvBar" class="pv hidden"><span id="pvText"></span><button id="pvToggle"></button></span></div>
       <div class="frameBox" id="frameBox">
         <div id="frameWrap"><iframe id="frame" title="Page preview"></iframe></div>
       </div>
@@ -336,7 +340,7 @@ function selectPage(path) {
   S.page = path; history.replaceState(null, '', '#' + encodeURIComponent(path));
   const p = S.pages.find(x => x.path === path) || { name: path };
   $('pageName').textContent = p.name; $('openSite').href = path;
-  $('frame').src = path + (path.includes('?') ? '&' : '?') + 'editor=' + Date.now();
+  S.preview = null; showLive();
   renderPages(); renderChat(); renderComments(); updateInclude(); loadBase(path); updateEstimate();
 }
 
@@ -595,7 +599,7 @@ function renderProposal(m, idx) {
     + p.images.map(im => `<div class="f"><span>${esc(label(im.path))}</span><span>new image</span></div>`).join('');
   if (!p.changes.length && !p.images.length) { wrap.innerHTML = '<div class="f"><span>No changes were made.</span></div>'; return wrap; }
   let acts = '';
-  if (p.state === 'review') acts = `<button class="btn sm primary" data-a="publish">Publish</button><button class="btn sm" data-a="diff">Show changes</button><button class="btn sm" data-a="discard">Discard</button>`;
+  if (p.state === 'review') acts = `<button class="btn sm primary" data-a="publish">Publish</button><button class="btn sm" data-a="preview">Preview</button><button class="btn sm" data-a="diff">Show changes</button><button class="btn sm" data-a="discard">Discard</button>`;
   if (p.state === 'publishing') acts = `<div class="working"><div class="spin"></div><span>Publishing…</span></div>`;
   if (p.state === 'deploying') acts = `<div class="working"><div class="spin"></div><span>Saved. Going live (about a minute)…</span></div>`;
   if (p.state === 'live') acts = `<span style="color:var(--ok)">${DEMO ? '✓ Published (demo, the site was not changed)' : '✓ Live on uprizz.com'}</span><button class="btn sm" data-a="undo">Undo</button>`;
@@ -625,7 +629,9 @@ async function send() {
     S.sel = []; drawSelection();
     const r = await api('/api/ask', { page, message: text, commentIds: ids, selection: sel, history, attachments: atts.map(a => ({ name: a.name, base64: a.base64 })) });
     COST.lastAsk[page] = Date.now(); if (typeof r.cost === 'number') spentAdd(r.cost);
-    msgs.pop(); msgs.push({ role: 'assistant', text: r.reply, cost: r.cost, proposal: { changes: r.changes, images: r.images, state: 'review', commentIds: ids, summary: r.reply } });
+    const prop = { changes: r.changes, images: r.images, state: 'review', commentIds: ids, summary: r.reply };
+    msgs.pop(); msgs.push({ role: 'assistant', text: r.reply, cost: r.cost, proposal: prop });
+    makePreview(page, prop);
   } catch (e) { msgs.pop(); msgs.push({ role: 'assistant', text: /invalid x-api-key|authentication_error/.test(e.message) ? 'Anthropic rejected the Claude API key saved in Cloudflare. Click “Check setup” at the top to see what’s wrong with it.' : e.message, error: true }); }
   clearInterval(timer); S.busy = false; if (S.page === page) renderChat(); updateEstimate();
 }
@@ -635,7 +641,8 @@ $('prompt').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shift
 async function proposalAction(idx, a) {
   const m = chat()[idx], p = m.proposal;
   if (a === 'diff') { p.showDiff = !p.showDiff; return renderChat(); }
-  if (a === 'discard') { p.state = 'discarded'; return renderChat(); }
+  if (a === 'discard') { p.state = 'discarded'; if (S.preview && S.preview.proposal === p) reloadFrame(); return renderChat(); }
+  if (a === 'preview') { if (S.preview && S.preview.proposal === p) showPreview(); else makePreview(S.page, p); return; }
   if (a === 'publish') {
     p.state = 'publishing'; renderChat();
     try {
@@ -654,7 +661,89 @@ async function proposalAction(idx, a) {
   }
 }
 function confirmUndo() { return true; } // undo is itself reversible from GitHub history
-function reloadFrame() { $('frame').src = S.page + '?editor=' + Date.now(); }
+function reloadFrame() { S.preview = null; showLive(); }
+
+/* ---------- live preview of Claude's proposed change (before publishing) ---------- */
+const RAW = 'https://raw.githubusercontent.com/ergimema06-spec/uprizz-website/main/';
+function showLive() {
+  const f = $('frame'); f.removeAttribute('srcdoc');
+  f.src = S.page + (S.page.includes('?') ? '&' : '?') + 'editor=' + Date.now();
+  S.showingPreview = false; updatePvBar();
+}
+function showPreview() {
+  if (!S.preview || S.preview.page !== S.page) return;
+  const f = $('frame'); f.removeAttribute('src'); f.srcdoc = S.preview.html;
+  S.showingPreview = true; updatePvBar();
+}
+function updatePvBar() {
+  const has = S.preview && S.preview.page === S.page;
+  $('pvBar').classList.toggle('hidden', !has && !(S.preview && S.preview.loading));
+  if (S.preview && S.preview.loading) { $('pvBar').className = 'pv'; $('pvText').textContent = 'Building preview…'; $('pvToggle').classList.add('hidden'); return; }
+  if (!has) return;
+  $('pvToggle').classList.remove('hidden');
+  $('pvBar').className = 'pv' + (S.showingPreview ? '' : ' live');
+  $('pvText').textContent = S.showingPreview ? 'Preview · not published yet' : 'Showing the live page';
+  $('pvToggle').textContent = S.showingPreview ? 'Show live' : 'Show preview';
+}
+$('pvToggle').onclick = () => S.showingPreview ? (showLive(), S.showingPreview = false, updatePvBar()) : showPreview();
+
+let pyodideReady = null;
+function loadPyodide_() {
+  if (!pyodideReady) pyodideReady = new Promise((ok, bad) => {
+    const sc = document.createElement('script'); sc.src = 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js';
+    sc.onload = () => loadPyodide().then(ok, bad); sc.onerror = () => bad(new Error('Could not load the page builder for the preview.'));
+    document.head.appendChild(sc);
+  });
+  return pyodideReady;
+}
+async function sourceText(path, changed) {
+  if (changed[path] != null) return changed[path];
+  const r = await fetch(RAW + path + '?n=' + Date.now(), { cache: 'no-store' });
+  if (!r.ok) throw new Error('Could not load ' + path + ' for the preview.');
+  return r.text();
+}
+/** Build the page HTML as it will look once the proposal is published. */
+async function buildPreviewHtml(page, p) {
+  const changed = {}; p.changes.forEach(c => changed[c.path] = c.after);
+  const needsBuild = Object.keys(changed).some(k => k.startsWith('_build/')) || (page !== '/' && changed['index.html'] != null);
+  let html;
+  if (needsBuild) {
+    const py = await loadPyodide_();
+    const [build, projects, index] = await Promise.all(['_build/build.py', '_build/projects.json', 'index.html'].map(x => sourceText(x, changed)));
+    py.FS.mkdirTree('/site/_build');
+    py.FS.writeFile('/site/_build/build.py', build); py.FS.writeFile('/site/_build/projects.json', projects); py.FS.writeFile('/site/index.html', index);
+    await py.runPythonAsync("import runpy, os, sys\nos.chdir('/site')\nsys.argv=['build.py']\nrunpy.run_path('/site/_build/build.py', run_name='__main__')");
+    const out = page === '/' ? '/site/index.html' : '/site' + page.replace(/\/?$/, '/') + 'index.html';
+    html = py.FS.readFile(out, { encoding: 'utf8' });
+  } else if (page === '/' && changed['index.html'] != null) {
+    html = changed['index.html'];
+  } else {
+    html = await (await fetch(page + (page.includes('?') ? '&' : '?') + 'n=' + Date.now(), { cache: 'no-store' })).text();
+  }
+  // swap in changed styles/scripts and newly attached images
+  const swap = (path, url) => { for (const pre of ['/', '']) html = html.split('"' + pre + path + '"').join('"' + url + '"').split('(' + pre + path + ')').join('(' + url + ')'); };
+  for (const [path, text] of Object.entries(changed)) {
+    if (/\.(css|js)$/.test(path)) swap(path, URL.createObjectURL(new Blob([text], { type: path.endsWith('.css') ? 'text/css' : 'text/javascript' })));
+  }
+  for (const im of p.images || []) {
+    const bin = atob(im.base64), u8 = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+    swap(im.path, URL.createObjectURL(new Blob([u8], { type: 'image/jpeg' })));
+  }
+  const base = `<base href="${location.origin}${page}">`;
+  return /<head[^>]*>/i.test(html) ? html.replace(/<head[^>]*>/i, m => m + base) : base + html;
+}
+async function makePreview(page, p) {
+  if (!p.changes.length && !(p.images || []).length) return;
+  S.preview = { page, loading: true }; updatePvBar();
+  try {
+    const html = await buildPreviewHtml(page, p);
+    S.preview = { page, html, proposal: p };
+    if (S.page === page) showPreview();
+  } catch (e) {
+    S.preview = null; updatePvBar();
+    chat().push({ role: 'assistant', text: 'Couldn’t build the preview (' + e.message + '). You can still review the changes and publish — Undo is available.', error: true }); renderChat();
+  }
+}
 
 /* ---------- deploy status ---------- */
 async function waitForDeploy(sha) {
