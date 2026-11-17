@@ -47,7 +47,13 @@ a.btn{color:var(--text)}
 .pill i{width:7px;height:7px;border-radius:50%;background:var(--ok)}
 .pill.busy i{background:var(--warn);animation:blink 1s infinite}
 @keyframes blink{50%{opacity:.3}}
-#commentBtn.on{background:var(--pin);border-color:var(--pin);color:#fff}
+.modes button.on.c{background:var(--pin);color:#fff}
+.sel{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
+.chip{display:flex;align-items:center;gap:6px;max-width:100%;background:#16233a;border:1px solid #2b4a7a;color:#cfe0ff;border-radius:7px;padding:3px 4px 3px 8px;font-size:11px}
+.chip b{font-weight:600;color:#fff;flex:none}
+.chip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:170px}
+.chip button{width:18px;height:18px;border-radius:4px;color:#9ab;flex:none;line-height:18px}
+.chip button:hover{background:#24395c;color:#fff}
 
 .main{display:grid;grid-template-columns:230px 1fr 360px;min-height:0}
 .side{border-right:1px solid var(--line);background:var(--panel);overflow:auto;padding:12px 8px}
@@ -148,7 +154,11 @@ a.btn{color:var(--text)}
     </div>
     <div class="mid"><span class="pageName" id="pageName">Home</span></div>
     <span class="pill" id="statusPill"><i></i><span>Live</span></span>
-    <button class="btn" id="commentBtn" title="Click on the page to leave a comment">Comment</button>
+    <div class="seg modes" id="modes">
+      <button data-m="select" class="on" title="Select things on the page (V)"><svg viewBox="0 0 24 24"><path d="M5 3l14 7-6 2-2 6z"/></svg>Select</button>
+      <button data-m="comment" title="Click to leave a comment (C)"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></svg>Comment</button>
+      <button data-m="preview" title="Use the page normally (P)"><svg viewBox="0 0 24 24"><path d="M7 4l12 8-12 8z"/></svg>Preview</button>
+    </div>
     <a class="btn" id="openSite" target="_blank" rel="noopener" style="display:flex;align-items:center;text-decoration:none">Open page ↗</a>
     <button class="btn" id="logout">Sign out</button>
   </header>
@@ -164,7 +174,7 @@ a.btn{color:var(--text)}
       <div class="frameBox" id="frameBox">
         <div id="frameWrap"><iframe id="frame" title="Page preview"></iframe></div>
       </div>
-      <div id="hint" class="hidden">Click anything on the page to comment · Esc to stop</div>
+      <div id="hint" class="hidden"></div>
     </section>
 
     <aside class="right">
@@ -179,8 +189,9 @@ a.btn{color:var(--text)}
         </div>
         <div class="composer">
           <div class="box">
+            <div class="sel" id="selChips"></div>
             <div class="atts" id="atts"></div>
-            <textarea id="prompt" placeholder="Ask Claude…"></textarea>
+            <textarea id="prompt" placeholder="Ask Claude… (select something on the page first to point at it)"></textarea>
             <div class="bar">
               <label class="inc hidden" id="incWrap"><input type="checkbox" id="incComments" checked> <span id="incText"></span></label>
               <input type="file" id="file" accept="image/*" multiple hidden>
@@ -234,10 +245,11 @@ async function demoApi(path, body) {
   if (path === '/api/ask') {
     await wait(2500);
     const ask = (body.message || 'apply my comments').trim();
+    const picked = (body.selection || []).map(s => s.kind + (s.text ? ' “' + s.text.slice(0, 40) + '”' : '')).join(', ');
     const before = '<h1><span class="l l1"><span>Brands built</span></span> <span class="l l2"><span>as systems</span></span> <span class="l l3"><span>not decorations.</span></span></h1>';
     const after = before.replace('Brands built', 'Brands that grow');
     return {
-      reply: `Demo answer — in the real editor, Claude would now edit this page's files to do: “${ask}”${body.commentIds.length ? ` (plus your ${body.commentIds.length} comment${body.commentIds.length > 1 ? 's' : ''})` : ''}, then summarise what changed here. Below is a sample change so you can try reviewing and publishing.`,
+      reply: `Demo answer — in the real editor, Claude would now edit this page's files to do “${ask}”${body.commentIds.length ? ` (plus your ${body.commentIds.length} comment${body.commentIds.length > 1 ? 's' : ''})` : ''}${picked ? ' on the item' + ((body.selection || []).length > 1 ? 's' : '') + ' you selected: ' + picked : ''}, then summarise what changed here. Below is a sample change so you can try reviewing and publishing.`,
       changes: [{ path: 'index.html', before: 'line one\n' + before + '\nline three', after: 'line one\n' + after + '\nline three', baseSha: 'demo' }],
       images: [],
     };
@@ -314,6 +326,7 @@ function renderPages() {
   $('pages').querySelectorAll('.pg').forEach(b => b.onclick = () => selectPage(b.dataset.p));
 }
 function selectPage(path) {
+  S.sel = []; renderChips && renderChips();
   S.page = path; history.replaceState(null, '', '#' + encodeURIComponent(path));
   const p = S.pages.find(x => x.path === path) || { name: path };
   $('pageName').textContent = p.name; $('openSite').href = path;
@@ -340,43 +353,135 @@ function fit() {
 addEventListener('resize', fit);
 new ResizeObserver(fit).observe($('frameBox'));
 
-/* ---------- comments inside the page ---------- */
+/* ---------- page interaction: Select / Comment / Preview ---------- */
+S.mode = 'select'; S.sel = [];
 function frameDoc() { try { return $('frame').contentDocument; } catch (e) { return null; } }
+const INLINE = new Set(['SPAN', 'B', 'I', 'EM', 'STRONG', 'SMALL', 'SUP', 'SUB', 'U', 'BR', 'svg', 'path', 'circle', 'rect', 'g']);
+function snap(el) {
+  while (el && el.parentElement && el.tagName !== 'BODY' && INLINE.has(el.tagName) && !hasBgImage(el)) el = el.parentElement;
+  return el;
+}
+function hasBgImage(el) { try { return /url\(/.test(el.ownerDocument.defaultView.getComputedStyle(el).backgroundImage); } catch (e) { return false; } }
+function kindOf(el) {
+  const t = el.tagName;
+  if (t === 'IMG' || t === 'CANVAS' || t === 'VIDEO' || hasBgImage(el)) return 'Image';
+  if (/^H[1-6]$/.test(t)) return 'Heading';
+  if (t === 'A') return el.classList.contains('btn-dark') || el.classList.contains('btn') ? 'Button' : 'Link';
+  if (t === 'BUTTON') return 'Button';
+  if (t === 'INPUT' || t === 'TEXTAREA' || t === 'FORM') return 'Form';
+  if (['SECTION', 'HEADER', 'FOOTER', 'MAIN', 'NAV'].includes(t)) return 'Section';
+  if (['P', 'LI', 'BLOCKQUOTE', 'LABEL'].includes(t) || (el.children.length === 0 && el.textContent.trim())) return 'Text';
+  return 'Group';
+}
+function describe(el) {
+  const d = el.ownerDocument, w = d.defaultView, bg = w.getComputedStyle(el).backgroundImage.match(/url\(["']?([^"')]+)/);
+  return {
+    kind: kindOf(el), selector: selectorFor(el),
+    text: (el.innerText || el.getAttribute('alt') || el.getAttribute('aria-label') || '').trim().replace(/\s+/g, ' ').slice(0, 400),
+    html: el.outerHTML.replace(/\s+/g, ' ').slice(0, 1500),
+    image: el.tagName === 'IMG' ? el.getAttribute('src') : bg ? bg[1].replace(location.origin, '') : '',
+  };
+}
+function box(d, cls, el, label, color) {
+  const r = el.getBoundingClientRect(), w = d.defaultView, b = d.createElement('div');
+  b.className = '__box ' + cls;
+  Object.assign(b.style, { left: r.left + w.scrollX + 'px', top: r.top + w.scrollY + 'px', width: r.width + 'px', height: r.height + 'px', borderColor: color });
+  if (label) { const l = d.createElement('i'); l.textContent = label; l.style.background = color; b.appendChild(l); }
+  d.body.appendChild(b); return b;
+}
+function drawSelection() {
+  const d = frameDoc(); if (!d || !d.body) return;
+  d.querySelectorAll('.__box.s').forEach(x => x.remove());
+  S.sel.forEach((s, i) => { let el = null; try { el = d.querySelector(s.selector); } catch (e) {} if (el) box(d, 's', el, (S.sel.length > 1 ? (i + 1) + ' · ' : '') + s.kind, '#3b82f6'); });
+  renderChips();
+}
+function renderChips() {
+  $('selChips').innerHTML = S.sel.map((s, i) => `<div class="chip" title="${esc(s.text || s.image || s.selector)}"><b>${s.kind}</b><span>${esc(s.text || s.image.split('/').pop() || '')}</span>
+    <button data-up="${i}" title="Select the surrounding block">↑</button><button data-x="${i}" title="Remove">×</button></div>`).join('');
+  $('selChips').querySelectorAll('[data-x]').forEach(b => b.onclick = () => { S.sel.splice(+b.dataset.x, 1); drawSelection(); });
+  $('selChips').querySelectorAll('[data-up]').forEach(b => b.onclick = () => {
+    const d = frameDoc(), s = S.sel[+b.dataset.up]; let el = null; try { el = d.querySelector(s.selector); } catch (e) {}
+    let p = el && el.parentElement; while (p && p.tagName !== 'BODY' && p.getBoundingClientRect().width === el.getBoundingClientRect().width && p.getBoundingClientRect().height === el.getBoundingClientRect().height) p = p.parentElement;
+    if (p && p.tagName !== 'BODY') { S.sel[+b.dataset.up] = describe(p); drawSelection(); }
+  });
+}
+function setMode(m) {
+  S.mode = m;
+  $('modes').querySelectorAll('button').forEach(b => { b.classList.toggle('on', b.dataset.m === m); b.classList.toggle('c', b.dataset.m === 'comment'); });
+  const hint = { select: 'Click to select · Shift-click to add more · Esc to clear', comment: 'Click anything on the page to comment · Esc to stop' }[m];
+  $('hint').classList.toggle('hidden', !hint); $('hint').textContent = hint || '';
+  $('hint').style.background = m === 'comment' ? 'var(--pin)' : 'var(--accent)';
+  const d = frameDoc(); if (d && d.body) { d.body.classList.toggle('__editing', m !== 'preview'); d.querySelectorAll('.__box.h').forEach(x => x.remove()); }
+  if (m !== 'comment') closePop();
+}
+$('modes').querySelectorAll('button').forEach(b => b.onclick = () => setMode(b.dataset.m));
+// kept for older callers
+function setCommenting(on) { setMode(on ? 'comment' : 'select'); }
+addEventListener('keydown', e => {
+  if (/INPUT|TEXTAREA/.test(document.activeElement.tagName)) { if (e.key === 'Escape') closePop(); return; }
+  if (e.key === 'Escape') { closePop(); if (S.mode === 'select' && S.sel.length) { S.sel = []; drawSelection(); } else setMode('select'); }
+  if (e.key === 'v') setMode('select'); if (e.key === 'c') setMode('comment'); if (e.key === 'p') setMode('preview');
+});
+
 $('frame').addEventListener('load', () => {
-  const d = frameDoc(); if (!d) return;
+  const d = frameDoc(); if (!d || !d.body) return;
   const st = d.createElement('style');
-  st.textContent = `.__hl{outline:2px solid #f97316!important;outline-offset:2px;cursor:crosshair!important}
+  st.textContent = `body.__editing *{pointer-events:auto!important;cursor:default!important}
+  body.__editing .__box,body.__editing .__box *{pointer-events:none!important}
+  .__box{position:absolute;z-index:2147483645;border:1.5px solid;border-radius:2px;pointer-events:none;box-sizing:border-box}
+  .__box.h{border-width:1px}
+  .__box i{position:absolute;left:-1.5px;top:-20px;font:500 11px/18px Inter,sans-serif;font-style:normal;color:#fff;padding:0 6px;border-radius:3px 3px 3px 0;white-space:nowrap}
   .__pin{position:absolute;z-index:2147483646;width:26px;height:26px;margin:-26px 0 0 0;border-radius:50% 50% 50% 0;background:#f97316;color:#fff;
-    font:600 12px/26px Inter,sans-serif;text-align:center;box-shadow:0 4px 14px rgba(0,0,0,.35);cursor:pointer;transition:transform .15s}
+    font:600 12px/26px Inter,sans-serif;text-align:center;box-shadow:0 4px 14px rgba(0,0,0,.35);cursor:pointer!important;transition:transform .15s;pointer-events:auto!important}
   .__pin:hover{transform:scale(1.15)} .__pin.r{background:#777}`;
   d.head.appendChild(st);
-  let last = null;
-  d.addEventListener('mouseover', e => { if (!S.commenting) return; last && last.classList.remove('__hl'); last = e.target; last.classList.add('__hl'); }, true);
-  d.addEventListener('mouseout', e => { e.target.classList && e.target.classList.remove('__hl'); }, true);
+  d.body.classList.toggle('__editing', S.mode !== 'preview');
+  S.sel = S.sel.filter(s => { try { return d.querySelector(s.selector); } catch (e) { return false; } });
+  let hover = null;
+  d.addEventListener('mousemove', e => {
+    if (S.mode === 'preview') return;
+    if (e.target.classList && (e.target.classList.contains('__pin') || e.target.classList.contains('__box'))) return;
+    const el = snap(e.target); if (el === hover) return;
+    hover = el; d.querySelectorAll('.__box.h').forEach(x => x.remove());
+    if (el && el.tagName !== 'BODY' && !S.sel.some(s => { try { return d.querySelector(s.selector) === el; } catch (x) { return false; } }))
+      box(d, 'h', el, kindOf(el), S.mode === 'comment' ? '#f97316' : '#60a5fa');
+  }, true);
+  d.addEventListener('mouseleave', () => { hover = null; d.querySelectorAll('.__box.h').forEach(x => x.remove()); });
+  const block = e => { if (S.mode !== 'preview') { e.preventDefault(); e.stopPropagation(); } };
+  ['mousedown', 'mouseup', 'submit', 'dblclick'].forEach(t => d.addEventListener(t, block, true));
   d.addEventListener('click', e => {
     if (e.target.classList && e.target.classList.contains('__pin')) { e.preventDefault(); e.stopPropagation(); showTab('comments'); highlightComment(e.target.dataset.id); return; }
-    if (!S.commenting) return;
+    if (S.mode === 'preview') return;
     e.preventDefault(); e.stopPropagation();
-    const el = e.target; el.classList.remove('__hl');
-    const r = el.getBoundingClientRect();
-    S.draft = { page: S.page, selector: selectorFor(el), snippet: (el.innerText || el.getAttribute('aria-label') || el.outerHTML).trim().replace(/\s+/g, ' ').slice(0, 300),
+    const el = snap(e.target); if (!el || el.tagName === 'BODY') return;
+    d.querySelectorAll('.__box.h').forEach(x => x.remove()); hover = null;
+    if (S.mode === 'select') {
+      const info = describe(el), at = S.sel.findIndex(s => s.selector === info.selector);
+      if (e.shiftKey || e.metaKey) { at >= 0 ? S.sel.splice(at, 1) : S.sel.push(info); }
+      else S.sel = at >= 0 && S.sel.length === 1 ? [] : [info];
+      S.sel = S.sel.slice(0, 6); drawSelection(); showTab('claude');
+      return;
+    }
+    const r = el.getBoundingClientRect(), info = describe(el);
+    S.draft = { page: S.page, selector: info.selector, snippet: (info.text || info.image || info.html).slice(0, 300),
       x: r.width ? (e.clientX - r.left) / r.width : 0, y: r.height ? (e.clientY - r.top) / r.height : 0 };
     const fr = $('frame').getBoundingClientRect();
     openPop(fr.left + e.clientX * S.scale, fr.top + e.clientY * S.scale);
   }, true);
   const win = $('frame').contentWindow;
-  win.addEventListener('scroll', placePins, { passive: true });
-  win.addEventListener('resize', placePins);
-  setTimeout(placePins, 600); setTimeout(placePins, 2500);
+  const redraw = () => { placePins(); drawSelection(); };
+  win.addEventListener('resize', redraw);
+  setTimeout(redraw, 600); setTimeout(redraw, 2500);
+  renderChips();
 });
 function selectorFor(el) {
   const parts = [];
   while (el && el.nodeType === 1 && el.tagName !== 'BODY') {
-    if (el.id) { parts.unshift('#' + el.id); break; }
+    if (el.id && !el.id.startsWith('__')) { parts.unshift('#' + CSS.escape(el.id)); break; }
     let s = el.tagName.toLowerCase(), i = 1, sib = el;
     while ((sib = sib.previousElementSibling)) if (sib.tagName === el.tagName) i++;
-    const cls = [...el.classList].filter(c => !c.startsWith('__') && !['in', 'on', 'open', 'hide'].includes(c)).slice(0, 2);
-    if (cls.length) s += '.' + cls.join('.');
+    const cls = [...el.classList].filter(c => !c.startsWith('__') && !['in', 'on', 'open', 'hide', 'ready', 'loading'].includes(c)).slice(0, 2);
+    if (cls.length) s += '.' + cls.map(c => CSS.escape(c)).join('.');
     parts.unshift(s + `:nth-of-type(${i})`);
     el = el.parentElement;
   }
@@ -385,24 +490,15 @@ function selectorFor(el) {
 function placePins() {
   const d = frameDoc(); if (!d || !d.body) return;
   d.querySelectorAll('.__pin').forEach(p => p.remove());
-  const list = visibleComments();
-  list.forEach((c, i) => {
+  visibleComments().forEach((c, i) => {
     let el = null; try { el = d.querySelector(c.selector); } catch (e) {}
     if (!el) return;
-    const r = el.getBoundingClientRect(), w = d.defaultView;
-    const pin = d.createElement('div');
+    const r = el.getBoundingClientRect(), w = d.defaultView, pin = d.createElement('div');
     pin.className = '__pin' + (c.status === 'resolved' ? ' r' : ''); pin.dataset.id = c.id; pin.textContent = i + 1;
     pin.style.left = (r.left + w.scrollX + r.width * c.x) + 'px'; pin.style.top = (r.top + w.scrollY + r.height * c.y) + 'px';
     d.body.appendChild(pin);
   });
 }
-function setCommenting(on) {
-  S.commenting = on; $('commentBtn').classList.toggle('on', on); $('hint').classList.toggle('hidden', !on);
-  if (!on) { const d = frameDoc(); d && d.querySelectorAll('.__hl').forEach(x => x.classList.remove('__hl')); }
-}
-$('commentBtn').onclick = () => setCommenting(!S.commenting);
-addEventListener('keydown', e => { if (e.key === 'Escape') { setCommenting(false); closePop(); } });
-
 function openPop(x, y) {
   const p = $('pop'); p.classList.remove('hidden');
   p.style.left = Math.min(x + 12, innerWidth - 280) + 'px'; p.style.top = Math.min(y + 12, innerHeight - 160) + 'px';
@@ -509,16 +605,18 @@ async function send() {
   if (S.busy) return;
   const text = $('prompt').value.trim();
   const ids = $('incComments').checked ? S.comments.filter(c => c.page === S.page && c.status === 'open').map(c => c.id) : [];
+  const sel = S.sel.slice();
   if (!text && !ids.length) return;
   const page = S.page, msgs = chat();
   const atts = S.atts.slice(); S.atts = []; renderAtts();
-  msgs.push({ role: 'user', text: text || 'Apply my comments.', thumbs: atts.map(a => a.url), commentIds: ids });
+  msgs.push({ role: 'user', text: (sel.length ? sel.map(s => '[' + s.kind + (s.text ? ': ' + s.text.slice(0, 40) + (s.text.length > 40 ? '…' : '') : '') + ']').join(' ') + '\n' : '') + (text || 'Apply my comments.'), thumbs: atts.map(a => a.url), commentIds: ids });
   msgs.push({ role: 'assistant', working: true });
   $('prompt').value = ''; S.busy = true; renderChat();
   const t0 = Date.now(), timer = setInterval(() => { const t = document.querySelector('#chat .working .t'); if (t && S.page === page) t.textContent = Math.round((Date.now() - t0) / 1000) + 's'; }, 1000);
   try {
     const history = msgs.filter(m => !m.working && !m.error).slice(0, -1).map(m => ({ role: m.role, text: m.text }));
-    const r = await api('/api/ask', { page, message: text, commentIds: ids, history, attachments: atts.map(a => ({ name: a.name, base64: a.base64 })) });
+    S.sel = []; drawSelection();
+    const r = await api('/api/ask', { page, message: text, commentIds: ids, selection: sel, history, attachments: atts.map(a => ({ name: a.name, base64: a.base64 })) });
     msgs.pop(); msgs.push({ role: 'assistant', text: r.reply, proposal: { changes: r.changes, images: r.images, state: 'review', commentIds: ids, summary: r.reply } });
   } catch (e) { msgs.pop(); msgs.push({ role: 'assistant', text: e.message, error: true }); }
   clearInterval(timer); S.busy = false; if (S.page === page) renderChat();

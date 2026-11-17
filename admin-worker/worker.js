@@ -219,6 +219,11 @@ ${files.filter(p => !p.startsWith('images/') || p.split('/').length < 4).join('\
     intro += `\nThe owner left these comments on the page (address them):\n` + chosen.map((c, i) =>
       `${i + 1}. "${c.note}"\n   pinned on element: ${c.selector}\n   element content: ${c.snippet}`).join('\n');
   }
+  const selection = (body.selection || []).slice(0, 6);
+  if (selection.length) {
+    intro += `\nThe owner selected ${selection.length > 1 ? 'these items' : 'this item'} on the page — "this", "it" or "here" in the request refers to ${selection.length > 1 ? 'them' : 'it'}. Find where each lives in the source files before editing:\n` +
+      selection.map((x, i) => `${i + 1}. ${String(x.kind || 'Element')}${x.text ? ` with text "${String(x.text).slice(0, 400)}"` : ''}${x.image ? `, image ${String(x.image).slice(0, 200)}` : ''}\n   CSS path on the live page: ${String(x.selector || '').slice(0, 400)}\n   rendered HTML: ${String(x.html || '').slice(0, 1500)}`).join('\n');
+  }
   const userContent = [];
   attachments.forEach((a, i) => {
     userContent.push({ type: 'text', text: `Attachment ${i} (${a.name}):` });
