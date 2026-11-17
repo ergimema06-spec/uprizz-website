@@ -28,8 +28,17 @@ const PAGE_FILES = {
 };
 const MAX_TURNS = 10;
 
+/** Secrets pasted into Cloudflare often carry an invisible space, line break or quotes. Clean them before use. */
+function cleanEnv(env) {
+  const out = { ...env };
+  for (const k of ['ANTHROPIC_API_KEY', 'GITHUB_TOKEN']) if (env[k]) out[k] = String(env[k]).replace(/[^\x21-\x7E]/g, '').replace(/^["']+|["']+$/g, '');
+  for (const k of ['ADMIN_PASSWORD', 'SESSION_SECRET', 'GITHUB_REPO', 'ALLOWED_ORIGIN', 'CLAUDE_MODEL']) if (env[k]) out[k] = String(env[k]).trim().replace(/^["']+|["']+$/g, '');
+  return out;
+}
+
 export default {
-  async fetch(req, env) {
+  async fetch(req, rawEnv) {
+    const env = cleanEnv(rawEnv);
     const origin = req.headers.get('Origin') || '';
     const allowed = [env.ALLOWED_ORIGIN || 'https://uprizz.com', 'https://www.uprizz.com', 'http://127.0.0.1:8765', 'http://localhost:8765'];
     const cors = {
@@ -58,6 +67,7 @@ export default {
       if (route === '/api/estimate' && req.method === 'GET') return json(await estimate(gh, url.searchParams.get('page') || '/'));
       return json({ error: 'Not found' }, 404);
     } catch (e) {
+      if (/header value/i.test(e.message || '')) return json({ error: 'One of the keys saved in Cloudflare is malformed. Re-paste ANTHROPIC_API_KEY and GITHUB_TOKEN in the helper settings.' }, 500);
       return json({ error: e.message || String(e) }, e.status || 500);
     }
   },
@@ -76,7 +86,7 @@ function safeEqual(a, b) {
 }
 async function login({ password }, env) {
   if (!env.ADMIN_PASSWORD || !env.SESSION_SECRET) throw err(500, 'The editor password has not been set up yet.');
-  const a = await hmac(env.SESSION_SECRET, 'pw:' + (password || '')), b = await hmac(env.SESSION_SECRET, 'pw:' + env.ADMIN_PASSWORD);
+  const a = await hmac(env.SESSION_SECRET, 'pw:' + String(password || '').trim()), b = await hmac(env.SESSION_SECRET, 'pw:' + env.ADMIN_PASSWORD);
   if (!safeEqual(a, b)) { await new Promise(r => setTimeout(r, 1200)); throw err(401, 'Wrong password.'); }
   const exp = Date.now() + 12 * 3600 * 1000;
   return { token: exp + '.' + (await hmac(env.SESSION_SECRET, 'session:' + exp)) };
