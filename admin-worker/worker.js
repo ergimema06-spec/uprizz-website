@@ -60,6 +60,8 @@ export default {
 
       if (route === '/api/comments' && req.method === 'GET') return json(await loadComments(gh));
       if (route === '/api/comments' && req.method === 'POST') return json(await saveComment(gh, await req.json()));
+      if (route === '/api/history' && req.method === 'GET') return json({ history: await loadHistory(gh) });
+      if (route === '/api/history' && req.method === 'POST') return json(await historyAction(gh, await req.json()));
       if (route === '/api/ask' && req.method === 'POST') return json(await ask(gh, env, await req.json()));
       if (route === '/api/publish' && req.method === 'POST') return json(await publish(gh, await req.json()));
       if (route === '/api/undo' && req.method === 'POST') return json(await undo(gh, await req.json()));
@@ -147,6 +149,21 @@ function github(env) {
 }
 const encodePath = p => p.split('/').map(encodeURIComponent).join('/');
 const isProtected = p => PROTECTED.some(r => r.test(p)) || p.includes('..') || p.startsWith('/');
+
+/* ---------------- history (_admin/history.json, never published) ---------------- */
+const HISTORY = '_admin/history.json';
+async function loadHistory(gh) { const f = await gh.read(HISTORY); try { return f ? JSON.parse(f.text || '[]') : []; } catch (e) { return []; } }
+const historyFile = list => ({ path: HISTORY, text: JSON.stringify(list.slice(-500), null, 1) + '\n' });
+async function updateHistory(gh, id, patch, message) {
+  const list = await loadHistory(gh);
+  const next = list.map(h => h.id === id ? { ...h, ...patch, updated: new Date().toISOString() } : h);
+  await gh.commit([historyFile(next)], message || 'Editor: update history');
+  return next;
+}
+async function historyAction(gh, body) {
+  if (body.action === 'discard') return { history: await updateHistory(gh, body.id, { status: 'discarded' }) };
+  throw err(400, 'Unknown history action.');
+}
 
 /* ---------------- comments ---------------- */
 async function loadComments(gh) {
@@ -305,7 +322,16 @@ ${files.filter(p => !p.startsWith('images/') || p.split('/').length < 4).join('\
     .map(p => ({ path: p, before: original[p] ? original[p].text : '', after: work[p], baseSha: original[p] ? original[p].sha : null }));
   const images = Object.entries(binaries).map(([path, base64]) => ({ path, base64 }));
   const cost = (usage.input * 2 + usage.cacheWrite * 2.5 + usage.cacheRead * 0.2 + usage.output * 10) / 1e6; // Sonnet 5.5 list prices, USD
-  return { reply: summary || 'Done.', changes, images, usage, cost: Math.round(cost * 1000) / 1000 };
+  const entry = {
+    id: crypto.randomUUID().slice(0, 10), page, created: new Date().toISOString(),
+    request: String(body.message || '').slice(0, 2000) || '(apply comments)',
+    selection: selection.map(x => `${x.kind || 'Element'}${x.text ? ': ' + String(x.text).slice(0, 60) : ''}`),
+    comments: chosen.length, attachments: attachments.length,
+    reply: (summary || '').slice(0, 2000), files: [...changes.map(c => c.path), ...images.map(i => i.path)],
+    cost: Math.round(cost * 1000) / 1000, status: changes.length || images.length ? 'proposed' : 'answered',
+  };
+  try { const list = await loadHistory(gh); list.push(entry); await gh.commit([historyFile(list)], 'Editor: log request'); } catch (e) { /* history is best-effort */ }
+  return { reply: summary || 'Done.', changes, images, usage, cost: entry.cost, historyId: entry.id };
 }
 
 /** Copy of messages with a cache marker on the last block, so the next round reads everything before it from cache. */
@@ -348,7 +374,7 @@ async function diagnose(rawEnv, env) {
 }
 
 /* ---------------- publish / undo / status ---------------- */
-async function publish(gh, { changes = [], images = [], summary = '', resolveComments = [] }) {
+async function publish(gh, { changes = [], images = [], summary = '', resolveComments = [], historyId = null }) {
   if (!changes.length && !images.length) throw err(400, 'Nothing to publish.');
   const files = [];
   for (const c of changes) {
@@ -367,10 +393,11 @@ async function publish(gh, { changes = [], images = [], summary = '', resolveCom
   }
   const title = (summary || 'Edit from the Uprizz editor').split('\n')[0].slice(0, 70);
   const sha = await gh.commit(files, `Editor: ${title}\n\n${summary}`);
+  if (historyId) { try { await updateHistory(gh, historyId, { status: 'published', commit: sha, published: new Date().toISOString() }, 'Editor: record published change'); } catch (e) {} }
   return { commit: sha };
 }
 
-async function undo(gh, { commit }) {
+async function undo(gh, { commit, historyId = null }) {
   if (!/^[0-9a-f]{7,40}$/.test(commit || '')) throw err(400, 'Missing change id.');
   const c = await gh.api(`/commits/${commit}`);
   const parent = c.parents[0].sha;
@@ -381,6 +408,12 @@ async function undo(gh, { commit }) {
     files.push(prev ? { path: f.filename, base64: prev.content.replace(/\n/g, '') } : { path: f.filename, delete: true });
   }
   if (!files.length) throw err(400, 'Nothing to undo.');
+  let hid = historyId;
+  if (!hid) { const h = (await loadHistory(gh)).find(x => x.commit === commit); hid = h && h.id; }
+  if (hid) {
+    const list = (await loadHistory(gh)).map(h => h.id === hid ? { ...h, status: 'undone', undone: new Date().toISOString() } : h);
+    files.push(historyFile(list));
+  }
   return { commit: await gh.commit(files, `Editor: undo ${commit.slice(0, 7)}`) };
 }
 

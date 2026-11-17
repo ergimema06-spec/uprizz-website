@@ -134,6 +134,24 @@ a.btn{color:var(--text)}
 .cm.resolved{opacity:.5}
 .cm.resolved .n i{background:#555}
 .filter{display:flex;gap:6px;padding:0 12px}
+#history{flex:1;overflow:auto;padding:12px;display:flex;flex-direction:column;gap:8px}
+.hday{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin:8px 2px 0}
+.hi{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 11px}
+.hi .htop{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted)}
+.hi .htop .pg2{color:#cfcfcf;font-weight:500}
+.hi .htop .time{margin-left:auto}
+.hi .req{margin-top:6px;font-weight:500;white-space:pre-wrap}
+.hi .selx{margin-top:4px;font-size:11px;color:#9ab}
+.hi details{margin-top:6px;font-size:12px;color:#bdbdbd}
+.hi details summary{cursor:pointer;color:var(--muted);font-size:11px}
+.hi details p{margin-top:4px;white-space:pre-wrap}
+.hi .foot{display:flex;align-items:center;gap:6px;margin-top:8px;flex-wrap:wrap}
+.badge{font-size:10px;font-weight:600;letter-spacing:.03em;padding:2px 7px;border-radius:10px;text-transform:uppercase}
+.b-published{background:#0f2a17;color:#86efac}.b-proposed{background:#2a2108;color:#fcd34d}.b-discarded{background:#262626;color:#a3a3a3}
+.b-undone{background:#2a1515;color:#fca5a5}.b-answered{background:#16233a;color:#9cc2ff}
+.hcost{font-size:11px;color:var(--muted);margin-right:auto}
+.htotal{padding:10px 12px 0;font-size:12px;color:var(--muted)}
+.htotal b{color:var(--text);font-weight:500}
 </style>
 </head>
 <body>
@@ -189,6 +207,7 @@ a.btn{color:var(--text)}
       <div class="tabs">
         <button class="on" data-tab="claude">Ask Claude</button>
         <button data-tab="comments">Comments <span id="cmCount"></span></button>
+        <button data-tab="history">History</button>
       </div>
 
       <div class="pane" id="pane-claude">
@@ -209,6 +228,15 @@ a.btn{color:var(--text)}
           </div>
           <div class="costline"><span id="estimate">Estimated: —</span><span>Spent so far: <b id="spent">0¢</b> <button id="resetSpent" title="Reset the running total">reset</button></span></div>
         </div>
+      </div>
+
+      <div class="pane hidden" id="pane-history">
+        <div class="filter" style="padding-top:12px">
+          <button class="btn sm" id="hPage">This page</button><button class="btn sm" id="hAll">All pages</button>
+          <button class="btn sm" id="hRefresh" style="margin-left:auto" title="Reload history">↻</button>
+        </div>
+        <div class="htotal" id="hTotal"></div>
+        <div id="history"></div>
       </div>
 
       <div class="pane hidden" id="pane-comments">
@@ -242,6 +270,8 @@ async function demoApi(path, body) {
   const wait = ms => new Promise(r => setTimeout(r, ms));
   await wait(250);
   if (path === '/api/login') return { token: 'demo' };
+  if (path === '/api/history' && !body) { try { return { history: JSON.parse(localStorage.getItem('uprizzDemoHistory') || '[]') }; } catch (e) { return { history: [] }; } }
+  if (path === '/api/history') { let h = []; try { h = JSON.parse(localStorage.getItem('uprizzDemoHistory') || '[]'); } catch (e) {} h = h.map(x => x.id === body.id ? { ...x, status: 'discarded' } : x); try { localStorage.setItem('uprizzDemoHistory', JSON.stringify(h)); } catch (e) {} return { history: h }; }
   if (path === '/api/status') return { deploy: { status: 'completed', conclusion: 'success', sha: S.demoSha || 'demo' } };
   if (path === '/api/comments' && !body) return { comments: demoStore.get() };
   if (path === '/api/comments') {
@@ -262,14 +292,18 @@ async function demoApi(path, body) {
       changes: [{ path: 'index.html', before: 'line one\n' + before + '\nline three', after: 'line one\n' + after + '\nline three', baseSha: 'demo' }],
       images: [],
       cost: 0.05,
+      historyId: (() => { const id = Math.random().toString(36).slice(2, 10); let h = []; try { h = JSON.parse(localStorage.getItem('uprizzDemoHistory') || '[]'); } catch (e) {}
+        h.push({ id, page: body.page, created: new Date().toISOString(), request: ask, selection: (body.selection || []).map(s => s.kind + (s.text ? ': ' + s.text.slice(0, 60) : '')), reply: 'Demo answer (sample change to the homepage headline).', files: ['index.html'], cost: 0.05, status: 'proposed' });
+        try { localStorage.setItem('uprizzDemoHistory', JSON.stringify(h)); } catch (e) {} return id; })(),
     };
   }
   if (path === '/api/publish') {
     await wait(800); S.demoSha = 'demo' + Date.now();
+    try { const h = JSON.parse(localStorage.getItem('uprizzDemoHistory') || '[]').map(x => x.id === body.historyId ? { ...x, status: 'published', commit: S.demoSha } : x); localStorage.setItem('uprizzDemoHistory', JSON.stringify(h)); } catch (e) {}
     if (body.resolveComments && body.resolveComments.length) demoStore.set(demoStore.get().map(c => body.resolveComments.includes(c.id) ? { ...c, status: 'resolved' } : c));
     return { commit: S.demoSha };
   }
-  if (path === '/api/undo') { await wait(800); S.demoSha = 'demo' + Date.now(); return { commit: S.demoSha }; }
+  if (path === '/api/undo') { await wait(800); try { const h = JSON.parse(localStorage.getItem('uprizzDemoHistory') || '[]').map(x => x.id === body.historyId ? { ...x, status: 'undone' } : x); localStorage.setItem('uprizzDemoHistory', JSON.stringify(h)); } catch (e) {} S.demoSha = 'demo' + Date.now(); return { commit: S.demoSha }; }
   throw new Error('Not available in demo mode.');
 }
 const S = { token: null, pages: [], page: '/', width: 1440, comments: [], showAll: false, commenting: false, chats: {}, busy: false, atts: [], lastCommit: null };
@@ -342,6 +376,7 @@ function selectPage(path) {
   $('pageName').textContent = p.name; $('openSite').href = path;
   S.preview = null; showLive();
   renderPages(); renderChat(); renderComments(); updateInclude(); loadBase(path); updateEstimate();
+  if (!$('pane-history').classList.contains('hidden')) renderHistory();
 }
 
 /* ---------- canvas / devices ---------- */
@@ -568,6 +603,7 @@ document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => showTab
 function showTab(t) {
   document.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
   $('pane-claude').classList.toggle('hidden', t !== 'claude'); $('pane-comments').classList.toggle('hidden', t !== 'comments');
+  $('pane-history').classList.toggle('hidden', t !== 'history'); if (t === 'history') loadHistory();
 }
 
 /* ---------- Ask Claude ---------- */
@@ -629,7 +665,7 @@ async function send() {
     S.sel = []; drawSelection();
     const r = await api('/api/ask', { page, message: text, commentIds: ids, selection: sel, history, attachments: atts.map(a => ({ name: a.name, base64: a.base64 })) });
     COST.lastAsk[page] = Date.now(); if (typeof r.cost === 'number') spentAdd(r.cost);
-    const prop = { changes: r.changes, images: r.images, state: 'review', commentIds: ids, summary: r.reply };
+    const prop = { changes: r.changes, images: r.images, state: 'review', commentIds: ids, summary: r.reply, historyId: r.historyId };
     msgs.pop(); msgs.push({ role: 'assistant', text: r.reply, cost: r.cost, proposal: prop });
     makePreview(page, prop);
   } catch (e) { msgs.pop(); msgs.push({ role: 'assistant', text: /invalid x-api-key|authentication_error/.test(e.message) ? 'Anthropic rejected the Claude API key saved in Cloudflare. Click “Check setup” at the top to see what’s wrong with it.' : e.message, error: true }); }
@@ -641,12 +677,12 @@ $('prompt').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shift
 async function proposalAction(idx, a) {
   const m = chat()[idx], p = m.proposal;
   if (a === 'diff') { p.showDiff = !p.showDiff; return renderChat(); }
-  if (a === 'discard') { p.state = 'discarded'; if (S.preview && S.preview.proposal === p) reloadFrame(); return renderChat(); }
+  if (a === 'discard') { p.state = 'discarded'; if (p.historyId) api('/api/history', { action: 'discard', id: p.historyId }).catch(() => {}); if (S.preview && S.preview.proposal === p) reloadFrame(); return renderChat(); }
   if (a === 'preview') { if (S.preview && S.preview.proposal === p) showPreview(); else makePreview(S.page, p); return; }
   if (a === 'publish') {
     p.state = 'publishing'; renderChat();
     try {
-      const r = await api('/api/publish', { changes: p.changes.map(c => ({ path: c.path, after: c.after, baseSha: c.baseSha })), images: p.images, summary: p.summary, resolveComments: p.commentIds });
+      const r = await api('/api/publish', { changes: p.changes.map(c => ({ path: c.path, after: c.after, baseSha: c.baseSha })), images: p.images, summary: p.summary, resolveComments: p.commentIds, historyId: p.historyId });
       p.commit = r.commit; p.state = 'deploying'; renderChat();
       if (p.commentIds.length) loadComments();
       await waitForDeploy(r.commit); p.state = 'live'; renderChat(); reloadFrame();
@@ -655,7 +691,7 @@ async function proposalAction(idx, a) {
   if (a === 'undo') {
     if (!confirmUndo()) return;
     p.state = 'deploying'; renderChat();
-    try { const r = await api('/api/undo', { commit: p.commit }); await waitForDeploy(r.commit); p.state = 'undone'; reloadFrame(); }
+    try { const r = await api('/api/undo', { commit: p.commit, historyId: p.historyId }); await waitForDeploy(r.commit); p.state = 'undone'; reloadFrame(); }
     catch (e) { p.state = 'live'; chat().push({ role: 'assistant', text: e.message, error: true }); }
     renderChat();
   }
@@ -790,6 +826,54 @@ function renderAtts() {
   $('atts').querySelectorAll('button').forEach(b => b.onclick = () => { S.atts.splice(+b.dataset.i, 1); renderAtts(); });
   updateEstimate();
 }
+
+/* ---------- history ---------- */
+S.hAll = false; S.history = [];
+async function loadHistory() {
+  $('history').innerHTML = '<div class="working" style="padding:10px"><div class="spin"></div><span>Loading history…</span></div>';
+  try { S.history = (await api('/api/history')).history || []; } catch (e) { $('history').innerHTML = `<div class="msg err">${esc(e.message)}</div>`; return; }
+  renderHistory();
+}
+function pageName(path) { const p = S.pages.find(x => x.path === path); return p ? p.name : path; }
+function renderHistory() {
+  $('hPage').style.borderColor = S.hAll ? '' : '#555'; $('hAll').style.borderColor = S.hAll ? '#555' : '';
+  const list = S.history.filter(h => S.hAll || h.page === S.page).slice().reverse();
+  const total = list.reduce((n, h) => n + (h.cost || 0), 0), pub = list.filter(h => h.status === 'published').length;
+  $('hTotal').innerHTML = list.length ? `${list.length} request${list.length > 1 ? 's' : ''} · ${pub} published · total cost <b>${total < 1 ? (total * 100).toFixed(1).replace(/\.0$/, '') + '¢' : '$' + total.toFixed(2)}</b>` : '';
+  if (!list.length) { $('history').innerHTML = `<div class="empty"><b>No history yet</b>Requests you make to Claude ${S.hAll ? '' : 'on this page '}will appear here, with what was changed and whether it was published.</div>`; return; }
+  const label = { published: 'Published', proposed: 'Not published', discarded: 'Discarded', undone: 'Undone', answered: 'Answer only' };
+  let day = '', html = '';
+  for (const h of list) {
+    const d = new Date(h.created), dayLabel = d.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+    if (dayLabel !== day) { day = dayLabel; html += `<div class="hday">${dayLabel}</div>`; }
+    const cost = typeof h.cost === 'number' ? (h.cost < 1 ? Math.max(0.1, h.cost * 100).toFixed(1).replace(/\.0$/, '') + '¢' : '$' + h.cost.toFixed(2)) : '';
+    html += `<div class="hi" data-id="${h.id}">
+      <div class="htop"><span class="pg2">${esc(pageName(h.page))}</span><span class="badge b-${h.status}">${label[h.status] || h.status}</span><span class="time">${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span></div>
+      <div class="req">${esc(h.request)}</div>
+      ${h.selection && h.selection.length ? `<div class="selx">Selected: ${esc(h.selection.join(' · '))}</div>` : ''}
+      ${h.reply ? `<details><summary>What Claude did${h.files && h.files.length ? ' · ' + h.files.length + ' file' + (h.files.length > 1 ? 's' : '') : ''}</summary><p>${esc(h.reply)}</p></details>` : ''}
+      <div class="foot"><span class="hcost">${cost ? 'Cost: ' + cost : ''}</span>
+        ${h.page !== S.page ? `<button class="btn sm" data-h="go">Go to page</button>` : ''}
+        <button class="btn sm" data-h="again">Ask again</button>
+        ${h.status === 'published' && h.commit ? `<button class="btn sm" data-h="undo">Undo</button>` : ''}
+      </div></div>`;
+  }
+  $('history').innerHTML = html;
+  $('history').querySelectorAll('[data-h]').forEach(b => b.onclick = async () => {
+    const h = S.history.find(x => x.id === b.closest('.hi').dataset.id), act = b.dataset.h;
+    if (act === 'go') { selectPage(h.page); showTab('history'); }
+    if (act === 'again') { if (h.page !== S.page) selectPage(h.page); showTab('claude'); $('prompt').value = h.request === '(apply comments)' ? '' : h.request; $('prompt').focus(); updateEstimate(); }
+    if (act === 'undo') {
+      b.disabled = true; b.textContent = 'Undoing…';
+      try { const r = await api('/api/undo', { commit: h.commit, historyId: h.id }); b.textContent = 'Going live…'; await waitForDeploy(r.commit); if (h.page === S.page) reloadFrame(); }
+      catch (e) { alertMsg(e.message); }
+      loadHistory();
+    }
+  });
+}
+$('hPage').onclick = () => { S.hAll = false; renderHistory(); };
+$('hAll').onclick = () => { S.hAll = true; renderHistory(); };
+$('hRefresh').onclick = loadHistory;
 
 /* ---------- setup check ---------- */
 $('checkSetup').onclick = async () => {
