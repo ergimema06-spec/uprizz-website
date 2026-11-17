@@ -173,8 +173,6 @@ if(smooth){
 })();
 
 /* ---------- Preloader ---------- */
-window.addEventListener('load',()=>setTimeout(reveal,1400));
-setTimeout(reveal,4000);
 let revealed=false;
 function reveal(){
   if(revealed)return;revealed=true;
@@ -183,4 +181,11 @@ function reveal(){
   document.body.classList.remove('loading');
   setTimeout(()=>document.body.classList.add('ready'),250);
   setTimeout(()=>l.remove(),1300);
+}
+/* Pages without a loading screen start straight away; pages that still have one keep the delay */
+if(document.getElementById('loader')){
+  window.addEventListener('load',()=>setTimeout(reveal,1400));
+  setTimeout(reveal,4000);
+}else{
+  reveal();
 }
