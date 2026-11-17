@@ -17,12 +17,33 @@ The owner does not write code. They describe changes in plain language, such as 
 
 ## How to make common changes
 
+- **Hero grain effect:** the settings are in the `HERO` object near the bottom of `index.html`. That script replaces the older effect in `js/main.js`.
+- **Logo:** the Uprizz logo is built into `index.html` (the `.brandmark` style). Favicon files sit at the top level.
+
 - **Text:** find the words in `index.html`, or in the arrays in `js/main.js` for services, testimonials and FAQ, and replace them. Headings with the `reveal` class use ` <br> ` (with spaces around it) for line breaks. Keep those spaces.
 - **Replace an image:** save the new image under the same file name in `images/`, and the page picks it up. Convert it to JPEG, at most 1800px on the long side and under about 400 KB. Crop it to roughly the same shape as the old one: project cards about 1.1:1, the founder portrait about 0.7:1, the video cover about 2.2:1, blog cards about 0.85:1 and 1.6:1.
 - **Add or remove a project:** copy or delete an `<a class="proj ...">` block in the `#work` section and add or remove the matching image file.
 - **Add a service, testimonial or FAQ:** add an entry to the matching array in `js/main.js`. Service images follow the `service-N-name-a/b/c.jpg` pattern, referenced through the `IMGS` map at the top of `main.js`. Add new keys there.
 - **Contact details:** the email, phone and address appear in the nav menu, the FAQ, the footer, and the `mailto:` links. Update every place.
 - **Forms:** the newsletter and contact forms only show a "thanks" message and send nothing. If the owner wants real submissions, connect a form service such as Formspree, and tell them which free account they need to create.
+
+
+## Pages and the project generator
+
+| Page | File | Built how |
+|---|---|---|
+| Home | `index.html` | Edited by hand. The "Selected Work" grid between `<!-- WORK:START -->` and `<!-- WORK:END -->` is generated. |
+| All Works | `work/index.html` | Generated |
+| Each project | `projects/<slug>/index.html` | Generated |
+| Sitemap | `sitemap.xml` | Generated |
+
+- **Project content lives in `_build/projects.json`** (name, category, year, scope tags, timeline, intro, challenge, solution, process, conclusion, gallery list). Never edit the generated project pages directly.
+- **Project images:** `images/projects/<slug>/cover.jpg` (16:10, about 1400px wide) plus gallery files `01.jpg`, `02.jpg`… Each gallery entry in the JSON has `"shape": "landscape"` or `"portrait"`. Landscape photos alternate between full-width and paired; portraits are always paired side by side.
+- **After any change** to `projects.json`, project images, or the shared homepage parts (menu, FAQ, blog band, footer), run `python3 _build/build.py`, then commit everything it changed.
+- **Add a project:** add an object to `projects.json` (the order there is the order on the site; the first 5 appear on the homepage), add the images, then run the build.
+- **Remove a project:** delete it from the JSON, delete `projects/<slug>/` and `images/projects/<slug>/`, then run the build.
+- **Styles:** `css/pages.css` styles the Work and project pages. `js/work.js` handles the Work page filter, search and cursor blobs. `js/main.js` runs on every page and skips parts a page doesn't have.
+- **Paths:** subpages use root paths (`/css/...`, `/images/...`). Test with a local server from the site root, for example `python3 -m http.server`, not by opening files directly.
 
 ## Rules
 

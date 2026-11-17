@@ -28,19 +28,20 @@ const faqs=[
 ];
 
 /* ---------- Build ---------- */
-const lt=document.getElementById('logoTrack');
-lt.innerHTML=[...logos,...logos,...logos,...logos].map(l=>`<div class="logo-card"><img src="${IMG(l)}" alt=""></div>`).join('');
-const tt=document.getElementById('toolTrack');
-tt.innerHTML=[...tools,...tools,...tools,...tools].map(l=>`<div class="tool"><img src="${IMG(l)}" alt=""></div>`).join('');
+const $=id=>document.getElementById(id);
+const lt=$('logoTrack');
+if(lt)lt.innerHTML=[...logos,...logos,...logos,...logos].map(l=>`<div class="logo-card"><img src="${IMG(l)}" alt=""></div>`).join('');
+const tt=$('toolTrack');
+if(tt)tt.innerHTML=[...tools,...tools,...tools,...tools].map(l=>`<div class="tool"><img src="${IMG(l)}" alt=""></div>`).join('');
 
-document.getElementById('svcList').innerHTML=services.map((s,i)=>`
+if($('svcList'))$('svcList').innerHTML=services.map((s,i)=>`
   <div class="svc fade ${i%2?'alt':''}">
     <div class="num">0${i+1}</div>
     <div class="stack">${s[2].map((im,j)=>`<div class="img ${'abc'[j]}" style="background-image:url(${IMG(im,512)})"></div>`).join('')}</div>
     <div class="txt"><h3>${s[0]}</h3><p>${s[1]}</p></div>
   </div>`).join('');
 
-document.getElementById('faqList').innerHTML=faqs.map(f=>`
+if($('faqList'))$('faqList').innerHTML=faqs.map(f=>`
   <div class="q fade"><button type="button"><span>${f[0]}</span><span class="pl"></span></button><div class="a"><div><p>${f[1]}</p></div></div></div>`).join('');
 document.querySelectorAll('.q button').forEach(b=>b.onclick=()=>{
   const q=b.parentElement, open=q.classList.contains('open');
@@ -61,6 +62,7 @@ document.querySelectorAll('.reveal').forEach(h=>{
 });
 
 /* ---------- Testimonials ---------- */
+if($('people')){
 const ppl=document.getElementById('people'), qText=document.getElementById('qText'), qBar=document.getElementById('qBar');
 ppl.innerHTML=testimonials.map((t,i)=>`<div class="pp" data-i="${i}"><img src="${IMG(t[2],128)}" alt=""><div class="who2">${t[0]}<small>${t[1]}</small></div></div>`).join('');
 let qi=0, qTimer;
@@ -74,10 +76,11 @@ function showQ(i){
 }
 ppl.querySelectorAll('.pp').forEach(p=>p.onclick=()=>showQ(+p.dataset.i));
 showQ(0);
+}
 
 /* ---------- Forms ---------- */
 [['newsForm','newsToast'],['contactForm','contactToast']].forEach(([f,t])=>{
-  document.getElementById(f).addEventListener('submit',e=>{e.preventDefault();e.target.reset();const el=document.getElementById(t);el.classList.add('on');setTimeout(()=>el.classList.remove('on'),3000)});
+  if($(f))$(f).addEventListener('submit',e=>{e.preventDefault();e.target.reset();const el=document.getElementById(t);el.classList.add('on');setTimeout(()=>el.classList.remove('on'),3000)});
 });
 
 /* ---------- Nav ---------- */
@@ -129,7 +132,7 @@ if(smooth){
 
 /* ---------- Grain shader hero ---------- */
 (function(){
-  const c=document.getElementById('gl'), gl=c.getContext('webgl');
+  const c=document.getElementById('gl'); if(!c)return; const gl=c.getContext('webgl');
   if(!gl){c.style.background='linear-gradient(#f5f5f5 45%,#111 70%,#555)';return}
   const vs=`attribute vec2 p;void main(){gl_Position=vec4(p,0,1);}`;
   const fs=`precision highp float;uniform vec2 r;uniform float t;uniform vec2 m;
@@ -175,7 +178,7 @@ setTimeout(reveal,4000);
 let revealed=false;
 function reveal(){
   if(revealed)return;revealed=true;
-  const l=document.getElementById('loader');
+  const l=document.getElementById('loader'); if(!l){document.body.classList.add('ready');return}
   l.classList.add('out');
   document.body.classList.remove('loading');
   setTimeout(()=>document.body.classList.add('ready'),250);
