@@ -81,12 +81,12 @@ html,body{max-width:100%;overflow-x:hidden}
 <nav class="nav" id="nav">
   <div class="nav-top" id="navToggle"><span class="logo"><span class="brandmark" role="img" aria-label="Uprizz"></span></span><span class="grid-ic"><i></i><i></i><i></i><i></i></span></div>
   <div class="nav-body">
-    <div class="nav-links"><a href="/">Home</a><a href="/work/">Work</a><a href="/#studio">Studio</a><a href="/#blog">Blog</a><a href="#contact">Contact</a></div>
+    <div class="nav-links"><a href="/work/">Work</a><a href="/#pricing">Packages</a><a href="/#how">How it works</a><a href="/#reviews">Reviews</a><a href="/#faq">FAQ</a></div>
     <div class="nav-meta">
-      <div><h6>Socials</h6>X<br>Facebook<br>Instagram</div>
-      <div><h6>Contacts</h6>+971 50 555 0173<br><u>altastudio@gmail.com</u></div>
+      <div><h6>Socials</h6>Instagram<br>TikTok<br>LinkedIn</div>
+      <div><h6>Contacts</h6>Replies within 12h<br><u>hello@uprizz.com</u></div>
     </div>
-    <a href="#contact" class="btn-dark">Get a quote <span class="arrow">→</span></a>
+    <a href="/#pricing" class="btn-dark">Order now <span class="arrow">→</span></a>
   </div>
 </nav>
 <main>
@@ -136,12 +136,12 @@ html,body{max-width:100%;overflow-x:hidden}
 </main>
 <div class="light round-b">
   <section class="sec faq">
-    <div class="fade">
+    <div class="fade" id="faq">
       <h2>FAQ</h2>
-      <p class="sub">The questions every client asks before starting answered straight.</p>
-      <div class="more"><b>More questions?</b><span>Contact us and let's talk</span></div>
-      <a href="#contact" class="btn-dark">Get a quote <span class="arrow">→</span></a>
-      <div class="mail">Or email us → <a href="mailto:altastudio@gmail.com">altastudio@gmail.com</a></div>
+      <p class="sub">Questions? We've got you. Everything founders ask before they order, answered straight.</p>
+      <div class="more"><b>More questions?</b><span>Message us, we reply within [12h]</span></div>
+      <a href="mailto:hello@uprizz.com" class="btn-dark">Message us <span class="arrow">→</span></a>
+      <div class="mail">Or email us → <a href="mailto:hello@uprizz.com">hello@uprizz.com</a></div>
     </div>
     <div class="qs" id="faqList"></div>
   </section>
@@ -149,38 +149,39 @@ html,body{max-width:100%;overflow-x:hidden}
 <footer class="sec light round-t footer" id="contact">
   <div class="ftop">
     <div>
-      <h2 class="reveal">Stay Connected</h2>
-      <div class="start fade"><small>Start a conversation</small><br><a href="mailto:altastudio@gmail.com">altastudio@gmail.com</a></div>
+      <h2 class="reveal">Ready to launch?</h2>
+      <div class="start fade"><small>Start your 48 hours</small><br><a href="mailto:hello@uprizz.com">hello@uprizz.com</a></div>
       <div class="fcols fade">
         <div>
-          <h6>Dubai, United Arab Emirates <span style="font-size:13px">◷</span></h6>
-          <div class="addr">Studio 402<br>The Cordage Building. Alserkal Avenue,<br>Street 8. Al Quoz 1, Dubai, UAE<b>+971 50 555 0173</b></div>
+          <h6>[City, Country] <span style="font-size:13px">◷</span></h6>
+          <div class="addr">uprizz. From idea to launch<br>in 48 hours. Working with founders<br>everywhere, fully remote.<b>[WhatsApp number]</b></div>
         </div>
         <div><div class="t">Navigation</div><ul>
-          <li><a href="/"><span class="roll"><span data-t="Home">Home</span></span></a></li>
           <li><a href="/work/"><span class="roll"><span data-t="Work">Work</span></span></a></li>
-          <li><a href="/#studio"><span class="roll"><span data-t="Studio">Studio</span></span></a></li>
-          <li><a href="/#blog"><span class="roll"><span data-t="Blog">Blog</span></span></a></li>
-          <li><a href="#contact"><span class="roll"><span data-t="Contact">Contact</span></span></a></li>
+          <li><a href="/#pricing"><span class="roll"><span data-t="Packages">Packages</span></span></a></li>
+          <li><a href="/#how"><span class="roll"><span data-t="How it works">How it works</span></span></a></li>
+          <li><a href="/#reviews"><span class="roll"><span data-t="Reviews">Reviews</span></span></a></li>
+          <li><a href="/#faq"><span class="roll"><span data-t="FAQ">FAQ</span></span></a></li>
         </ul></div>
         <div><div class="t">Socials</div><ul>
-          <li><a href="#"><span class="roll"><span data-t="Facebook">Facebook</span></span></a></li>
-          <li><a href="#"><span class="roll"><span data-t="X">X</span></span></a></li>
           <li><a href="#"><span class="roll"><span data-t="Instagram">Instagram</span></span></a></li>
+          <li><a href="#"><span class="roll"><span data-t="TikTok">TikTok</span></span></a></li>
+          <li><a href="#"><span class="roll"><span data-t="LinkedIn">LinkedIn</span></span></a></li>
+          <li><a href="#"><span class="roll"><span data-t="X">X</span></span></a></li>
         </ul></div>
       </div>
     </div>
     <form class="form fade" id="contactForm">
       <span class="logo"><span class="brandmark" role="img" aria-label="Uprizz"></span></span>
-      <h3>Let us know <span>about your project</span></h3>
+      <h3>Tell us <span>about your idea</span></h3>
       <label>Name</label><div class="field"><input placeholder="Your name" required></div>
       <label>Email</label><div class="field"><input type="email" placeholder="Email address" required></div>
-      <label>Message</label><div class="field"><textarea placeholder="Start typing here"></textarea></div>
-      <button class="sub2" type="submit">Submit <i>→</i></button><span class="toast" id="contactToast" style="color:#737373">Thanks — we'll be in touch.</span>
+      <label>Message</label><div class="field"><textarea placeholder="What are you launching?"></textarea></div>
+      <button class="sub2" type="submit">Start my launch <i>→</i></button><span class="toast" id="contactToast" style="color:#737373">Got it. We'll reply within 12h.</span>
     </form>
   </div>
   <div class="wordmark" id="wordmark"><span><span class="brandmark big" role="img" aria-label="Uprizz"></span></span></div>
-  <div class="legal"><div><a href="#">Terms of service</a><a href="#">Privacy Policy</a></div><span>© 2024 Alta®. All rights reserved.</span></div>
+  <div class="legal"><div><a href="#">Terms of service</a><a href="#">Privacy policy</a><a href="#">Refund policy</a></div><span>© 2026 uprizz. Made for the ones who start.</span></div>
 </footer>
 <script src="/js/main.js"></script>
 </body>

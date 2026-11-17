@@ -51,9 +51,10 @@ footer = between('<footer class="sec light round-t footer" id="contact">', '</fo
 def absolutize(s):
     s = re.sub(r'(url\(|src=")images/', r'\1/images/', s)
     return s
-nav = nav.replace('href="#top"', 'href="/"').replace('href="#studio"', 'href="/#studio"').replace('href="#blog"', 'href="/#blog"')
+nav = re.sub(r'href="#(?!top")([\w-]+)"', r'href="/#\1"', nav.replace('href="#top"', 'href="/"'))
 blog, footer = absolutize(blog), absolutize(footer)
-footer = footer.replace('href="#top"', 'href="/"').replace('href="#studio"', 'href="/#studio"').replace('href="#blog"', 'href="/#blog"').replace('href="#work"', 'href="/work/"')
+footer = footer.replace('href="#top"', 'href="/"').replace('href="#work"', 'href="/work/"')
+footer = re.sub(r'href="#(?!contact")([\w-]+)"', r'href="/#\1"', footer)
 
 def page(title, desc, path, og_img, body, extra_js=''):
     return f'''<!DOCTYPE html>
@@ -101,9 +102,9 @@ options = '\n'.join(f'        <option value="{esc(c.lower())}">{esc(c)}</option>
 work_body = f'''<main>
 <header class="wk-hero" id="top">
   <span class="wk-blob b1"></span><span class="wk-blob b2"></span>
-  <h1><span class="l"><span>Fewer projects</span></span> <span class="l"><span>deeper work</span></span></h1>
+  <h1><span class="l"><span>Ideas that</span></span> <span class="l"><span>went live</span></span></h1>
   <div class="wk-side">
-    <div><span class="yr">2024-2026©</span><p>Every project here asked for something we hadn't done yet. That's why we took it.</p></div>
+    <div><span class="yr">Idea → launch in 48h</span><p>Every project here started as an idea in someone's head. 48 hours later, it was real.</p></div>
     <a href="#all" class="down ink" aria-label="Scroll to projects"></a>
   </div>
 </header>
@@ -128,7 +129,7 @@ work_body = f'''<main>
 work_js = '<script src="/js/work.js"></script>\n'
 os.makedirs('work', exist_ok=True)
 open('work/index.html', 'w').write(page(
-    'Work — Uprizz', 'Selected brand identity, art direction, photography, motion and content-system projects by Uprizz.',
+    'Work — Uprizz', 'Ideas Uprizz took from idea to launch in 48 hours.',
     '/work/', '/og-image.png', work_body, work_js))
 
 # ---------- 4. Project pages ----------

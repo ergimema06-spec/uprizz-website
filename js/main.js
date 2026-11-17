@@ -6,25 +6,26 @@ const IMG = (id) => IMGS[id.split('.')[0]];
 const logos=['Ry7pigBil5jVruYMA4iW3nIAw.svg','0NDss4ZK4LfbAR5If8bMXKzBg.svg','h7ZYgXS7kmmqYwWstDqmR5Fqs4.svg','lfqdH0JH6KbxPiaviG38htCdfI.svg','NQMInMV5WAnkdNeGjam5dyfpSE0.svg'];
 const tools=['NzhqG7p5HhhnZRPJpLazVJLfd8.svg','3YI5ZMJHWykL7CJilFWl7N7Y.svg','aSW506EYKNiNGbpc25JlnRhfsY.svg','HzfpuaiVNTJAuOCvFkp72nnBaQ.svg','fZPcsbH8BO0jNBtZkcAG5WM1gY.svg','QChnPUsDPccua0Pz2jqRbRjBUQ.svg'];
 const services=[
-  ['Brand identity','Strategy, naming, and visual systems — the rules a brand runs on, not just a logo',['Mebh1ArfFyG7uTRV6OES4VoQFKc.jpeg','OYVVc5sceAthIw7oZZQ9HAZvq4.jpeg','zKLyKFAL5Jv7GaGaE9YVgFPGac.jpeg']],
-  ['Art direction &amp; photography','Campaign and product photography, shot and directed in-house.',['9Ah7ernDCt093a0kQy9yocw4U9g.jpg','bK0oB63QEr9273N12rZEVH8SXkU.jpg','eowOPsvYJd4n1QXKQdfMHcZABR0.jpg']],
-  ['Motion &amp; film','Brand films, product loops, and animated assets, produced start to finish.',['zn5bWiaTikvNR8c61OTlYDbvQ.jpg','NnkJQmixEc3kfDGn80kjyc0iq4.jpg','z9dKOrXoBbVcwwOyfMAwV0O0.jpg']],
-  ['Content systems','Templates and toolkits that keep a brand consistent long after launch.',['J4UMK0WsFcWZfZhWtWjArb2Zl10.png','PfC7Q8S9Yu5aBGlDbl9tnU7EF8.png','nhbdXu5xAv3f5wyc1TA7cvduYfY.png']],
+  ['A look people remember','A unique identity that makes you stand out from day one, so customers trust you before they\'ve even bought.',['Mebh1ArfFyG7uTRV6OES4VoQFKc.jpeg','OYVVc5sceAthIw7oZZQ9HAZvq4.jpeg','zKLyKFAL5Jv7GaGaE9YVgFPGac.jpeg']],
+  ['A home online','A fast, mobile-first place where customers find you, get it, and buy. Easy for you to edit, no coding.',['J4UMK0WsFcWZfZhWtWjArb2Zl10.png','PfC7Q8S9Yu5aBGlDbl9tnU7EF8.png','nhbdXu5xAv3f5wyc1TA7cvduYfY.png']],
+  ['Ready for socials','Everything you need to post, share and grow on Instagram and TikTok, from day one.',['9Ah7ernDCt093a0kQy9yocw4U9g.jpg','bK0oB63QEr9273N12rZEVH8SXkU.jpg','eowOPsvYJd4n1QXKQdfMHcZABR0.jpg']],
+  ['Launch support &amp; 100% yours','We help you go live, not just hand over files. Full ownership, no strings, no royalties.',['zn5bWiaTikvNR8c61OTlYDbvQ.jpg','NnkJQmixEc3kfDGn80kjyc0iq4.jpg','z9dKOrXoBbVcwwOyfMAwV0O0.jpg']],
 ];
+/* Placeholder reviews: replace each quote, name and business with a real customer review before going live. */
 const testimonials=[
-  ['Lena Park','Founder, Klar Skincare','lOcHUc8Ig2dmZet90b9C7t1BbNE.jpg','They handed us a system, not a PDF. Eight months on, our feed still looks like the brand book and my marketing hire runs it without ever calling them.'],
-  ['Daniel Mercer','Brand Director, Meridian','oRGUNfHF453RwHfaanWKt8LYh4.jpg','The same person who drew our wordmark art-directed the shoot. I didn\'t understand why that mattered until I saw how much usually gets lost between those two rooms.'],
-  ['Aisha Rahman','CMO, Atlas Ventures','Y0hljgPS8SwdA7sNxU2dDV0Qc.jpg','They presented one direction, not three. I pushed back on that in week one. By week six I understood it — every decision since has been faster because of it.'],
-  ['Tomas Eriksen','Head of Marketing, Fold','WFnux8W63LzFPOyKQoFeziDYo.jpg','Three days in their studio replaced what used to take a month across three vendors. The packaging shots from that session are still carrying our feed.'],
-  ['Mara Silva','Founder, Basalt Outerwear','4uKZFKAgzKrLp8abxifrfuvOmwI.jpg','The brand film paid for itself at the trade show — buyers kept asking who made it. Calm process, early delivery, zero drama.'],
+  ['[Name], 22','Founder of [Business] · Launch','lOcHUc8Ig2dmZet90b9C7t1BbNE.jpg','I had the idea for two years. uprizz made it real in a weekend.'],
+  ['[Name], 25','Founder of [Business] · Starter','oRGUNfHF453RwHfaanWKt8LYh4.jpg','Agencies quoted me €4k. This cost less than my phone and looks better than my competitors.'],
+  ['[Name], 19','Founder of [Business] · Empire','Y0hljgPS8SwdA7sNxU2dDV0Qc.jpg','My first customer said, \'Wow, you guys look established.\' We\'d launched that morning.'],
 ];
 const faqs=[
-  ['How does the retainer actually work?','You get a monthly block of studio hours and a request queue. We work one request at a time (two on Pro), send progress every 48 hours, and revise until it\'s right. No scoping calls for every task — you brief, we build.'],
-  ['What\'s the difference between Standard and Pro?','Hours and speed. Pro carries 70 hours to Standard\'s 45, runs two requests in parallel, gets priority scheduling, and includes a monthly shoot day in-studio.'],
-  ['Can I pause my retainer?','Anytime. Unused days roll over, and you resume exactly where you left off. There\'s no minimum term.'],
-  ['What if the first month isn\'t working out?','If the first week doesn\'t deliver, the rest of the month is refunded. We\'d rather earn the retainer than hold you to it.'],
-  ['Do you work with remote clients?','Yes — most projects run fully remote with weekly review calls. Shoots happen in our studio or on location; product can be shipped to us.'],
-  ['What do we receive at handover?','Everything: source files, brand guidelines, edited imagery, editable templates, and a walkthrough call with your team. The goal is that you don\'t need us for daily work.'],
+  ['Is 48 hours real?','Yep. The clock starts once we have your brief. Most orders land in 40–48 hours. Need it faster? Add 24h express at checkout.'],
+  ['Why is it so cheap compared to agencies?','No fancy office, no 6-week discovery phase, no account managers. A focused process and a team that does this every day. You pay for design, not overhead.'],
+  ['I only have an idea, no business yet. Is that okay?','That\'s exactly who we\'re for. Tell us the idea and who it\'s for. We\'ll help with the rest, including the name if you need one.'],
+  ['What if I don\'t like the designs?','We revise until you do. If we still can\'t get it right, you get your money back.'],
+  ['Do I own everything?','100%. Every design, every file, all yours, forever. No royalties, no monthly fees.'],
+  ['Which platform do you build on?','[Framer / Webflow / Shopify / WordPress]. We set it up so you can edit text and photos yourself, no coding.'],
+  ['Do you use AI?','Real designers work on every project. We use tools to move fast, never to replace taste.'],
+  ['Do you include a domain and hosting?','We\'ll connect your domain and set up hosting. Add the domain + hosting setup add-on if you want us to handle the purchase too.'],
 ];
 
 /* ---------- Build ---------- */
@@ -88,6 +89,10 @@ const nav=document.getElementById('nav');
 document.getElementById('navToggle').onclick=()=>nav.classList.toggle('open');
 nav.querySelectorAll('.nav-body a').forEach(a=>a.addEventListener('click',()=>nav.classList.remove('open')));
 document.addEventListener('click',e=>{if(!nav.contains(e.target))nav.classList.remove('open')});
+
+/* ---------- Sticky launch offer (shows after the hero) ---------- */
+const offer=document.getElementById('offer');
+if(offer){const tick=()=>offer.classList.toggle('on',scrollY>innerHeight*.6);addEventListener('scroll',tick,{passive:true});tick();}
 
 /* ---------- Scroll reveal ---------- */
 const io=new IntersectionObserver(es=>es.forEach(e=>{
