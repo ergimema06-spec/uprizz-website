@@ -55,6 +55,7 @@ export default {
       if (route === '/api/publish' && req.method === 'POST') return json(await publish(gh, await req.json()));
       if (route === '/api/undo' && req.method === 'POST') return json(await undo(gh, await req.json()));
       if (route === '/api/status' && req.method === 'GET') return json(await status(gh));
+      if (route === '/api/estimate' && req.method === 'GET') return json(await estimate(gh, url.searchParams.get('page') || '/'));
       return json({ error: 'Not found' }, 404);
     } catch (e) {
       return json({ error: e.message || String(e) }, e.status || 500);
@@ -304,6 +305,15 @@ function withMovingCache(messages) {
   blocks[blocks.length - 1].cache_control = { type: 'ephemeral' };
   last.content = blocks;
   return out;
+}
+
+/** How much Claude reads up front for a page (in tokens), so the editor can estimate costs before sending. */
+async function estimate(gh, page) {
+  const kind = pageKind(page);
+  const [guide, files, ...starter] = await Promise.all([gh.read('CLAUDE.md'), gh.tree(), ...PAGE_FILES[kind].map(p => gh.read(p))]);
+  const chars = 2600 /* instructions */ + (guide ? guide.text.length : 0) + files.join('\n').length
+    + starter.reduce((n, f) => n + (f ? f.text.length : 0), 0);
+  return { baseTokens: Math.round(chars / 3.4) + 900 /* tool definitions */, model: 'claude-sonnet-5-5', prices: { input: 2, cacheWrite: 2.5, cacheRead: 0.2, output: 10 } };
 }
 
 /* ---------------- publish / undo / status ---------------- */
