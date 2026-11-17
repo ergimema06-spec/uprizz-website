@@ -64,6 +64,7 @@ export default {
       if (route === '/api/publish' && req.method === 'POST') return json(await publish(gh, await req.json()));
       if (route === '/api/undo' && req.method === 'POST') return json(await undo(gh, await req.json()));
       if (route === '/api/status' && req.method === 'GET') return json(await status(gh));
+      if (route === '/api/diagnose' && req.method === 'GET') return json(await diagnose(rawEnv, env));
       if (route === '/api/estimate' && req.method === 'GET') return json(await estimate(gh, url.searchParams.get('page') || '/'));
       return json({ error: 'Not found' }, 404);
     } catch (e) {
@@ -324,6 +325,26 @@ async function estimate(gh, page) {
   const chars = 2600 /* instructions */ + (guide ? guide.text.length : 0) + files.join('\n').length
     + starter.reduce((n, f) => n + (f ? f.text.length : 0), 0);
   return { baseTokens: Math.round(chars / 3.4) + 900 /* tool definitions */, model: 'claude-sonnet-5-5', prices: { input: 2, cacheWrite: 2.5, cacheRead: 0.2, output: 10 } };
+}
+
+/** Setup check: describes the saved keys' shape (never the keys themselves) and asks each service if they're accepted. */
+async function diagnose(rawEnv, env) {
+  const shape = (raw, clean, prefix) => raw ? {
+    saved: true, length: clean.length, startsRight: clean.startsWith(prefix),
+    hadInvisibleOrExtraCharacters: String(raw).length !== clean.length,
+    looksLike: clean.slice(0, Math.min(prefix.length + 3, clean.length)) + '…' + (clean.length > 12 ? clean.slice(-2) : ''),
+  } : { saved: false };
+  const a = shape(rawEnv.ANTHROPIC_API_KEY, env.ANTHROPIC_API_KEY || '', 'sk-ant-');
+  const g = shape(rawEnv.GITHUB_TOKEN, env.GITHUB_TOKEN || '', 'github_pat_');
+  if (a.saved) {
+    const r = await fetch('https://api.anthropic.com/v1/models', { headers: { 'x-api-key': env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' } });
+    a.anthropicSays = r.status === 200 ? 'accepted' : `rejected (${r.status}): ${(await r.text()).slice(0, 160)}`;
+  }
+  if (g.saved) {
+    const r = await fetch(`https://api.github.com/repos/${env.GITHUB_REPO || 'ergimema06-spec/uprizz-website'}`, { headers: { Authorization: `Bearer ${env.GITHUB_TOKEN}`, 'User-Agent': 'uprizz-editor', Accept: 'application/vnd.github+json' } });
+    g.githubSays = r.status === 200 ? 'accepted' : `rejected (${r.status})`;
+  }
+  return { anthropicKey: a, githubToken: g, passwordSaved: !!env.ADMIN_PASSWORD, sessionSecretSaved: !!env.SESSION_SECRET };
 }
 
 /* ---------------- publish / undo / status ---------------- */
