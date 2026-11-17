@@ -202,7 +202,7 @@ a.btn{color:var(--text)}
               <button class="iconbtn send" id="send" title="Send"><svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
             </div>
           </div>
-          <div class="costline"><span id="estimate">Estimated cost: —</span><span>Spent so far: <b id="spent">$0.00</b> <button id="resetSpent" title="Reset the running total">reset</button></span></div>
+          <div class="costline"><span id="estimate">Estimated: —</span><span>Spent so far: <b id="spent">0¢</b> <button id="resetSpent" title="Reset the running total">reset</button></span></div>
         </div>
       </div>
 
@@ -583,7 +583,7 @@ function renderChat() {
     div.textContent = m.text;
     if (m.thumbs && m.thumbs.length) { const t = document.createElement('div'); t.className = 'thumbs'; t.innerHTML = m.thumbs.map(s => `<img src="${s}">`).join(''); div.appendChild(t); }
     if (m.proposal) div.appendChild(renderProposal(m, i));
-    if (typeof m.cost === 'number') { const c = document.createElement('div'); c.style.cssText = 'margin-top:8px;font-size:11px;color:var(--muted)'; c.textContent = `Cost of this request: about $${m.cost < 0.01 ? '0.01' : m.cost.toFixed(2)}`; div.appendChild(c); }
+    if (typeof m.cost === 'number') { const c = document.createElement('div'); c.style.cssText = 'margin-top:8px;font-size:11px;color:var(--muted)'; c.textContent = `Actual cost: ${m.cost >= 1 ? '$' + m.cost.toFixed(2) : Math.max(0.1, m.cost * 100).toFixed(1).replace(/\.0$/, '') + '¢'}`; div.appendChild(c); }
     box.appendChild(div);
   });
   box.scrollTop = box.scrollHeight;
@@ -706,7 +706,7 @@ const COST = { base: {}, lastAsk: {}, prices: { input: 2, cacheWrite: 2.5, cache
 const tok = s => Math.ceil(String(s || '').length / 3.6);
 function spentGet() { try { return JSON.parse(localStorage.getItem('uprizzSpent') || '{"total":0,"since":null}'); } catch (e) { return { total: 0, since: null }; } }
 function spentAdd(v) { const s = spentGet(); s.total += v || 0; s.since = s.since || new Date().toISOString(); try { localStorage.setItem('uprizzSpent', JSON.stringify(s)); } catch (e) {} showSpent(); }
-function showSpent() { const s = spentGet(); $('spent').textContent = '$' + s.total.toFixed(2); $('spent').title = s.since ? 'Since ' + new Date(s.since).toLocaleDateString() + ' (this browser)' : ''; }
+function showSpent() { const s = spentGet(); $('spent').textContent = s.total < 1 ? (s.total * 100).toFixed(1).replace(/\.0$/, '') + '¢' : '$' + s.total.toFixed(2); $('spent').title = s.since ? 'Since ' + new Date(s.since).toLocaleDateString() + ' (this browser)' : ''; }
 $('resetSpent').onclick = () => { try { localStorage.removeItem('uprizzSpent'); } catch (e) {} showSpent(); };
 async function loadBase(page) {
   if (COST.base[page] || DEMO) return;
@@ -715,23 +715,30 @@ async function loadBase(page) {
 function updateEstimate() {
   const el = $('estimate'), text = $('prompt').value.trim();
   const ids = $('incComments').checked ? S.comments.filter(c => c.page === S.page && c.status === 'open') : [];
-  if (!text && !ids.length) { el.textContent = 'Estimated cost: type a request'; return; }
+  if (!text && !ids.length) { el.textContent = 'Estimated: type a request'; return; }
   const B = COST.base[S.page] || (DEMO ? 30000 : 0);
-  if (!B) { el.textContent = 'Estimated cost: calculating…'; loadBase(S.page); return; }
+  if (!B) { el.textContent = 'Estimated: calculating…'; loadBase(S.page); return; }
   const P = COST.prices, warm = Date.now() - (COST.lastAsk[S.page] || 0) < 4.5 * 60 * 1000;
   const hist = chat().filter(m => !m.working && !m.error).reduce((n, m) => n + tok(m.text), 0);
   const M = tok(text) + 250 + S.sel.reduce((n, s) => n + tok(s.html) + tok(s.text), 0)
     + ids.reduce((n, c) => n + tok(c.note) + tok(c.snippet) + tok(c.selector), 0) + S.atts.length * 1600 + hist;
-  const big = text.length > 220 || S.atts.length || S.sel.length > 2 || ids.length > 2;
-  const run = (extraRounds, out) => {
-    let usd = B * (warm ? P.cacheRead : P.cacheWrite) + M * P.cacheWrite;          // first round
-    for (let r = 1; r <= extraRounds; r++) usd += (B + M) * P.cacheRead + 1200 * r * P.cacheWrite; // later rounds re-read from cache
+  // How big is the change? Decides how many rounds Claude needs and how much it writes.
+  const t = text.toLowerCase();
+  let size = 'small';
+  if (/\b(add|new|create|section|layout|redesign|restructure|move|reorder|several|multiple|gallery|photos?|images?)\b/.test(t) || text.length > 160 || S.sel.length > 2 || ids.length > 2 || S.atts.length) size = 'medium';
+  if (/\b(entire|whole|all|every|everything|rewrite|rebuild|replace all|complete|full page|from scratch)\b/.test(t) || text.length > 600 || S.atts.length > 2 || S.sel.length > 4 || ids.length > 5) size = 'large';
+  const plan = { small: { rounds: [1, 2], out: [300, 1500] }, medium: { rounds: [2, 4], out: [1500, 5000] }, large: { rounds: [4, 8], out: [6000, 16000] } }[size];
+  const read = B * (warm ? P.cacheRead : P.cacheWrite) / 1e6;                       // first look at the page
+  const work = (rounds, out) => {
+    let usd = M * P.cacheWrite;
+    for (let r = 1; r <= rounds; r++) usd += (B + M) * P.cacheRead + (out / rounds + 600) * r * P.cacheWrite; // later rounds re-read from cache
     return (usd + out * P.output) / 1e6;
   };
-  const lo = run(1, big ? 900 : 350), hi = run(big ? 4 : 2, big ? 4000 : 1500);
-  const f = v => v < 0.01 ? '<$0.01' : '$' + v.toFixed(2);
-  el.textContent = `Estimated cost: about ${f(lo)}–${f(hi)}${warm ? ' (files cached)' : ''}`;
-  el.title = 'An estimate: the real cost depends on how much Claude needs to read and write. The actual cost appears under each answer.';
+  const lo = work(plan.rounds[0], plan.out[0]), hi = work(plan.rounds[1], plan.out[1]);
+  const c = v => { const x = v * 100; return x < 1 ? '<1¢' : (x < 10 ? x.toFixed(1).replace(/\.0$/, '') : Math.round(x)) + '¢'; };
+  const total = v => v >= 1 ? '$' + v.toFixed(2) : c(v);
+  el.innerHTML = `Estimated: <b>${total(read + lo)}–${total(read + hi)}</b> <span style="opacity:.75">· ${{ small: 'small change', medium: 'medium change', large: 'large change' }[size]}</span>`;
+  el.title = `Reading the page: ~${c(read)}${warm ? ' (cached, you asked recently)' : ''}\nYour change: ~${c(lo)}–${c(hi)}\nThis is an estimate — the actual cost appears under Claude's answer.`;
 }
 ['input', 'change'].forEach(ev => $('prompt').addEventListener(ev, updateEstimate));
 $('incComments').addEventListener('change', updateEstimate);
