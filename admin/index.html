@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Uprizz Editor</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0e0e0e;--panel:#161616;--panel2:#1d1d1d;--line:#262626;--text:#ececec;--muted:#8a8a8a;--accent:#3b82f6;--accent2:#2563eb;--ok:#22c55e;--warn:#f59e0b;--bad:#ef4444;--pin:#f97316}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:var(--bg);color:var(--text);font:13px/1.45 Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow:hidden}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+.btn{height:32px;padding:0 14px;border-radius:8px;background:var(--panel2);border:1px solid var(--line);transition:background .15s}
+.btn:hover{background:#262626}
+a.btn{color:var(--text)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:hover{background:var(--accent2)}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.sm{height:26px;padding:0 10px;font-size:12px;border-radius:6px}
+.hidden{display:none!important}
+
+/* login */
+#login{position:fixed;inset:0;display:grid;place-items:center;background:radial-gradient(60% 50% at 50% 40%,#1a1a1a,#0b0b0b)}
+#login form{width:320px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:28px;display:flex;flex-direction:column;gap:14px}
+#login h1{font-size:18px;font-weight:600;letter-spacing:-.01em}
+#login p{color:var(--muted);font-size:12px;margin-top:-8px}
+#login input{height:38px;border-radius:8px;border:1px solid var(--line);background:#0f0f0f;padding:0 12px;outline:none}
+#login input:focus{border-color:var(--accent)}
+#loginErr{color:var(--bad);font-size:12px;min-height:16px}
+
+/* app layout */
+#app{display:grid;grid-template-rows:52px 1fr;height:100vh}
+.top{display:flex;align-items:center;gap:10px;padding:0 12px;border-bottom:1px solid var(--line);background:#111}
+.brand{display:flex;align-items:center;gap:8px;font-weight:600;padding-right:10px}
+.brand img{width:22px;height:22px;border-radius:5px}
+.seg{display:flex;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:2px}
+.seg button{height:26px;padding:0 10px;border-radius:6px;color:var(--muted);display:flex;align-items:center;gap:6px}
+.seg button.on{background:#2a2a2a;color:var(--text)}
+.seg svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.7}
+.top .mid{flex:1;display:flex;justify-content:center;align-items:center;gap:10px}
+.pageName{font-weight:500}
+.pill{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);padding:0 8px}
+.pill i{width:7px;height:7px;border-radius:50%;background:var(--ok)}
+.pill.busy i{background:var(--warn);animation:blink 1s infinite}
+@keyframes blink{50%{opacity:.3}}
+#commentBtn.on{background:var(--pin);border-color:var(--pin);color:#fff}
+
+.main{display:grid;grid-template-columns:230px 1fr 360px;min-height:0}
+.side{border-right:1px solid var(--line);background:var(--panel);overflow:auto;padding:12px 8px}
+.side h6{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;padding:8px 10px 6px}
+.pg{display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:7px 10px;border-radius:7px;color:#cfcfcf}
+.pg:hover{background:var(--panel2)}
+.pg.on{background:#262626;color:#fff}
+.pg svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.7;flex:none;opacity:.8}
+.pg .cnt{margin-left:auto;background:var(--pin);color:#fff;font-size:10px;border-radius:9px;padding:0 6px;line-height:16px}
+
+.canvas{position:relative;overflow:hidden;background:#141414;display:flex;flex-direction:column;align-items:center}
+.frameHead{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:12px;padding:14px 0 8px}
+.frameHead b{color:var(--text);font-weight:500}
+.frameBox{position:relative;flex:1;width:100%;overflow:hidden}
+#frameWrap{position:absolute;left:50%;top:0;transform-origin:top center;background:#fff;border-radius:6px;overflow:hidden;box-shadow:0 0 0 1px #2a2a2a}
+#frame{border:0;display:block;width:100%;height:100%;background:#fff}
+#hint{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);background:var(--pin);color:#fff;padding:6px 12px;border-radius:20px;font-size:12px;box-shadow:0 6px 20px rgba(0,0,0,.4)}
+
+/* popover for new comment */
+#pop{position:fixed;z-index:20;width:260px;background:var(--panel);border:1px solid #333;border-radius:10px;padding:10px;box-shadow:0 12px 40px rgba(0,0,0,.5)}
+#pop textarea{width:100%;height:80px;resize:none;background:#0f0f0f;border:1px solid var(--line);border-radius:7px;padding:8px;outline:none}
+#pop .row{display:flex;justify-content:flex-end;gap:6px;margin-top:8px}
+
+/* right panel */
+.right{border-left:1px solid var(--line);background:var(--panel);display:flex;flex-direction:column;min-height:0}
+.tabs{display:flex;gap:4px;padding:10px 10px 0}
+.tabs button{padding:7px 12px;border-radius:7px;color:var(--muted)}
+.tabs button.on{background:var(--panel2);color:var(--text)}
+.pane{flex:1;min-height:0;display:flex;flex-direction:column}
+#chat{flex:1;overflow:auto;padding:14px 12px;display:flex;flex-direction:column;gap:12px}
+.empty{color:var(--muted);text-align:center;margin:auto;max-width:240px;font-size:12px}
+.empty b{display:block;color:var(--text);font-size:14px;margin-bottom:6px}
+.msg{max-width:100%;padding:9px 11px;border-radius:10px;white-space:pre-wrap;word-wrap:break-word}
+.msg.user{align-self:flex-end;background:#26324a;max-width:88%}
+.msg.ai{background:var(--panel2);border:1px solid var(--line)}
+.msg.err{background:#2a1515;border:1px solid #4a1f1f;color:#fca5a5}
+.msg .thumbs{display:flex;gap:4px;margin-top:6px}
+.msg .thumbs img{width:44px;height:44px;object-fit:cover;border-radius:5px}
+.changes{margin-top:10px;border-top:1px solid var(--line);padding-top:8px;white-space:normal}
+.changes .f{display:flex;justify-content:space-between;font-size:12px;color:#cfcfcf;padding:2px 0}
+.changes .f span:last-child{color:var(--muted)}
+.changes .acts{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.diff{margin-top:8px;max-height:260px;overflow:auto;background:#0d0d0d;border:1px solid var(--line);border-radius:7px;font:11px/1.5 ui-monospace,Menlo,monospace;white-space:pre}
+.diff div{padding:0 8px}
+.diff .a{background:#0f2a17;color:#86efac}.diff .r{background:#2a1010;color:#fca5a5}.diff .h{color:#6b7280;background:#151515}
+.working{display:flex;align-items:center;gap:8px;color:var(--muted)}
+.spin{width:14px;height:14px;border:2px solid #333;border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.composer{border-top:1px solid var(--line);padding:10px}
+.composer .box{background:#0f0f0f;border:1px solid var(--line);border-radius:12px;padding:8px}
+.composer .box:focus-within{border-color:#3a3a3a}
+.composer textarea{width:100%;min-height:58px;max-height:160px;resize:none;border:0;outline:none;background:none}
+.composer .bar{display:flex;align-items:center;gap:6px;margin-top:4px}
+.composer label.inc{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);margin-right:auto;cursor:pointer}
+.iconbtn{width:28px;height:28px;border-radius:7px;display:grid;place-items:center;color:var(--muted)}
+.iconbtn:hover{background:#222;color:var(--text)}
+.iconbtn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8}
+.send{background:var(--accent);color:#fff}.send:hover{background:var(--accent2)}
+.atts{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+.atts span{position:relative}
+.atts img{width:46px;height:46px;object-fit:cover;border-radius:6px;display:block}
+.atts button{position:absolute;top:-6px;right:-6px;width:18px;height:18px;border-radius:50%;background:#333;font-size:11px;line-height:18px}
+
+#comments{flex:1;overflow:auto;padding:12px;display:flex;flex-direction:column;gap:8px}
+.cm{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px;cursor:pointer}
+.cm:hover{border-color:#3a3a3a}
+.cm .n{display:flex;align-items:center;gap:8px;font-weight:500}
+.cm .n i{width:20px;height:20px;border-radius:50% 50% 50% 0;background:var(--pin);color:#fff;font-style:normal;font-size:11px;display:grid;place-items:center;flex:none}
+.cm .s{color:var(--muted);font-size:11px;margin:4px 0 0 28px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cm .a{display:flex;gap:6px;margin:8px 0 0 28px}
+.cm.resolved{opacity:.5}
+.cm.resolved .n i{background:#555}
+.filter{display:flex;gap:6px;padding:0 12px}
+</style>
+</head>
+<body>
+
+<!-- ============ Login ============ -->
+<div id="login">
+  <form id="loginForm">
+    <h1>Uprizz Editor</h1>
+    <p>Sign in to edit uprizz.com</p>
+    <input id="pw" type="password" placeholder="Password" autocomplete="current-password" required autofocus>
+    <button class="btn primary" type="submit" id="loginBtn">Sign in</button>
+    <div id="loginErr"></div>
+  </form>
+</div>
+
+<!-- ============ Editor ============ -->
+<div id="app" class="hidden">
+  <header class="top">
+    <div class="brand"><img src="/apple-touch-icon.png" alt="">Editor</div>
+    <div class="seg" id="device">
+      <button data-w="1440" class="on" title="Desktop"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8 20h8M12 16v4"/></svg></button>
+      <button data-w="834" title="Tablet"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M11 18h2"/></svg></button>
+      <button data-w="390" title="Phone"><svg viewBox="0 0 24 24"><rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 18h2"/></svg></button>
+    </div>
+    <div class="mid"><span class="pageName" id="pageName">Home</span></div>
+    <span class="pill" id="statusPill"><i></i><span>Live</span></span>
+    <button class="btn" id="commentBtn" title="Click on the page to leave a comment">Comment</button>
+    <a class="btn" id="openSite" target="_blank" rel="noopener" style="display:flex;align-items:center;text-decoration:none">Open page ↗</a>
+    <button class="btn" id="logout">Sign out</button>
+  </header>
+
+  <div class="main">
+    <aside class="side">
+      <h6>Pages</h6>
+      <div id="pages"></div>
+    </aside>
+
+    <section class="canvas">
+      <div class="frameHead"><b id="devName">Desktop</b><span id="devW">1440</span></div>
+      <div class="frameBox" id="frameBox">
+        <div id="frameWrap"><iframe id="frame" title="Page preview"></iframe></div>
+      </div>
+      <div id="hint" class="hidden">Click anything on the page to comment · Esc to stop</div>
+    </section>
+
+    <aside class="right">
+      <div class="tabs">
+        <button class="on" data-tab="claude">Ask Claude</button>
+        <button data-tab="comments">Comments <span id="cmCount"></span></button>
+      </div>
+
+      <div class="pane" id="pane-claude">
+        <div id="chat">
+          <div class="empty" id="chatEmpty"><b>Ask Claude</b>Describe a change to this page, like “Change the headline to …” or “Make the FAQ title smaller”. You'll review every change before it goes live.</div>
+        </div>
+        <div class="composer">
+          <div class="box">
+            <div class="atts" id="atts"></div>
+            <textarea id="prompt" placeholder="Ask Claude…"></textarea>
+            <div class="bar">
+              <label class="inc hidden" id="incWrap"><input type="checkbox" id="incComments" checked> <span id="incText"></span></label>
+              <input type="file" id="file" accept="image/*" multiple hidden>
+              <button class="iconbtn" id="attach" title="Attach images"><svg viewBox="0 0 24 24"><path d="M21 12.5l-8.6 8.6a5 5 0 0 1-7.1-7.1l9-9a3.5 3.5 0 0 1 5 5l-9 9a2 2 0 0 1-2.9-2.9l8.3-8.3"/></svg></button>
+              <button class="iconbtn send" id="send" title="Send"><svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pane hidden" id="pane-comments">
+        <div class="filter" style="padding-top:12px">
+          <button class="btn sm" id="fOpen">Open</button><button class="btn sm" id="fAll">All</button>
+          <button class="btn sm primary" id="fix" style="margin-left:auto">Fix with Claude</button>
+        </div>
+        <div id="comments"></div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<div id="pop" class="hidden">
+  <textarea id="popText" placeholder="What should change here?"></textarea>
+  <div class="row"><button class="btn sm" id="popCancel">Cancel</button><button class="btn sm primary" id="popSave">Comment</button></div>
+</div>
+
+<script>
+/* ===== Settings: the address of the private helper (Cloudflare Worker) ===== */
+const API = 'https://uprizz-editor.REPLACE-ME.workers.dev';
+
+const $ = id => document.getElementById(id);
+const S = { token: null, pages: [], page: '/', width: 1440, comments: [], showAll: false, commenting: false, chats: {}, busy: false, atts: [], lastCommit: null };
+try { S.token = sessionStorage.getItem('uprizzToken'); } catch (e) {}
+
+async function api(path, body) {
+  const r = await fetch(API + path, {
+    method: body ? 'POST' : 'GET',
+    headers: { 'Content-Type': 'application/json', ...(S.token ? { Authorization: 'Bearer ' + S.token } : {}) },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  const data = await r.json().catch(() => ({ error: 'The editor helper could not be reached.' }));
+  if (r.status === 401 && path !== '/api/login') { signOut(); throw new Error('Your session ended. Please sign in again.'); }
+  if (!r.ok) throw new Error(data.error || 'Something went wrong.');
+  return data;
+}
+
+/* ---------- login ---------- */
+$('loginForm').onsubmit = async e => {
+  e.preventDefault(); $('loginErr').textContent = ''; $('loginBtn').disabled = true;
+  try {
+    const { token } = await api('/api/login', { password: $('pw').value });
+    S.token = token; try { sessionStorage.setItem('uprizzToken', token); } catch (e) {}
+    start();
+  } catch (err) { $('loginErr').textContent = err.message; }
+  $('loginBtn').disabled = false;
+};
+function signOut() { S.token = null; try { sessionStorage.removeItem('uprizzToken'); } catch (e) {} $('app').classList.add('hidden'); $('login').classList.remove('hidden'); }
+$('logout').onclick = signOut;
+
+async function start() {
+  $('login').classList.add('hidden'); $('app').classList.remove('hidden');
+  await loadPages();
+  const initial = (location.hash.slice(1) && S.pages.find(p => p.path === decodeURIComponent(location.hash.slice(1)))) ? decodeURIComponent(location.hash.slice(1)) : '/';
+  selectPage(initial);
+  loadComments(); pollStatus();
+}
+
+/* ---------- pages ---------- */
+async function loadPages() {
+  let paths = ['/', '/work/'];
+  try {
+    const xml = await (await fetch('/sitemap.xml', { cache: 'no-store' })).text();
+    paths = [...xml.matchAll(/<loc>https?:\/\/[^/]+(\/[^<]*)<\/loc>/g)].map(m => m[1]);
+  } catch (e) {}
+  const nice = s => s.split('-').map(w => /^\d+$/.test(w) ? w : w[0].toUpperCase() + w.slice(1)).join(' ');
+  S.pages = paths.map(p => ({ path: p, name: p === '/' ? 'Home' : p === '/work/' ? 'Work' : nice(p.split('/').filter(Boolean).pop()), group: p.startsWith('/projects/') ? 'Projects' : 'Pages' }));
+  renderPages();
+}
+const ICON = {
+  home: '<svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9H4z"/></svg>',
+  page: '<svg viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/></svg>',
+};
+function renderPages() {
+  const open = c => c.status === 'open';
+  let html = '', group = '';
+  for (const p of S.pages) {
+    if (p.group !== group) { group = p.group; if (group === 'Projects') html += '<h6 style="margin-top:10px">Projects</h6>'; }
+    const n = S.comments.filter(c => c.page === p.path && open(c)).length;
+    html += `<button class="pg ${p.path === S.page ? 'on' : ''}" data-p="${p.path}">${p.path === '/' ? ICON.home : ICON.page}<span>${p.name}</span>${n ? `<span class="cnt">${n}</span>` : ''}</button>`;
+  }
+  $('pages').innerHTML = html;
+  $('pages').querySelectorAll('.pg').forEach(b => b.onclick = () => selectPage(b.dataset.p));
+}
+function selectPage(path) {
+  S.page = path; history.replaceState(null, '', '#' + encodeURIComponent(path));
+  const p = S.pages.find(x => x.path === path) || { name: path };
+  $('pageName').textContent = p.name; $('openSite').href = path;
+  $('frame').src = path + (path.includes('?') ? '&' : '?') + 'editor=' + Date.now();
+  renderPages(); renderChat(); renderComments(); updateInclude();
+}
+
+/* ---------- canvas / devices ---------- */
+const DEV = { 1440: 'Desktop', 834: 'Tablet', 390: 'Phone' };
+$('device').querySelectorAll('button').forEach(b => b.onclick = () => {
+  $('device').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+  S.width = +b.dataset.w; fit();
+});
+function fit() {
+  const box = $('frameBox').getBoundingClientRect(), wrap = $('frameWrap');
+  if (box.width < 50) return;
+  const scale = Math.min(1, (box.width - 48) / S.width);
+  wrap.style.width = S.width + 'px';
+  wrap.style.height = (box.height - 12) / scale + 'px';
+  wrap.style.transform = `translateX(-50%) scale(${scale})`;
+  S.scale = scale;
+  $('devName').textContent = DEV[S.width]; $('devW').textContent = S.width;
+}
+addEventListener('resize', fit);
+new ResizeObserver(fit).observe($('frameBox'));
+
+/* ---------- comments inside the page ---------- */
+function frameDoc() { try { return $('frame').contentDocument; } catch (e) { return null; } }
+$('frame').addEventListener('load', () => {
+  const d = frameDoc(); if (!d) return;
+  const st = d.createElement('style');
+  st.textContent = `.__hl{outline:2px solid #f97316!important;outline-offset:2px;cursor:crosshair!important}
+  .__pin{position:absolute;z-index:2147483646;width:26px;height:26px;margin:-26px 0 0 0;border-radius:50% 50% 50% 0;background:#f97316;color:#fff;
+    font:600 12px/26px Inter,sans-serif;text-align:center;box-shadow:0 4px 14px rgba(0,0,0,.35);cursor:pointer;transition:transform .15s}
+  .__pin:hover{transform:scale(1.15)} .__pin.r{background:#777}`;
+  d.head.appendChild(st);
+  let last = null;
+  d.addEventListener('mouseover', e => { if (!S.commenting) return; last && last.classList.remove('__hl'); last = e.target; last.classList.add('__hl'); }, true);
+  d.addEventListener('mouseout', e => { e.target.classList && e.target.classList.remove('__hl'); }, true);
+  d.addEventListener('click', e => {
+    if (e.target.classList && e.target.classList.contains('__pin')) { e.preventDefault(); e.stopPropagation(); showTab('comments'); highlightComment(e.target.dataset.id); return; }
+    if (!S.commenting) return;
+    e.preventDefault(); e.stopPropagation();
+    const el = e.target; el.classList.remove('__hl');
+    const r = el.getBoundingClientRect();
+    S.draft = { page: S.page, selector: selectorFor(el), snippet: (el.innerText || el.getAttribute('aria-label') || el.outerHTML).trim().replace(/\s+/g, ' ').slice(0, 300),
+      x: r.width ? (e.clientX - r.left) / r.width : 0, y: r.height ? (e.clientY - r.top) / r.height : 0 };
+    const fr = $('frame').getBoundingClientRect();
+    openPop(fr.left + e.clientX * S.scale, fr.top + e.clientY * S.scale);
+  }, true);
+  const win = $('frame').contentWindow;
+  win.addEventListener('scroll', placePins, { passive: true });
+  win.addEventListener('resize', placePins);
+  setTimeout(placePins, 600); setTimeout(placePins, 2500);
+});
+function selectorFor(el) {
+  const parts = [];
+  while (el && el.nodeType === 1 && el.tagName !== 'BODY') {
+    if (el.id) { parts.unshift('#' + el.id); break; }
+    let s = el.tagName.toLowerCase(), i = 1, sib = el;
+    while ((sib = sib.previousElementSibling)) if (sib.tagName === el.tagName) i++;
+    const cls = [...el.classList].filter(c => !c.startsWith('__') && !['in', 'on', 'open', 'hide'].includes(c)).slice(0, 2);
+    if (cls.length) s += '.' + cls.join('.');
+    parts.unshift(s + `:nth-of-type(${i})`);
+    el = el.parentElement;
+  }
+  return parts.join(' > ');
+}
+function placePins() {
+  const d = frameDoc(); if (!d || !d.body) return;
+  d.querySelectorAll('.__pin').forEach(p => p.remove());
+  const list = visibleComments();
+  list.forEach((c, i) => {
+    let el = null; try { el = d.querySelector(c.selector); } catch (e) {}
+    if (!el) return;
+    const r = el.getBoundingClientRect(), w = d.defaultView;
+    const pin = d.createElement('div');
+    pin.className = '__pin' + (c.status === 'resolved' ? ' r' : ''); pin.dataset.id = c.id; pin.textContent = i + 1;
+    pin.style.left = (r.left + w.scrollX + r.width * c.x) + 'px'; pin.style.top = (r.top + w.scrollY + r.height * c.y) + 'px';
+    d.body.appendChild(pin);
+  });
+}
+function setCommenting(on) {
+  S.commenting = on; $('commentBtn').classList.toggle('on', on); $('hint').classList.toggle('hidden', !on);
+  if (!on) { const d = frameDoc(); d && d.querySelectorAll('.__hl').forEach(x => x.classList.remove('__hl')); }
+}
+$('commentBtn').onclick = () => setCommenting(!S.commenting);
+addEventListener('keydown', e => { if (e.key === 'Escape') { setCommenting(false); closePop(); } });
+
+function openPop(x, y) {
+  const p = $('pop'); p.classList.remove('hidden');
+  p.style.left = Math.min(x + 12, innerWidth - 280) + 'px'; p.style.top = Math.min(y + 12, innerHeight - 160) + 'px';
+  $('popText').value = ''; $('popText').focus();
+}
+function closePop() { $('pop').classList.add('hidden'); S.draft = null; }
+$('popCancel').onclick = closePop;
+$('popSave').onclick = async () => {
+  const note = $('popText').value.trim(); if (!note || !S.draft) return;
+  $('popSave').disabled = true;
+  try { const r = await api('/api/comments', { action: 'add', comment: { ...S.draft, note } }); S.comments = r.comments; closePop(); refreshComments(); }
+  catch (e) { alertMsg(e.message); }
+  $('popSave').disabled = false;
+};
+$('popText').addEventListener('keydown', e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) $('popSave').click(); });
+
+/* ---------- comments panel ---------- */
+async function loadComments() { try { S.comments = (await api('/api/comments')).comments; refreshComments(); } catch (e) { alertMsg(e.message); } }
+function visibleComments() { return S.comments.filter(c => c.page === S.page && (S.showAll || c.status === 'open')); }
+function refreshComments() { renderComments(); renderPages(); placePins(); updateInclude(); }
+function renderComments() {
+  const list = visibleComments(), open = S.comments.filter(c => c.page === S.page && c.status === 'open').length;
+  $('cmCount').textContent = open ? `(${open})` : '';
+  $('fOpen').classList.toggle('primary', false); $('fOpen').style.borderColor = S.showAll ? '' : '#555'; $('fAll').style.borderColor = S.showAll ? '#555' : '';
+  $('comments').innerHTML = list.length ? list.map((c, i) => `
+    <div class="cm ${c.status}" data-id="${c.id}">
+      <div class="n"><i>${i + 1}</i><span>${esc(c.note)}</span></div>
+      <div class="s">on “${esc(c.snippet)}”</div>
+      <div class="a">
+        <button class="btn sm" data-act="${c.status === 'open' ? 'resolve' : 'reopen'}">${c.status === 'open' ? 'Resolve' : 'Reopen'}</button>
+        <button class="btn sm" data-act="delete">Delete</button>
+      </div>
+    </div>`).join('') : `<div class="empty"><b>No comments${S.showAll ? '' : ' open'}</b>Click “Comment” at the top, then click anything on the page to leave a note.</div>`;
+  $('comments').querySelectorAll('.cm').forEach(el => {
+    el.onclick = e => {
+      const act = e.target.dataset && e.target.dataset.act, id = el.dataset.id;
+      if (act === 'delete') return commentAction({ action: 'delete', id });
+      if (act) return commentAction({ action: 'update', id, patch: { status: act === 'resolve' ? 'resolved' : 'open' } });
+      scrollToComment(id);
+    };
+  });
+  $('fix').disabled = !open;
+}
+async function commentAction(body) { try { S.comments = (await api('/api/comments', body)).comments; refreshComments(); } catch (e) { alertMsg(e.message); } }
+function scrollToComment(id) {
+  const d = frameDoc(), c = S.comments.find(x => x.id === id); if (!d || !c) return;
+  let el = null; try { el = d.querySelector(c.selector); } catch (e) {}
+  if (el) { const w = d.defaultView; w.scrollTo(0, el.getBoundingClientRect().top + w.scrollY - 120); setTimeout(placePins, 400); }
+}
+function highlightComment(id) { const el = $('comments').querySelector(`[data-id="${id}"]`); if (el) { el.scrollIntoView({ block: 'center' }); el.style.borderColor = '#f97316'; setTimeout(() => el.style.borderColor = '', 1500); } }
+$('fOpen').onclick = () => { S.showAll = false; refreshComments(); };
+$('fAll').onclick = () => { S.showAll = true; refreshComments(); };
+$('fix').onclick = () => { showTab('claude'); $('incComments').checked = true; if (!$('prompt').value.trim()) $('prompt').value = 'Please make the changes described in my comments.'; send(); };
+
+/* ---------- tabs ---------- */
+document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => showTab(b.dataset.tab));
+function showTab(t) {
+  document.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
+  $('pane-claude').classList.toggle('hidden', t !== 'claude'); $('pane-comments').classList.toggle('hidden', t !== 'comments');
+}
+
+/* ---------- Ask Claude ---------- */
+function chat() { return S.chats[S.page] || (S.chats[S.page] = []); }
+function updateInclude() {
+  const n = S.comments.filter(c => c.page === S.page && c.status === 'open').length;
+  $('incWrap').classList.toggle('hidden', !n); $('incText').textContent = `Include ${n} open comment${n > 1 ? 's' : ''}`;
+}
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+function renderChat() {
+  const box = $('chat'), msgs = chat();
+  box.innerHTML = '';
+  if (!msgs.length) { box.innerHTML = `<div class="empty" id="chatEmpty"><b>Ask Claude</b>Describe a change to this page, like “Change the headline to …” or “Make the FAQ title smaller”. You'll review every change before it goes live.</div>`; return; }
+  msgs.forEach((m, i) => {
+    const div = document.createElement('div');
+    div.className = 'msg ' + (m.role === 'user' ? 'user' : m.error ? 'err' : 'ai');
+    if (m.working) { div.innerHTML = `<div class="working"><div class="spin"></div><span>Claude is working on it… <span class="t">0s</span></span></div>`; box.appendChild(div); return; }
+    div.textContent = m.text;
+    if (m.thumbs && m.thumbs.length) { const t = document.createElement('div'); t.className = 'thumbs'; t.innerHTML = m.thumbs.map(s => `<img src="${s}">`).join(''); div.appendChild(t); }
+    if (m.proposal) div.appendChild(renderProposal(m, i));
+    box.appendChild(div);
+  });
+  box.scrollTop = box.scrollHeight;
+}
+function renderProposal(m, idx) {
+  const p = m.proposal, wrap = document.createElement('div'); wrap.className = 'changes';
+  const files = p.changes.map(c => { const d = lineDiff(c.before, c.after); return `<div class="f"><span>${esc(label(c.path))}</span><span>+${d.add} −${d.del}</span></div>`; }).join('')
+    + p.images.map(im => `<div class="f"><span>${esc(label(im.path))}</span><span>new image</span></div>`).join('');
+  if (!p.changes.length && !p.images.length) { wrap.innerHTML = '<div class="f"><span>No changes were made.</span></div>'; return wrap; }
+  let acts = '';
+  if (p.state === 'review') acts = `<button class="btn sm primary" data-a="publish">Publish</button><button class="btn sm" data-a="diff">Show changes</button><button class="btn sm" data-a="discard">Discard</button>`;
+  if (p.state === 'publishing') acts = `<div class="working"><div class="spin"></div><span>Publishing…</span></div>`;
+  if (p.state === 'deploying') acts = `<div class="working"><div class="spin"></div><span>Saved. Going live (about a minute)…</span></div>`;
+  if (p.state === 'live') acts = `<span style="color:var(--ok)">✓ Live on uprizz.com</span><button class="btn sm" data-a="undo">Undo</button>`;
+  if (p.state === 'discarded') acts = `<span style="color:var(--muted)">Discarded</span>`;
+  if (p.state === 'undone') acts = `<span style="color:var(--muted)">Undone — the previous version is back</span>`;
+  wrap.innerHTML = `<div style="color:var(--muted);font-size:11px;margin-bottom:4px">Files changed</div>${files}<div class="acts">${acts}</div>${p.showDiff ? diffHtml(p) : ''}`;
+  wrap.querySelectorAll('[data-a]').forEach(b => b.onclick = () => proposalAction(idx, b.dataset.a));
+  return wrap;
+}
+const label = p => ({ 'index.html': 'Homepage (index.html)', 'js/main.js': 'Homepage lists (main.js)', 'css/style.css': 'Site styles', 'css/pages.css': 'Work/project styles',
+  '_build/projects.json': 'Project content', '_build/build.py': 'Page templates' }[p] || p);
+
+async function send() {
+  if (S.busy) return;
+  const text = $('prompt').value.trim();
+  const ids = $('incComments').checked ? S.comments.filter(c => c.page === S.page && c.status === 'open').map(c => c.id) : [];
+  if (!text && !ids.length) return;
+  const page = S.page, msgs = chat();
+  const atts = S.atts.slice(); S.atts = []; renderAtts();
+  msgs.push({ role: 'user', text: text || 'Apply my comments.', thumbs: atts.map(a => a.url), commentIds: ids });
+  msgs.push({ role: 'assistant', working: true });
+  $('prompt').value = ''; S.busy = true; renderChat();
+  const t0 = Date.now(), timer = setInterval(() => { const t = document.querySelector('#chat .working .t'); if (t && S.page === page) t.textContent = Math.round((Date.now() - t0) / 1000) + 's'; }, 1000);
+  try {
+    const history = msgs.filter(m => !m.working && !m.error).slice(0, -1).map(m => ({ role: m.role, text: m.text }));
+    const r = await api('/api/ask', { page, message: text, commentIds: ids, history, attachments: atts.map(a => ({ name: a.name, base64: a.base64 })) });
+    msgs.pop(); msgs.push({ role: 'assistant', text: r.reply, proposal: { changes: r.changes, images: r.images, state: 'review', commentIds: ids, summary: r.reply } });
+  } catch (e) { msgs.pop(); msgs.push({ role: 'assistant', text: e.message, error: true }); }
+  clearInterval(timer); S.busy = false; if (S.page === page) renderChat();
+}
+$('send').onclick = send;
+$('prompt').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } });
+
+async function proposalAction(idx, a) {
+  const m = chat()[idx], p = m.proposal;
+  if (a === 'diff') { p.showDiff = !p.showDiff; return renderChat(); }
+  if (a === 'discard') { p.state = 'discarded'; return renderChat(); }
+  if (a === 'publish') {
+    p.state = 'publishing'; renderChat();
+    try {
+      const r = await api('/api/publish', { changes: p.changes.map(c => ({ path: c.path, after: c.after, baseSha: c.baseSha })), images: p.images, summary: p.summary, resolveComments: p.commentIds });
+      p.commit = r.commit; p.state = 'deploying'; renderChat();
+      if (p.commentIds.length) loadComments();
+      await waitForDeploy(r.commit); p.state = 'live'; renderChat(); reloadFrame();
+    } catch (e) { p.state = 'review'; chat().push({ role: 'assistant', text: e.message, error: true }); renderChat(); }
+  }
+  if (a === 'undo') {
+    if (!confirmUndo()) return;
+    p.state = 'deploying'; renderChat();
+    try { const r = await api('/api/undo', { commit: p.commit }); await waitForDeploy(r.commit); p.state = 'undone'; reloadFrame(); }
+    catch (e) { p.state = 'live'; chat().push({ role: 'assistant', text: e.message, error: true }); }
+    renderChat();
+  }
+}
+function confirmUndo() { return true; } // undo is itself reversible from GitHub history
+function reloadFrame() { $('frame').src = S.page + '?editor=' + Date.now(); }
+
+/* ---------- deploy status ---------- */
+async function waitForDeploy(sha) {
+  for (let i = 0; i < 60; i++) {
+    await new Promise(r => setTimeout(r, i ? 6000 : 4000));
+    try {
+      const s = await api('/api/status'); setPill(s);
+      if (s.deploy && s.deploy.sha === sha && s.deploy.status === 'completed') {
+        if (s.deploy.conclusion !== 'success') throw new Error('The site build failed. The previous version is still live — ask Claude to check it, or undo.');
+        await new Promise(r => setTimeout(r, 4000)); return;
+      }
+    } catch (e) { if (/build failed/.test(e.message)) throw e; }
+  }
+}
+function setPill(s) {
+  const busy = s && s.deploy && s.deploy.status !== 'completed';
+  $('statusPill').classList.toggle('busy', !!busy); $('statusPill').querySelector('span').textContent = busy ? 'Publishing…' : 'Live';
+}
+async function pollStatus() { try { setPill(await api('/api/status')); } catch (e) {} setTimeout(pollStatus, 30000); }
+
+/* ---------- image attachments (resized in the browser) ---------- */
+$('attach').onclick = () => $('file').click();
+$('file').onchange = async () => {
+  for (const f of [...$('file').files].slice(0, 6 - S.atts.length)) {
+    try { S.atts.push(await toJpeg(f)); } catch (e) { alertMsg('Could not read ' + f.name); }
+  }
+  $('file').value = ''; renderAtts();
+};
+function toJpeg(file) {
+  return new Promise((ok, bad) => {
+    const img = new Image(), url = URL.createObjectURL(file);
+    img.onload = () => {
+      const k = Math.min(1, 1800 / Math.max(img.width, img.height)), c = document.createElement('canvas');
+      c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+      const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height); g.drawImage(img, 0, 0, c.width, c.height);
+      const data = c.toDataURL('image/jpeg', 0.85); URL.revokeObjectURL(url);
+      ok({ name: file.name.replace(/\.[^.]+$/, '') + '.jpg', base64: data.split(',')[1], url: data });
+    };
+    img.onerror = bad; img.src = url;
+  });
+}
+function renderAtts() {
+  $('atts').innerHTML = S.atts.map((a, i) => `<span><img src="${a.url}" title="${esc(a.name)}"><button data-i="${i}">×</button></span>`).join('');
+  $('atts').querySelectorAll('button').forEach(b => b.onclick = () => { S.atts.splice(+b.dataset.i, 1); renderAtts(); });
+}
+
+/* ---------- diff ---------- */
+function lineDiff(a, b) {
+  const A = a.split('\n'), B = b.split('\n');
+  let s = 0; while (s < A.length && s < B.length && A[s] === B[s]) s++;
+  let ea = A.length, eb = B.length; while (ea > s && eb > s && A[ea - 1] === B[eb - 1]) { ea--; eb--; }
+  const a2 = A.slice(s, ea), b2 = B.slice(s, eb), n = a2.length, m = b2.length;
+  const ops = [];
+  if (n * m > 4e6) { a2.forEach(l => ops.push(['r', l])); b2.forEach(l => ops.push(['a', l])); }
+  else {
+    const L = Array.from({ length: n + 1 }, () => new Uint16Array(m + 1));
+    for (let i = n - 1; i >= 0; i--) for (let j = m - 1; j >= 0; j--) L[i][j] = a2[i] === b2[j] ? L[i + 1][j + 1] + 1 : Math.max(L[i + 1][j], L[i][j + 1]);
+    let i = 0, j = 0;
+    while (i < n && j < m) { if (a2[i] === b2[j]) { ops.push(['=', a2[i]]); i++; j++; } else if (L[i + 1][j] >= L[i][j + 1]) ops.push(['r', a2[i++]]); else ops.push(['a', b2[j++]]); }
+    while (i < n) ops.push(['r', a2[i++]]); while (j < m) ops.push(['a', b2[j++]]);
+  }
+  return { start: s, ops, add: ops.filter(o => o[0] === 'a').length, del: ops.filter(o => o[0] === 'r').length };
+}
+function diffHtml(p) {
+  return p.changes.map(c => {
+    const d = lineDiff(c.before, c.after);
+    const lines = d.ops.filter((o, i, arr) => o[0] !== '=' || (arr[i - 1] && arr[i - 1][0] !== '=') || (arr[i + 1] && arr[i + 1][0] !== '='));
+    const clip = s => esc(s.length > 220 ? s.slice(0, 220) + '…' : s);
+    return `<div class="diff"><div class="h">${esc(c.path)} · from line ${d.start + 1}</div>${lines.map(o => `<div class="${o[0] === 'a' ? 'a' : o[0] === 'r' ? 'r' : ''}">${o[0] === 'a' ? '+ ' : o[0] === 'r' ? '− ' : '  '}${clip(o[1])}</div>`).join('')}</div>`;
+  }).join('');
+}
+
+function alertMsg(t) { chat().push({ role: 'assistant', text: t, error: true }); renderChat(); }
+
+if (S.token) start();
+</script>
+</body>
+</html>

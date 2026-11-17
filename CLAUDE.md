@@ -1,6 +1,6 @@
 # Uprizz website: editing guide for Claude
 
-This is the uprizz.com website. It's a static site with no build step and no framework. It's hosted on GitHub Pages from the `main` branch, so every commit to `main` goes live at https://uprizz.com within a few minutes.
+This is the uprizz.com website. It's a static site with no framework. It's hosted on GitHub Pages; a GitHub Actions workflow runs the page generator and deploys on every commit to `main`, so changes go live at https://uprizz.com within a few minutes.
 
 The owner does not write code. They describe changes in plain language, such as "change the hero headline", "swap the second project photo for this one" or "add a fifth service". Make the change, keep the design intact, commit with a clear message, push to `main`, and confirm in one or two sentences what changed.
 
@@ -44,6 +44,15 @@ The owner does not write code. They describe changes in plain language, such as 
 - **Remove a project:** delete it from the JSON, delete `projects/<slug>/` and `images/projects/<slug>/`, then run the build.
 - **Styles:** `css/pages.css` styles the Work and project pages. `js/work.js` handles the Work page filter, search and cursor blobs. `js/main.js` runs on every page and skips parts a page doesn't have.
 - **Paths:** subpages use root paths (`/css/...`, `/images/...`). Test with a local server from the site root, for example `python3 -m http.server`, not by opening files directly.
+
+
+## Admin editor (uprizz.com/admin/)
+
+A password-protected editor where the owner picks a page, pins comments on it, and asks Claude for changes, then reviews and publishes them.
+- `admin/index.html`: the editor page, plain HTML/JS. The `API` constant near the top of its script is the address of the helper.
+- `admin-worker/worker.js`: a Cloudflare Worker (the "helper") that holds the secrets (ADMIN_PASSWORD, SESSION_SECRET, ANTHROPIC_API_KEY, GITHUB_TOKEN). It checks the password, stores comments in `_admin/comments.json`, runs Claude with read/edit tools over the repo, and commits published edits to `main`. To update it, paste the file into the Worker's code editor in the Cloudflare dashboard and deploy.
+- `.github/workflows/deploy.yml`: every push to `main` runs `_build/build.py` and deploys the site with GitHub Actions (Pages source must be "GitHub Actions"). `_admin/`, `_build/`, `admin-worker/` and this guide are not published. Commits that only touch `_admin/` don't trigger a deploy.
+- Protected from the editor: CNAME, .github/, admin/, admin-worker/, _admin/.
 
 ## Rules
 
