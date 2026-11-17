@@ -1,0 +1,18 @@
+[
+ {
+  "id": "923517ee-8",
+  "page": "/",
+  "created": "2026-11-17T15:44:09.708Z",
+  "request": "I want to remove the loading screen animation, and start with the home page right away",
+  "selection": [],
+  "comments": 0,
+  "attachments": 0,
+  "reply": "I removed the loading screen from the home page. The page now opens straight onto the hero, and the headline animates in right away instead of after the 1.4-second wait. The Work and project pages keep their own loading screens, since you only asked about the home page. The change goes live a few minutes after you publish. You may need a hard refresh (Ctrl/Cmd+Shift+R) to see it.",
+  "files": [
+   "index.html",
+   "js/main.js"
+  ],
+  "cost": 0.124,
+  "status": "proposed"
+ }
+]
