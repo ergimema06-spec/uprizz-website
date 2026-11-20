@@ -35,11 +35,13 @@ const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const lt=$('logoTrack');
 if(lt)lt.innerHTML=[...logos,...logos,...logos,...logos].map(l=>`<div class="logo-card"><img src="${IMG(l)}" alt=""></div>`).join('');
 
+const plus='<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10.6211 9.5H14.6289V10.5H10.6211V14.6289H9.62109V10.5H5.37109V9.5H9.62109V5.37109H10.6211V9.5Z"/></svg>';
 if($('faqList'))$('faqList').innerHTML=faqs.map((f,i)=>`
-  <div class="q fade"><button type="button" aria-expanded="false" aria-controls="faq-a${i}" id="faq-q${i}"><span>${f[0]}</span><span class="pl" aria-hidden="true"></span></button><div class="a" id="faq-a${i}" role="region" aria-labelledby="faq-q${i}"><div><p>${f[1]}</p></div></div></div>`).join('');
-document.querySelectorAll('.q button').forEach(b=>b.onclick=()=>{
+  <div class="q fade"><button type="button" class="q-top" aria-expanded="false" aria-controls="faq-a${i}" id="faq-q${i}"><span class="q-title">${f[0]}</span><span class="q-icon">${plus}</span></button><div class="q-bottom" id="faq-a${i}" role="region" aria-labelledby="faq-q${i}"><div class="q-wrap"><div class="q-content"><p>${f[1]}</p></div></div></div></div>`).join('');
+/* One answer open at a time */
+document.querySelectorAll('.q-top').forEach(b=>b.onclick=()=>{
   const q=b.parentElement, open=q.classList.contains('open');
-  document.querySelectorAll('.q.open').forEach(o=>{o.classList.remove('open');o.querySelector('button').setAttribute('aria-expanded','false')});
+  document.querySelectorAll('.q.open').forEach(o=>{o.classList.remove('open');o.querySelector('.q-top').setAttribute('aria-expanded','false')});
   if(!open){q.classList.add('open');b.setAttribute('aria-expanded','true')}
 });
 

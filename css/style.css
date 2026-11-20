@@ -268,24 +268,28 @@ canvas.wave{position:absolute;inset:0;width:100%;height:100%;display:block}
 .t-name{position:absolute;left:50%;bottom:24px;transform:translateX(-50%);background:rgba(25,25,25,.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:#fff;border-radius:80px;padding:12px 20px;font-size:12px;line-height:1;white-space:nowrap}
 .t-slide:not(.on) .t-card{cursor:pointer}
 
-/* ---------- FAQ ---------- */
-.faq{padding-top:150px;padding-bottom:40px}
-.faq .shead{margin-bottom:66px}
-.faq .h2{max-width:360px}
-.qs{max-width:554px;margin:0 auto}
-.q{border-bottom:1px solid var(--line)}
-.q button{width:100%;display:flex;justify-content:space-between;align-items:center;gap:20px;padding:28px 14px;text-align:left;font-size:17px;line-height:20px;color:var(--ink)}
-.q .pl{width:46px;height:46px;border-radius:50%;position:relative;flex:none;background:var(--plus);transition:background .35s,transform .5s var(--ease)}
-.q .pl:before,.q .pl:after{content:"";position:absolute;left:50%;top:50%;width:17px;height:1px;background:var(--muted);transform:translate(-50%,-50%);transition:transform .5s var(--ease),background .35s}
-.q .pl:after{transform:translate(-50%,-50%) rotate(90deg)}
-.q button:hover .pl{background:#ece4cc}
-.q.open .pl{background:var(--ink)}
-.q.open .pl:before,.q.open .pl:after{background:#fff}
-.q.open .pl:after{transform:translate(-50%,-50%) rotate(0)}
-.q .a{display:grid;grid-template-rows:0fr;transition:grid-template-rows .6s var(--ease)}
-.q.open .a{grid-template-rows:1fr}
-.q .a>div{overflow:hidden}
-.q .a p{padding:0 80px 28px 14px;color:var(--muted);font-size:15px;line-height:22px}
+/* ---------- FAQ ----------
+   Matches zenarate.com's FAQ: 800px list 64px under a 40px title, 20px questions,
+   48px round plus button that turns as an item opens, answers slide open in 0.6s. */
+.faq{padding-top:180px;padding-bottom:120px}
+.faq .shead{margin-bottom:64px}
+.faq .h2{font-size:40px;line-height:1.12;letter-spacing:-1px;max-width:none}
+.faq .h2 em{font-style:italic}
+.qs{max-width:800px;margin:0 auto;display:flex;flex-direction:column}
+.q{border-bottom:1px solid #efe9da}
+.q-top{width:100%;display:flex;justify-content:space-between;align-items:center;gap:48px;padding:16px 0;text-align:left;cursor:pointer;user-select:none;-webkit-user-select:none}
+.q-title{font-size:20px;line-height:1.3;font-weight:500;letter-spacing:-.5px;color:#202121}
+.q-icon{width:48px;height:48px;flex:none;border-radius:80px;display:flex;align-items:center;justify-content:center;color:#202121;background:#f5f1e6;transform:rotate(180deg);
+  transition:transform .6s cubic-bezier(.625,.05,0,1),background-color .6s cubic-bezier(.625,.05,0,1)}
+.q-icon svg{width:20px;height:20px;fill:currentColor}
+.q.open .q-icon{transform:rotate(90deg);background:#efe9da}
+.q-bottom{display:grid;grid-template-rows:0fr;overflow:hidden;position:relative;transition:grid-template-rows .6s cubic-bezier(.625,.05,0,1)}
+.q.open .q-bottom{grid-template-rows:1fr}
+.q-wrap{overflow:hidden;min-height:0}
+.q-content{max-width:800px;padding:0 48px 24px 0}
+.q-content p{font-size:16px;line-height:1.49;font-weight:500;color:#8b8b8b}
+.q-top:focus-visible{outline:none}
+.q-top:focus-visible .q-icon{box-shadow:0 0 0 2px var(--ink)}
 
 /* ---------- Footer ---------- */
 .footer{padding-top:170px;padding-bottom:0}
@@ -335,6 +339,9 @@ a:hover .roll span{transform:translateY(-100%)}
   .f-form{justify-self:start}
   .t-card{grid-template-columns:1fr 46%}
 }
+@media (max-width:991px){
+  .q-content{padding-right:2em}
+}
 @media (max-width:900px){
   .plans{grid-template-columns:minmax(0,1fr);max-width:480px;margin:0 auto}
   .plan{min-height:0}
@@ -346,6 +353,12 @@ a:hover .roll span{transform:translateY(-100%)}
 /* ---------- Phones ---------- */
 @media (max-width:700px){
   :root{--pad:20px}
+  .faq{padding-top:110px;padding-bottom:80px}
+  .faq .shead{margin-bottom:40px}
+  .faq .h2{font-size:32px;letter-spacing:-.8px}
+  .q-title{font-size:16px;letter-spacing:0}
+  .q-top{gap:24px}
+  .q-content{padding-right:0}
   .news{bottom:22px}
   .h2{font-size:34px}
   .hero h1{font-size:clamp(34px,10.6vw,44px);line-height:1.02}
@@ -390,11 +403,6 @@ a:hover .roll span{transform:translateY(-100%)}
   .t-txt{padding:10px 8px 10px}
   .t-txt blockquote{font-size:21px;line-height:27px;margin-top:4px}
   .t-art img{width:92px;height:92px}
-  .faq{padding-top:100px}
-  .faq .shead{margin-bottom:36px}
-  .q button{padding:22px 4px;font-size:15px}
-  .q .pl{width:38px;height:38px}
-  .q .a p{padding:0 40px 22px 4px}
   .footer{padding-top:110px}
   .f-top{grid-template-columns:1fr 1fr;gap:36px 20px}
   .f-addr,.f-form{grid-column:1/3}
