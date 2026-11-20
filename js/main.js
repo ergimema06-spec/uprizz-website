@@ -253,5 +253,21 @@ const WAVES={
   })();
 })();
 
+/* ---------- News ticker (hero announcement) ----------
+   Repeats the message to fill the pill twice over, then scrolls it at 20px per second. */
+(function(){
+  const track=$('newsTrack'); if(!track)return;
+  const item=track.firstElementChild, box=track.parentElement;
+  function fill(){
+    track.querySelectorAll('[aria-hidden]').forEach(n=>n.remove());
+    const w=item.offsetWidth; if(!w)return;
+    const per=Math.ceil(box.clientWidth/w)+1;            // copies in one half
+    for(let i=1;i<per*2;i++){const c=item.cloneNode(true);c.setAttribute('aria-hidden','true');c.querySelectorAll('a').forEach(a=>a.tabIndex=-1);track.appendChild(c)}
+    track.style.setProperty('--nd',(w*per/20)+'s');
+  }
+  fill(); addEventListener('resize',fill);
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fill);
+})();
+
 /* ---------- Ready (starts the hero animation) ---------- */
 requestAnimationFrame(()=>document.body.classList.add('ready'));

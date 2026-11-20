@@ -201,7 +201,7 @@ for i, p in enumerate(P):
 <section class="pj-next">
   <div class="top">
     <div><span class="brandmark" role="img" aria-label="Uprizz"></span><h2>Next Project</h2></div>
-    <a href="/work/" class="all link-btn">View all <span class="circ">→</span></a>
+    <a href="/work/" class="btn btn--outline">View all</a>
   </div>
   {card(nxt)}
 </section>

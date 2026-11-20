@@ -18,6 +18,8 @@ The owner does not write code. They describe changes in plain language, such as 
 ## How to make common changes
 
 - **Hero:** text and buttons are in the `<header class="hero">` block of `index.html`. The moving wave behind the hero and behind the comparison card is a WebGL effect; each one's colours, height, speed and softness are in the `WAVES` object in `js/main.js` (`images/hero-bg.jpg` and `images/compare-bg.jpg` show instead if WebGL is unavailable).
+- **Buttons:** every button uses the microsoft.ai style: `class="btn"` (light pill, for colourful backgrounds like the hero) or `class="btn btn--outline"` (thin stroke, for light backgrounds). The arrow on hover is automatic; don't add arrow characters to button text.
+- **Hero announcement ticker:** the glassy strip at the bottom of the hero is the `.news` block in `index.html`; edit the text inside `.news-item`. It repeats and scrolls by itself.
 - **4-step section:** text is in the `#process` section of `index.html`; the step list on the left must have one button per card, in the same order.
 - **Testimonials:** edit the `testimonials` array in `js/main.js`. To show a large photo on a slide instead of the round avatar, save the photo in `images/` (JPEG, about 900px wide, roughly 1.15:1) and put its path in the matching slot of `testiPhotos`.
 - **Logo:** the Uprizz logo is built into `index.html` (the `.brandmark` style). Favicon files sit at the top level.
