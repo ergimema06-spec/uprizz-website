@@ -22,7 +22,7 @@
 const BRANCH = 'main';
 const PROTECTED = [/^CNAME$/, /^\.github\//, /^admin\//, /^admin-worker\//, /^_admin\//, /^\.nojekyll$/];
 const PAGE_FILES = {
-  home: ['index.html', 'js/main.js', 'css/style.css'],
+  home: ['_build/content.json', 'index.html', 'js/main.js', 'css/style.css'],
   work: ['_build/build.py', 'css/pages.css', 'js/work.js'],
   project: ['_build/projects.json', '_build/build.py', 'css/pages.css'],
 };
@@ -230,6 +230,7 @@ They are looking at the page ${page} and ask you to change it. Make the change b
 Rules:
 - Never touch CNAME, .github/, admin/, admin-worker/ or _admin/.
 - Generated pages: work/index.html, projects/*/index.html, sitemap.xml and the homepage block between <!-- WORK:START --> and <!-- WORK:END --> are rebuilt automatically from _build/projects.json and _build/build.py when the change is published. Edit those sources, never the generated files.
+- Homepage text, images and lists (hero, logos, comparison, steps, pricing, testimonials, FAQ, contact, SEO) live in _build/content.json. The <!-- CMS:name --> blocks in index.html are generated from it: edit content.json, never those blocks.
 - Project text, scope, year and gallery live in _build/projects.json. Work page hero text lives in _build/build.py.
 - Images the owner attaches are already JPEGs: put them in place with save_attachment, and update projects.json gallery entries ("file" and "shape") when adding gallery photos.
 - If the request is unclear or would need something you can't do (for example a new paid service), don't edit; explain briefly and ask.

@@ -4,33 +4,41 @@ This is the uprizz.com website. It's a static site with no framework. It's hoste
 
 The owner does not write code. They describe changes in plain language, such as "change the hero headline", "swap the second project photo for this one" or "add a fifth service". Make the change, keep the design intact, commit with a clear message, push to `main`, and confirm in one or two sentences what changed.
 
+## Content lives in two JSON files (edited from the CMS)
+
+The owner edits the site in the **CMS at uprizz.com/admin/** (Framer-style: collections, item editor, image uploads, Preview, Publish, History/Undo). It writes only these files, plus new images in `images/cms/` and `images/projects/<slug>/`:
+
+| File | What it holds |
+|---|---|
+| `_build/content.json` | Every piece of homepage text, image and list: `seo`, `hero` (incl. stars + news strip), `logos`, `work` (heading/buttons), `comparison` (title, columns, highlight, rows), `process` (heading + `steps`), `pricing` (heading + `plans`), `testimonials` (heading + `items`), `faq` (heading + `items`), `contact` (email, phone, address, socials, footer links). |
+| `_build/projects.json` | Projects (name, slug, category, year, scope, timeline, intro, challenge/solution/process/conclusion paragraphs, optional `cover` path, `gallery` of `{file, shape}`, `featured`). `file`/`cover` may be a bare file name (inside `images/projects/<slug>/`) or a full `images/...` path. |
+
+`_build/build.py` renders `content.json` into the `<!-- CMS:name -->` … `<!-- /CMS:name -->` blocks of `index.html` (navmeta, hero, logos, workhead, workcta, compare, process, pricing, testimonials, faq, footer) and the homepage SEO tags. **Never edit inside those blocks by hand — edit `content.json` and run the build.** The GitHub Actions deploy runs the build too, so a CMS publish that only changes JSON still updates the site.
+
 ## Files
 
 | File | What it holds |
 |---|---|
-| `index.html` | All page text and the section layout, top to bottom: nav menu → hero → client logos → selected work (3 projects + View all) → comparison table → "Order today, launch in 48 hours" 4-step section → pricing → testimonials carousel → FAQ → footer/contact. The comparison, pricing and FAQ blocks sit between `<!-- COMPARE:START -->`, `<!-- PRICING:START -->` and `<!-- FAQ:START -->` markers because the build reuses them on other pages. |
-| `js/main.js` | The lists that are generated in code: `logos`, `testimonials` (+ `testiTones`, the colour behind each photo), `faqs`, plus all interactions: sticky step cards, testimonial carousel, FAQ accordion, scroll reveals. Edit the text in those arrays to change those sections. |
+| `index.html` | Page layout and head; the CMS blocks above are generated. The comparison, pricing and FAQ blocks also sit inside `<!-- COMPARE:START -->`, `<!-- PRICING:START -->`, `<!-- FAQ:START -->` markers because the build reuses them on other pages. |
+| `js/main.js` | Interactions only (sticky step cards, testimonial carousel, FAQ accordion, news ticker, waves, scroll reveals). It no longer holds content. |
 | `css/style.css` | Colors, fonts, spacing and animation styles. Colors are variables at the top (`--bg` cream, `--card`, `--ink`, `--accent` orange). Fonts: `--serif` (ABC Arizona Flare Light, headings) and `--sans` (Suisse BP Int'l, everything else); see the note at the top of the file about adding the licensed web-font files. |
-| `images/` | Every image, named after where it's used, such as `work-1-mira-eyewear.jpg` or `service-2-art-direction-b.jpg`. |
+| `admin/index.html` | The CMS. Schema for each collection/section is the `COLLECTIONS` / `SECTIONS` objects in its script; add a field there when you add one to `content.json`. |
+| `admin/ai.html` | The older AI editor (comments + "ask Claude"), linked from the CMS sidebar. |
+| `images/` | Every image. CMS uploads get unique names (`images/cms/…`, `images/projects/<slug>/…`). |
 | `CNAME` | Must contain exactly `uprizz.com`. Never delete it, or the custom domain disconnects. |
 | `.nojekyll` | Keep it. It tells GitHub Pages to serve files as they are. |
 
 ## How to make common changes
 
-- **Hero:** text and buttons are in the `<header class="hero">` block of `index.html`. The moving wave behind the hero and behind the comparison card is a WebGL effect; each one's colours, height, speed and softness are in the `WAVES` object in `js/main.js` (`images/hero-bg.jpg` and `images/compare-bg.jpg` show instead if WebGL is unavailable).
-- **Buttons:** every button uses the microsoft.ai style: `class="btn"` (light pill, for colourful backgrounds like the hero) or `class="btn btn--outline"` (thin stroke, for light backgrounds). The arrow on hover is automatic; don't add arrow characters to button text.
-- **Hero announcement ticker:** the glassy strip at the bottom of the hero is the `.news` block in `index.html`; edit the text inside `.news-item`. It repeats and scrolls by itself.
-- **4-step section:** text is in the `#process` section of `index.html`; the step list on the left must have one button per card, in the same order.
-- **Testimonials:** edit the `testimonials` array in `js/main.js`. To show a large photo on a slide instead of the round avatar, save the photo in `images/` (JPEG, about 900px wide, roughly 1.15:1) and put its path in the matching slot of `testiPhotos`.
+- **Any homepage text, image, logo, testimonial, FAQ, price, step or contact detail:** edit `_build/content.json` (or tell the owner they can do it in the CMS), then run `python3 _build/build.py`.
+- **Hero wave:** the moving wave behind the hero and the comparison card is WebGL; colours, height, speed and softness are in the `WAVES` object in `js/main.js` (`images/hero-bg.jpg` / `images/compare-bg.jpg` show if WebGL is unavailable).
+- **Buttons:** `class="btn"` (light pill, for colourful backgrounds) or `class="btn btn--outline"` (thin stroke, for light backgrounds). The hover arrow is automatic.
 - **Logo:** the Uprizz logo is built into `index.html` (the `.brandmark` style). Favicon files sit at the top level.
-
-- **Text:** find the words in `index.html`, or in the arrays in `js/main.js` for services, testimonials and FAQ, and replace them. Headings with the `reveal` class use ` <br> ` (with spaces around it) for line breaks. Keep those spaces.
-- **Replace an image:** save the new image under the same file name in `images/`, and the page picks it up. Convert it to JPEG, at most 1800px on the long side and under about 400 KB. Crop it to roughly the same shape as the old one: project cards about 1.1:1, the founder portrait about 0.7:1, the video cover about 2.2:1, blog cards about 0.85:1 and 1.6:1.
-- **Homepage projects:** the three projects with `"featured": true` in `_build/projects.json` appear on the homepage (generated, don't edit the grid by hand).
-- **Add a service, testimonial or FAQ:** add an entry to the matching array in `js/main.js`. Service images follow the `service-N-name-a/b/c.jpg` pattern, referenced through the `IMGS` map at the top of `main.js`. Add new keys there.
-- **Contact details:** the email, phone and address appear in the nav menu, the FAQ, the footer, and the `mailto:` links. Update every place.
-- **Forms:** the newsletter and contact forms only show a "thanks" message and send nothing. If the owner wants real submissions, connect a form service such as Formspree, and tell them which free account they need to create.
-
+- **Headings** use line breaks in the JSON (`\n`); the build turns them into ` <br> ` for the word-by-word reveal.
+- **Replace an image:** upload in the CMS, or save under a new name and point the JSON at it. JPEG, at most 1800px on the long side, under about 400 KB. Project covers about 16:10, project cards 1.1:1.
+- **Homepage projects:** the three projects with `"featured": true` in `_build/projects.json`.
+- **Forms:** the contact form only shows a "thanks" message and sends nothing. If the owner wants real submissions, connect a form service such as Formspree, and tell them which free account they need to create.
+- **Deleting a project in the CMS** leaves its old generated page folder `projects/<slug>/` in the repo (no longer linked or in the sitemap). Delete the folder by hand when tidying up.
 
 ## Pages and the project generator
 
@@ -55,11 +63,12 @@ The owner does not write code. They describe changes in plain language, such as 
 
 ## Admin editor (uprizz.com/admin/)
 
-A password-protected editor where the owner picks a page, pins comments on it, and asks Claude for changes, then reviews and publishes them.
-- `admin/index.html`: the editor page, plain HTML/JS. The `API` constant near the top of its script is the address of the helper.
+The CMS (`admin/index.html`) and the older AI editor (`admin/ai.html`) both log in with the same password and publish through the same helper.
+- CMS: loads the two JSON files from the GitHub API, keeps unpublished drafts (and new images) in the browser's IndexedDB, previews by running the real `build.py` in the browser with Pyodide, and publishes with `POST /api/publish` (`changes` with the file's current blob sha + `images` as base64). History lists recent commits to the JSON files; Undo calls `/api/undo`.
+- AI editor (`admin/ai.html`): pick a page, pin comments, ask Claude for changes, review, publish. The `API` constant near the top of each page's script is the address of the helper.
 - `admin-worker/worker.js`: a Cloudflare Worker (the "helper") that holds the secrets (ADMIN_PASSWORD, SESSION_SECRET, ANTHROPIC_API_KEY, GITHUB_TOKEN). It checks the password, stores comments in `_admin/comments.json` and a log of every request (asked, published, discarded, undone) in `_admin/history.json`, runs Claude with read/edit tools over the repo (with prompt caching on the instructions and page files, and the cost of each request shown in the editor), and commits published edits to `main`. To update it, paste the file into the Worker's code editor in the Cloudflare dashboard and deploy.
 - `.github/workflows/deploy.yml`: every push to `main` runs `_build/build.py` and deploys the site with GitHub Actions (Pages source must be "GitHub Actions"). `_admin/`, `_build/`, `admin-worker/` and this guide are not published. Commits that only touch `_admin/` don't trigger a deploy.
-- Preview before publishing: the editor applies proposed edits in the browser. Homepage edits are swapped in directly; changes to `_build/` run the real `build.py` in the browser with Pyodide (sources fetched from raw.githubusercontent.com), so keep `build.py` free of non-standard-library imports.
+- Preview before publishing (both editors) runs the real `build.py` in the browser with Pyodide, so keep `build.py` free of non-standard-library imports and tolerant of missing CSS/JS files.
 - Protected from the editor: CNAME, .github/, admin/, admin-worker/, _admin/.
 
 ## Rules

@@ -215,8 +215,9 @@ canvas.wave{position:absolute;inset:0;width:100%;height:100%;display:block}
 .pr-art{position:absolute;inset:0;transform:scale(1.1);transform-origin:50% 50%;will-change:transform;display:grid;place-items:center;background:var(--accent)}
 .pr-art:after{content:"";position:absolute;inset:0;background:url(../images/hero-bg.jpg) center/cover;mix-blend-mode:soft-light;opacity:.55}
 .pr-art span{position:relative;z-index:1;font-family:var(--serif);font-weight:300;font-size:180px;line-height:1;letter-spacing:-.04em;color:rgba(255,255,255,.92)}
-.pr-art.s2{background:#e59a52}.pr-art.s3{background:#cf5a2c}.pr-art.s4{background:#1b1b1b}
-.pr-art.s4 span{color:var(--bg)}
+.pr-art.dark span{color:var(--bg)}
+.pr-art.has-img{background-size:cover;background-position:center}
+.pr-art.has-img:after{display:none}
 
 /* ---------- Pricing ---------- */
 .pricing{padding-top:145px}
