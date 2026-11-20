@@ -103,38 +103,60 @@ document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',
 })();
 
 /* ---------- Testimonials carousel ----------
+   Infinite loop: the slides are copied once before and once after, and after each move
+   the track jumps back to the matching real slide without animation, so it never ends.
    Centred slide with neighbours peeking in, arrows, drag/swipe and keyboard. */
 (function(){
   const track=$('tTrack'); if(!track)return;
   const view=$('tView'), prev=$('tPrev'), next=$('tNext');
+  const real=[...track.children], n=real.length; if(!n)return;
+  const loop=n>1;
+  if(loop){
+    const copy=s=>{const c=s.cloneNode(true);c.setAttribute('aria-hidden','true');c.dataset.clone='1';return c};
+    real.slice().reverse().forEach(s=>track.insertBefore(copy(s),track.firstChild));
+    real.forEach(s=>track.appendChild(copy(s)));
+  }
   const slides=[...track.children];
-  let idx=Math.min(1,slides.length-1), base=0;
+  slides.forEach(s=>s.querySelectorAll('img').forEach(i=>i.loading='eager'));
+  const off=loop?n:0;                       // index of the first real slide
+  let idx=off+Math.min(1,n-1), base=0, busy=false;
   function layout(){
     const W=view.clientWidth, w=Math.min(872, W<=700?W-40:W*0.62), gap=W<=700?12:55;   // Figma: 872px cards, 55px apart
     view.style.setProperty('--tw',w+'px'); view.style.setProperty('--tgap',gap+'px');
     return {W,w,gap};
   }
-  function go(i,instant){
-    idx=Math.max(0,Math.min(slides.length-1,i));
+  function place(instant){
     const {W,w,gap}=layout();
     base=W/2-(idx*(w+gap)+w/2);
     track.classList.toggle('nt',!!instant||reduced);
     track.style.transform=`translate3d(${base}px,0,0)`;
-    slides.forEach((s,k)=>{s.classList.toggle('on',k===idx);s.setAttribute('aria-hidden',k===idx?'false':'true')});
-    prev.disabled=idx===0; next.disabled=idx===slides.length-1;
+    slides.forEach((s,k)=>{const on=k===idx;s.classList.toggle('on',on);s.setAttribute('aria-hidden',on?'false':'true')});
   }
+  function settle(){                       // jump from a copy back to the real slide, invisibly
+    if(!loop)return;
+    if(idx<off||idx>=off+n){idx=off+((idx-off)%n+n)%n;place(true);void track.offsetWidth}
+    busy=false;
+  }
+  function go(i,instant){
+    if(!loop){idx=Math.max(0,Math.min(n-1,i));place(instant);prev.disabled=idx===0;next.disabled=idx===n-1;return}
+    if(idx<off||idx>=off+n){const d=i-idx;clearTimeout(go.t);settle();i=idx+d}   // fast clicks: hop back to the real set first
+    idx=Math.max(0,Math.min(slides.length-1,i));
+    place(instant);
+    if(instant||reduced){settle()}else{busy=true;clearTimeout(go.t);go.t=setTimeout(settle,1050)}
+  }
+  track.addEventListener('transitionend',e=>{if(e.target===track&&e.propertyName==='transform'){clearTimeout(go.t);settle()}});
   prev.onclick=()=>go(idx-1); next.onclick=()=>go(idx+1);
   slides.forEach((s,k)=>s.addEventListener('click',()=>{if(!moved&&k!==idx)go(k)}));
   view.tabIndex=0;
   view.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'){go(idx-1);e.preventDefault()}if(e.key==='ArrowRight'){go(idx+1);e.preventDefault()}});
   /* drag / swipe */
   let down=false, sx=0, sy=0, dx=0, moved=false, horiz=null;
-  view.addEventListener('pointerdown',e=>{if(e.button!==0)return;down=true;moved=false;horiz=null;sx=e.clientX;sy=e.clientY;dx=0});
+  view.addEventListener('pointerdown',e=>{if(e.button!==0)return;if(busy){clearTimeout(go.t);settle()}down=true;moved=false;horiz=null;sx=e.clientX;sy=e.clientY;dx=0});
   addEventListener('pointermove',e=>{
     if(!down)return; dx=e.clientX-sx; const dy=e.clientY-sy;
     if(horiz===null&&(Math.abs(dx)>6||Math.abs(dy)>6)){horiz=Math.abs(dx)>Math.abs(dy); if(horiz){view.classList.add('drag');track.classList.add('nt')}}
     if(!horiz)return; moved=true;
-    const edge=(idx===0&&dx>0)||(idx===slides.length-1&&dx<0);
+    const edge=!loop&&((idx===0&&dx>0)||(idx===n-1&&dx<0));
     track.style.transform=`translate3d(${base+dx*(edge?.35:1)}px,0,0)`;
   });
   addEventListener('pointerup',()=>{
