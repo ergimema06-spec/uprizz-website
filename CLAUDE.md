@@ -17,7 +17,7 @@ The owner does not write code. They describe changes in plain language, such as 
 
 ## How to make common changes
 
-- **Hero:** text and buttons are in the `<header class="hero">` block of `index.html`; the blurred background is `images/hero-bg.jpg` (the comparison card uses `images/compare-bg.jpg`).
+- **Hero:** text and buttons are in the `<header class="hero">` block of `index.html`. The moving wave behind them is a WebGL effect whose colours, height, speed and softness are in the `HERO` object near the bottom of `index.html` (`images/hero-bg.jpg` is the fallback if WebGL is unavailable; the comparison card uses `images/compare-bg.jpg`).
 - **4-step section:** text is in the `#process` section of `index.html`; the step list on the left must have one button per card, in the same order.
 - **Testimonials:** edit the `testimonials` array in `js/main.js`. Photos are currently small avatars; larger portraits can replace them.
 - **Logo:** the Uprizz logo is built into `index.html` (the `.brandmark` style). Favicon files sit at the top level.
