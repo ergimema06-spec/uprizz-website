@@ -247,6 +247,7 @@ const WAVES={
 (function(){
   const hero=document.querySelector('.hero'); if(!hero||reduced)return;
   let last=-1;
+  const hh=()=>hero.style.setProperty('--hh',hero.offsetHeight+'px'); hh(); addEventListener('resize',hh);
   (function tick(){
     const p=Math.max(0,Math.min(1,scrollY/(hero.offsetHeight*0.5)));
     const e=p*p*(3-2*p);                             // ease in-out

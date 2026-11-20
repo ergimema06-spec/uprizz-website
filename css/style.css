@@ -128,7 +128,9 @@ canvas.wave{position:absolute;inset:0;width:100%;height:100%;display:block}
 .stars{display:flex;gap:3px;justify-content:center;margin-top:12px}
 .stars svg{width:13px;height:13px;fill:#fff}
 /* Announcement ticker at the bottom of the hero (glassy pill, scrolls continuously) */
-.news{position:absolute;left:50%;bottom:34px;translate:-50% 0;width:445px;max-width:calc(100% - 40px);height:38px;border-radius:7px;overflow:hidden;
+.news{position:absolute;left:50%;bottom:34px;
+  /* rises with the background's bottom edge as it shrinks on scroll (3.5% of hero height) plus 12px */
+  translate:-50% calc(var(--hp,0) * (var(--hh,800px) * -.035 - 12px));width:445px;max-width:calc(100% - 40px - var(--hp,0) * 7%);height:38px;border-radius:7px;overflow:hidden;
   background:rgba(0,0,0,.10);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;align-items:center;color:#fff;z-index:2}
 .news-track{display:flex;width:max-content;animation:news var(--nd,40s) linear infinite;will-change:transform}
 .news-item{flex:none;padding-right:42px;font-size:14px;line-height:20px;white-space:nowrap}
