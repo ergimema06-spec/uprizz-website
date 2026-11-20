@@ -17,9 +17,9 @@ The owner does not write code. They describe changes in plain language, such as 
 
 ## How to make common changes
 
-- **Hero:** text and buttons are in the `<header class="hero">` block of `index.html`. The moving wave behind them is a WebGL effect whose colours, height, speed and softness are in the `HERO` object near the bottom of `index.html` (`images/hero-bg.jpg` is the fallback if WebGL is unavailable; the comparison card uses `images/compare-bg.jpg`).
+- **Hero:** text and buttons are in the `<header class="hero">` block of `index.html`. The moving wave behind the hero and behind the comparison card is a WebGL effect; each one's colours, height, speed and softness are in the `WAVES` object in `js/main.js` (`images/hero-bg.jpg` and `images/compare-bg.jpg` show instead if WebGL is unavailable).
 - **4-step section:** text is in the `#process` section of `index.html`; the step list on the left must have one button per card, in the same order.
-- **Testimonials:** edit the `testimonials` array in `js/main.js`. Photos are currently small avatars; larger portraits can replace them.
+- **Testimonials:** edit the `testimonials` array in `js/main.js`. To show a large photo on a slide instead of the round avatar, save the photo in `images/` (JPEG, about 900px wide, roughly 1.15:1) and put its path in the matching slot of `testiPhotos`.
 - **Logo:** the Uprizz logo is built into `index.html` (the `.brandmark` style). Favicon files sit at the top level.
 
 - **Text:** find the words in `index.html`, or in the arrays in `js/main.js` for services, testimonials and FAQ, and replace them. Headings with the `reveal` class use ` <br> ` (with spaces around it) for line breaks. Keep those spaces.

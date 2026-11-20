@@ -12,7 +12,10 @@ const testimonials=[
   ['Tomas Eriksen','Head of Marketing, Fold','WFnux8W63LzFPOyKQoFeziDYo.jpg','Three days in their studio replaced what used to take a month across three vendors. The packaging shots from that session are still carrying our feed.'],
   ['Mara Silva','Founder, Basalt Outerwear','4uKZFKAgzKrLp8abxifrfuvOmwI.jpg','The brand film paid for itself at the trade show — buyers kept asking who made it. Calm process, early delivery, zero drama.'],
 ];
-/* Background tones behind each testimonial photo, in order */
+/* Optional large photo for each testimonial (same order). Add a file path, e.g. 'images/testimonial-1-lena-park-large.jpg',
+   and that slide shows the full photo instead of the round avatar. */
+const testiPhotos=['','','','',''];
+/* Background tones behind each testimonial avatar, in order */
 const testiTones=['#ed6c47','#d9a066','#b9c3b0','#cf5a2c','#e3b58a'];
 const faqs=[
   ['How does the retainer actually work?','You get a monthly block of studio hours and a request queue. We work one request at a time (two on Pro), send progress every 48 hours, and revise until it\'s right. No scoping calls for every task — you brief, we build.'],
@@ -139,7 +142,9 @@ document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',
     return `<div class="t-slide" role="group" aria-roledescription="slide" aria-label="${i+1} of ${testimonials.length}">
       <figure class="t-card">
         <div class="t-txt">${company?`<span class="chip-s">${esc(company)}</span>`:''}<blockquote>“${esc(t[3])}”</blockquote><figcaption class="t-by"><b>${esc(t[0])}</b><span>${esc(t[1])}</span></figcaption></div>
-        <div class="t-media" style="background:${testiTones[i%testiTones.length]}"><div class="t-art"><img src="${IMG(t[2])}" alt="${esc(t[0])}" draggable="false"><span class="t-name">${esc(t[0])}</span></div></div>
+        ${testiPhotos[i]
+          ?`<div class="t-media"><div class="t-art photo"><img src="${'/'+testiPhotos[i].replace(/^\//,'')}" alt="${esc(t[0])}" draggable="false"></div><span class="t-name">${esc(t[0])}</span></div>`
+          :`<div class="t-media" style="background:${testiTones[i%testiTones.length]}"><div class="t-art"><img src="${IMG(t[2])}" alt="${esc(t[0])}" draggable="false"></div><span class="t-name">${esc(t[0])}</span></div>`}
       </figure></div>`}).join('');
   const slides=[...track.children];
   let idx=Math.min(1,slides.length-1), base=0;
@@ -178,6 +183,62 @@ document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',
   });
   addEventListener('resize',()=>go(idx,true));
   go(idx,true);
+})();
+
+/* ---------- Moving wave backgrounds (hero + comparison card) ----------
+   Edit the numbers in WAVES to change each effect.
+   height: where the wave sits (0 = bottom, 1 = top) · hills: how wavy · speed: animation speed (0 = frozen)
+   softness: how blurry the edge is · glow: lighter band inside the wave (0 = none)
+   light1 → light2: sky colours, left to right · dark1 → dark2: wave colours, left to right · mouse: cursor reaction
+   Text always sits on top and is never affected. */
+const WAVES={
+  hero:   {height:0.42, hills:1.85, speed:0.90, softness:0.16, glow:0.30, light1:'#b9c3ae', light2:'#ecc38c', dark1:'#e8823e', dark2:'#c9502a', mouse:true},
+  compare:{height:0.36, hills:1.40, speed:0.70, softness:0.18, glow:0.30, light1:'#e2915c', light2:'#cfd3bd', dark1:'#d5481c', dark2:'#d6ab84', mouse:false},
+};
+(function(){
+  const still=reduced;
+  const fs=`precision highp float;uniform vec2 r;uniform float t,H,A,E,L;uniform vec2 m;uniform vec3 W1,W2,D1,D2;
+  float h(vec2 p){return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453);}
+  float n(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h(i),h(i+vec2(1,0)),f.x),mix(h(i+vec2(0,1)),h(i+vec2(1,1)),f.x),f.y);}
+  void main(){vec2 uv=gl_FragCoord.xy/r;float x=uv.x*(r.x/r.y);
+    float b=H+A*(.11*sin(x*2.2+t*.35)+.06*sin(x*4.1-t*.27+1.3)+.035*sin(x*7.3+t*.5)+.05*(n(vec2(x*1.2,t*.15))-.5))+(m.y-.5)*.04*sin(x*3.+m.x*3.);
+    float wave=1.-smoothstep(-E*.9,E*1.1,uv.y-b);
+    float b2=b-.24+.06*sin(x*2.7-t*.3+2.);
+    float lift=1.-smoothstep(-.25,.12,uv.y-b2);
+    float sx=smoothstep(0.,1.,uv.x+.08*sin(uv.y*3.+t*.2));
+    vec3 W=mix(W1,W2,sx); W=mix(W,vec3(.98,.95,.9),.25*smoothstep(.55,1.,uv.y));
+    vec3 D=mix(D1,D2,sx); D=mix(D,mix(D,W2,.55),lift*L);
+    gl_FragColor=vec4(mix(W,D,wave),1.);}`;
+  const hex=h=>[1,3,5].map(k=>parseInt(h.substr(k,2),16)/255);
+  let tx=.5,ty=.5; addEventListener('mousemove',e=>{tx=e.clientX/innerWidth;ty=e.clientY/innerHeight});
+  document.querySelectorAll('canvas.wave').forEach(c=>{
+    const cfg=WAVES[c.dataset.wave]; if(!cfg)return;
+    const gl=c.getContext('webgl',{antialias:false,premultipliedAlpha:false});
+    if(!gl){c.remove();return}                         // the CSS background image shows instead
+    const sh=(ty,src)=>{const o=gl.createShader(ty);gl.shaderSource(o,src);gl.compileShader(o);return o};
+    const p=gl.createProgram();gl.attachShader(p,sh(gl.VERTEX_SHADER,'attribute vec2 p;void main(){gl_Position=vec4(p,0,1);}'));gl.attachShader(p,sh(gl.FRAGMENT_SHADER,fs));gl.linkProgram(p);
+    if(!gl.getProgramParameter(p,gl.LINK_STATUS)){c.remove();return}
+    gl.useProgram(p);
+    gl.bindBuffer(gl.ARRAY_BUFFER,gl.createBuffer());gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
+    const lo=gl.getAttribLocation(p,'p');gl.enableVertexAttribArray(lo);gl.vertexAttribPointer(lo,2,gl.FLOAT,false,0,0);
+    const U={};['r','t','H','A','E','L','m','W1','W2','D1','D2'].forEach(k=>U[k]=gl.getUniformLocation(p,k));
+    gl.uniform3fv(U.W1,hex(cfg.light1));gl.uniform3fv(U.W2,hex(cfg.light2));gl.uniform3fv(U.D1,hex(cfg.dark1));gl.uniform3fv(U.D2,hex(cfg.dark2));
+    function size(){const d=Math.min(devicePixelRatio,1.5);c.width=Math.max(1,c.clientWidth*d);c.height=Math.max(1,c.clientHeight*d);gl.viewport(0,0,c.width,c.height)}
+    addEventListener('resize',size);size();
+    let on=true; new IntersectionObserver(es=>{on=es[0].isIntersecting}).observe(c);   // only animate while visible
+    let mx=.5,my=.5,T=8,last=performance.now();
+    (function draw(now){
+      const dt=(now-last)/1000;last=now;
+      if(on){
+        T+=dt*(still?0:cfg.speed);
+        if(cfg.mouse){mx+=(tx-mx)*.04;my+=(ty-my)*.04}
+        gl.uniform2f(U.r,c.width,c.height);gl.uniform1f(U.t,T);
+        gl.uniform1f(U.H,cfg.height);gl.uniform1f(U.A,cfg.hills);gl.uniform1f(U.E,cfg.softness);gl.uniform1f(U.L,cfg.glow);
+        gl.uniform2f(U.m,mx,my);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
+      }
+      requestAnimationFrame(draw);
+    })(performance.now());
+  });
 })();
 
 /* ---------- Hero: background card shrinks + zooms out as you scroll away ---------- */
