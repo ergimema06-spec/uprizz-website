@@ -84,6 +84,7 @@ td.t{color:#fff;font-weight:500}
 .pill{display:inline-flex;align-items:center;height:26px;padding:0 10px;border-radius:7px;background:#222;color:#cfcfcf;font-size:12px}
 .pill.blue{background:var(--blue2);color:#4fb0ff}
 .pill.mute{color:var(--dim)}
+.pill.amber{background:#f5b04122;color:var(--amber)}
 .swatch{display:inline-block;width:18px;height:18px;border-radius:5px;vertical-align:middle;border:1px solid #333}
 .empty{padding:60px;text-align:center;color:var(--dim)}
 
@@ -154,6 +155,7 @@ td.t{color:#fff;font-weight:500}
 .db{overflow:auto;flex:1}
 .db .form{padding-top:8px}
 .danger{color:var(--red)}
+.df{height:44px;display:flex;align-items:center;padding:0 18px;border-top:1px solid var(--line);color:var(--mute);font-size:12px}
 
 /* ---------- toasts, modal, login ---------- */
 .toasts{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:60;display:flex;flex-direction:column;gap:8px;align-items:center}
@@ -217,9 +219,11 @@ td.t{color:#fff;font-weight:500}
     <h3 id="dTitle"></h3>
     <button class="tbtn" id="dDup">Duplicate</button>
     <button class="tbtn danger" id="dDel">Delete</button>
-    <button class="ibtn" id="dClose" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <button class="tbtn" id="dDone" title="Close this panel (your changes are kept)">Done</button>
+    <button class="tbtn pub" id="dPub" disabled>Publish <span class="n hidden" id="dPubN"></span></button>
   </div>
   <div class="db" id="dBody"></div>
+  <div class="df"><span id="dHint"></span></div>
 </aside>
 <div class="toasts" id="toasts"></div>
 
@@ -318,7 +322,8 @@ const usedUploads = () => { const all = serialize(S.data.content) + serialize(S.
 const isDirty = () => dirtyFiles().length > 0;
 function changed() {
   const n = dirtyFiles().length ? changeSummary().length : 0;
-  $('pubBtn').disabled = !n; $('pubN').textContent = n; $('pubN').classList.toggle('hidden', !n);
+  for (const [b, c] of [['pubBtn', 'pubN'], ['dPub', 'dPubN']]) { $(b).disabled = !n || publishing; $(c).textContent = n; $(c).classList.toggle('hidden', !n); }
+  $('dHint').textContent = n ? 'Saved as a draft. Press Publish to put it live.' : 'Everything is published.';
   $('discardBtn').classList.toggle('hidden', !n);
   renderSide(); saveDraft();
 }
@@ -340,6 +345,7 @@ function changeSummary() {
 }
 const LABELS = { seo: 'SEO', hero: 'Hero', logos: 'Client logos', work: 'Selected work', comparison: 'Comparison', process: 'Steps', pricing: 'Pricing', testimonials: 'Testimonials', faq: 'FAQ', contact: 'Contact & footer' };
 
+let publishing = false;
 async function publish() {
   const files = dirtyFiles(); if (!files.length) return;
   const before = new Set(JSON.parse(S.base.projects.text).map(p => p.slug));
@@ -347,7 +353,7 @@ async function publish() {
   if (missing.length && !confirm(`${missing.map(p => p.name || 'An untitled project').join(', ')} ${missing.length > 1 ? 'are' : 'is'} missing a title or cover image and will look unfinished on the site. Publish anyway? (Tip: turn on “Hide from site” to publish it as a draft.)`)) return;
   const featured = S.data.projects.filter(p => p.featured && !p.draft).length;
   if (featured > 3 && !confirm(`${featured} projects are set to show on the homepage, but only the first 3 will appear. Publish anyway?`)) return;
-  const btn = $('pubBtn'); btn.disabled = true; btn.firstChild.textContent = 'Publishing… ';
+  publishing = true; for (const b of ['pubBtn', 'dPub']) { $(b).disabled = true; $(b).firstChild.textContent = 'Publishing… '; }
   try {
     const summary = changeSummary();
     const changes = [];
@@ -355,13 +361,14 @@ async function publish() {
     const imgs = usedUploads().map(p => ({ path: p, base64: S.uploads[p].base64 }));
     const r = await api('/api/publish', { changes, images: imgs, summary: 'CMS: ' + summary.join(' · ') });
     for (const k of files) { const t = serialize(S.data[k]); S.base[k] = { sha: await blobSha(t), text: t, norm: t }; }
+    S.oldSlugs = new Set(S.data.projects.map(p => p.slug));
     for (const p of Object.keys(S.uploads)) { S.local[p] = S.uploads[p].url; }
     S.uploads = {}; await idb.del('draft');
     toast('Published. The site updates in about a minute.', { label: 'Undo', fn: () => undo(r.commit) });
     pollDeploy(r.commit);
   } catch (e) {
     toast(/changed since/.test(e.message) ? 'Someone else changed the site while you were editing. Reload the CMS to get the latest version, then redo your change.' : e.message, null, true);
-  } finally { btn.firstChild.textContent = 'Publish '; changed(); }
+  } finally { publishing = false; for (const b of ['pubBtn', 'dPub']) $(b).firstChild.textContent = 'Publish '; changed(); if (S.view.type === 'col') renderCollection($('main'), S.view.id); }
 }
 async function undo(commit) {
   if (isDirty() && !confirm('Undoing will reload the CMS and drop your unpublished changes. Continue?')) return;
@@ -430,7 +437,7 @@ const COLLECTIONS = {
   projects: {
     label: 'Projects', icon: 'grid', file: 'projects', list: () => S.data.projects,
     title: p => p.name || 'Untitled project', thumb: p => p.cover || (S.oldSlugs.has(p.slug) ? `images/projects/${p.slug}/cover.jpg` : ''),
-    cols: [['Status', p => p.draft ? '<span class="pill mute">Draft</span>' : '<span class="pill blue">Live</span>'], ['Category', p => esc(p.category)], ['Year', p => esc(p.year)], ['Homepage', p => p.featured ? '<span class="pill blue">Featured</span>' : '<span class="pill mute">—</span>'], ['Photos', p => (p.gallery || []).length]],
+    cols: [['Status', p => p.draft ? '<span class="pill mute">Draft</span>' : S.oldSlugs.has(p.slug) ? '<span class="pill blue">Live</span>' : '<span class="pill amber">Not published</span>'], ['Category', p => esc(p.category)], ['Year', p => esc(p.year)], ['Homepage', p => p.featured ? '<span class="pill blue">Featured</span>' : '<span class="pill mute">—</span>'], ['Photos', p => (p.gallery || []).length]],
     hint: 'Projects appear on the Work page in this order (drag to reorder). New projects are added at the top. Turn on “Show on homepage” for up to 3.',
     addLabel: 'New project', addFirst: true, autoSlug: true,
     make: () => ({ slug: uniqueSlug('new-project'), name: '', category: '', year: new Date().getFullYear(), scope: [], timeline: '', intro: '', challenge: [], solution: [], process: [], conclusion: [], gallery: [], cover: '' }),
@@ -833,7 +840,7 @@ function openItem(i) {
   render();
 }
 function closeDrawer() { S.open = null; $('drawer').classList.remove('on'); $('shade').classList.remove('on'); if (S.view.type === 'col' && S.base.content) renderCollection($('main'), S.view.id); }
-$('dClose').onclick = closeDrawer; $('shade').onclick = closeDrawer;
+$('dDone').onclick = closeDrawer; $('shade').onclick = closeDrawer; $('dPub').onclick = publish;
 document.addEventListener('keydown', e => { if (e.key === 'Escape') { if (document.querySelector('.modal')) document.querySelector('.modal').remove(); else closeDrawer(); } if ((e.metaKey || e.ctrlKey) && e.key === 's') { e.preventDefault(); if (!$('pubBtn').disabled) publish(); } });
 
 /* ---------- toasts ---------- */
