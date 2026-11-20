@@ -47,6 +47,7 @@ The owner does not write code. They describe changes in plain language, such as 
 - **Add a project:** add an object to `projects.json` (the order there is the order on the Work page; mark it `"featured": true` to show it on the homepage, max 3), add the images, then run the build.
 - **Remove a project:** delete it from the JSON, delete `projects/<slug>/` and `images/projects/<slug>/`, then run the build.
 - **Styles:** `css/pages.css` styles the Work and project pages. `js/work.js` handles the Work page filter, search and cursor blobs. `js/main.js` runs on every page and skips parts a page doesn't have.
+- **Cache busting:** `build.py` adds `?v=<hash>` to the CSS and JS links on every page, so browsers load new styles right after a deploy. Run the build after changing `css/` or `js/` files.
 - **Paths:** subpages use root paths (`/css/...`, `/images/...`). Test with a local server from the site root, for example `python3 -m http.server`, not by opening files directly.
 
 

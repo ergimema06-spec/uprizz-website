@@ -24,6 +24,11 @@ os.chdir(ROOT)
 P = json.load(open('_build/projects.json'))
 H = open('index.html').read()
 esc = lambda s: html.escape(str(s), quote=True)
+
+# Version stamps for CSS/JS so browsers fetch the new file after every change (cache busting)
+import hashlib
+V = {f: hashlib.md5(open(f, 'rb').read()).hexdigest()[:8] for f in ('css/style.css', 'css/pages.css', 'js/main.js', 'js/work.js')}
+H = re.sub(r'(href|src)="(css/style\.css|js/main\.js)(?:\?v=[0-9a-f]+)?"', lambda m: f'{m.group(1)}="{m.group(2)}?v={V[m.group(2)]}"', H)
 SITE = 'https://uprizz.com'
 
 # ---------- 1. Homepage: menu links + Selected Work grid ----------
@@ -79,15 +84,15 @@ def page(title, desc, path, og_img, body, extra_js=''):
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 {fonts}
-<link rel="stylesheet" href="/css/style.css">
-<link rel="stylesheet" href="/css/pages.css">
+<link rel="stylesheet" href="/css/style.css?v={V['css/style.css']}">
+<link rel="stylesheet" href="/css/pages.css?v={V['css/pages.css']}">
 {inline_styles}</head>
 <body class="page">
 {svg_filter}
 {nav}
 {body}
 {footer}
-<script src="/js/main.js"></script>
+<script src="/js/main.js?v={V['js/main.js']}"></script>
 {extra_js}</body>
 </html>
 '''
@@ -131,7 +136,7 @@ work_body = f'''<main>
   </div>
 </section>
 </main>'''
-work_js = '<script src="/js/work.js"></script>\n'
+work_js = f'<script src="/js/work.js?v={V["js/work.js"]}"></script>\n'
 os.makedirs('work', exist_ok=True)
 open('work/index.html', 'w').write(page(
     'Work — Uprizz', 'Selected brand identity, art direction, photography, motion and content-system projects by Uprizz.',
