@@ -166,7 +166,8 @@
         "file": "07.jpg",
         "shape": "landscape"
       }
-    ]
+    ],
+    "featured": true
   },
   {
     "slug": "pulse-club",
@@ -229,7 +230,8 @@
         "file": "08.jpg",
         "shape": "landscape"
       }
-    ]
+    ],
+    "featured": true
   },
   {
     "slug": "basalt",
@@ -288,7 +290,8 @@
         "file": "08.jpg",
         "shape": "landscape"
       }
-    ]
+    ],
+    "featured": true
   },
   {
     "slug": "kano",
