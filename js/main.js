@@ -180,5 +180,17 @@ document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',
   go(idx,true);
 })();
 
+/* ---------- Hero: background card shrinks + zooms out as you scroll away ---------- */
+(function(){
+  const hero=document.querySelector('.hero'); if(!hero||reduced)return;
+  let last=-1;
+  (function tick(){
+    const p=Math.max(0,Math.min(1,scrollY/(hero.offsetHeight*0.5)));
+    const e=p*p*(3-2*p);                             // ease in-out
+    if(Math.abs(e-last)>.0005){hero.style.setProperty('--hp',e.toFixed(4));last=e}
+    requestAnimationFrame(tick);
+  })();
+})();
+
 /* ---------- Ready (starts the hero animation) ---------- */
 requestAnimationFrame(()=>document.body.classList.add('ready'));
