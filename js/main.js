@@ -110,7 +110,7 @@ document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',
   const slides=[...track.children];
   let idx=Math.min(1,slides.length-1), base=0;
   function layout(){
-    const W=view.clientWidth, w=Math.min(872, W<=700?W-40:W*0.62), gap=W<=700?12:24;
+    const W=view.clientWidth, w=Math.min(872, W<=700?W-40:W*0.62), gap=W<=700?12:55;   // Figma: 872px cards, 55px apart
     view.style.setProperty('--tw',w+'px'); view.style.setProperty('--tgap',gap+'px');
     return {W,w,gap};
   }

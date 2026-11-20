@@ -168,18 +168,14 @@ def r_testimonials(c):
     t = c['testimonials']; items = t['items']
     avs = ''.join(f'<img src="{esc(src(x["avatar"]))}" alt="">' for x in items[:4] if x.get('avatar'))
     def slide(i, x):
-        company = x['role'].split(',')[-1].strip() if x.get('role') else ''
-        chip = f'<span class="chip-s">{esc(company)}</span>' if company else ''
-        if x.get('photo'):
-            media = (f'<div class="t-media"><div class="t-art photo"><img src="{esc(src(x["photo"]))}" alt="{esc(x["name"])}" draggable="false" loading="lazy"></div>'
-                     f'<span class="t-name">{esc(x["name"])}</span></div>')
-        else:
-            img = f'<img src="{esc(src(x["avatar"]))}" alt="{esc(x["name"])}" draggable="false" loading="lazy">' if x.get('avatar') else ''
-            media = (f'<div class="t-media" style="background:{esc(x.get("color") or "#ed6c47")}"><div class="t-art">{img}</div>'
-                     f'<span class="t-name">{esc(x["name"])}</span></div>')
+        # Figma: white card, serif quote + grey name/role on the left, large photo on the right
+        pic = x.get('photo') or x.get('avatar')
+        media = (f'<div class="t-media"><img src="{esc(src(pic))}" alt="{esc(x["name"])}" draggable="false" loading="lazy"></div>'
+                 if pic else '<div class="t-media t-empty"></div>')
+        by = esc(x['name']) + (f', {esc(x["role"])}' if x.get('role') else '')
         return (f'    <div class="t-slide" role="group" aria-roledescription="slide" aria-label="{i+1} of {len(items)}">\n'
                 f'      <figure class="t-card">\n'
-                f'        <div class="t-txt">{chip}<blockquote>“{esc(x["quote"])}”</blockquote><figcaption class="t-by"><b>{esc(x["name"])}</b><span>{esc(x["role"])}</span></figcaption></div>\n'
+                f'        <div class="t-txt"><blockquote>{esc(x["quote"])}</blockquote><figcaption class="t-by">{by}</figcaption></div>\n'
                 f'        {media}\n'
                 f'      </figure></div>')
     slides = '\n'.join(slide(i, x) for i, x in enumerate(items))
