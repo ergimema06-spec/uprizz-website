@@ -246,7 +246,14 @@ const S = {
   view: { type: 'col', id: 'projects' },
   open: null,          // index of the item open in the drawer
   q: '',
+  autoSlug: new WeakSet(), // new projects whose slug still follows the title
+  oldSlugs: new Set(),     // projects that already exist on GitHub (have a default cover.jpg)
 };
+function uniqueSlug(base, self) {
+  base = slugify(base); let s = base, n = 2;
+  while (S.data.projects && S.data.projects.some(p => p !== self && p.slug === s)) s = `${base}-${n++}`;
+  return s;
+}
 
 /* ============================================================
    API + GitHub
@@ -335,7 +342,10 @@ const LABELS = { seo: 'SEO', hero: 'Hero', logos: 'Client logos', work: 'Selecte
 
 async function publish() {
   const files = dirtyFiles(); if (!files.length) return;
-  const featured = S.data.projects.filter(p => p.featured).length;
+  const before = new Set(JSON.parse(S.base.projects.text).map(p => p.slug));
+  const missing = S.data.projects.filter(p => !p.draft && (!p.name || (!before.has(p.slug) && !p.cover)));
+  if (missing.length && !confirm(`${missing.map(p => p.name || 'An untitled project').join(', ')} ${missing.length > 1 ? 'are' : 'is'} missing a title or cover image and will look unfinished on the site. Publish anyway? (Tip: turn on “Hide from site” to publish it as a draft.)`)) return;
+  const featured = S.data.projects.filter(p => p.featured && !p.draft).length;
   if (featured > 3 && !confirm(`${featured} projects are set to show on the homepage, but only the first 3 will appear. Publish anyway?`)) return;
   const btn = $('pubBtn'); btn.disabled = true; btn.firstChild.textContent = 'Publishing… ';
   try {
@@ -419,15 +429,17 @@ const projDir = p => `images/projects/${p.slug}`;
 const COLLECTIONS = {
   projects: {
     label: 'Projects', icon: 'grid', file: 'projects', list: () => S.data.projects,
-    title: p => p.name, thumb: p => p.cover || `images/projects/${p.slug}/cover.jpg`,
-    cols: [['Category', p => esc(p.category)], ['Year', p => esc(p.year)], ['Homepage', p => p.featured ? '<span class="pill blue">Featured</span>' : '<span class="pill mute">—</span>'], ['Photos', p => (p.gallery || []).length]],
-    hint: 'Projects appear on the Work page in this order. Turn on “Show on homepage” for up to 3.',
-    make: () => ({ slug: 'new-project-' + Date.now().toString(36).slice(-4), name: 'New project', category: '', year: new Date().getFullYear(), scope: [], timeline: '', intro: '', challenge: [], solution: [], process: [], conclusion: [], gallery: [], cover: '' }),
+    title: p => p.name || 'Untitled project', thumb: p => p.cover || (S.oldSlugs.has(p.slug) ? `images/projects/${p.slug}/cover.jpg` : ''),
+    cols: [['Status', p => p.draft ? '<span class="pill mute">Draft</span>' : '<span class="pill blue">Live</span>'], ['Category', p => esc(p.category)], ['Year', p => esc(p.year)], ['Homepage', p => p.featured ? '<span class="pill blue">Featured</span>' : '<span class="pill mute">—</span>'], ['Photos', p => (p.gallery || []).length]],
+    hint: 'Projects appear on the Work page in this order (drag to reorder). New projects are added at the top. Turn on “Show on homepage” for up to 3.',
+    addLabel: 'New project', addFirst: true, autoSlug: true,
+    make: () => ({ slug: uniqueSlug('new-project'), name: '', category: '', year: new Date().getFullYear(), scope: [], timeline: '', intro: '', challenge: [], solution: [], process: [], conclusion: [], gallery: [], cover: '' }),
     fields: [
-      { k: 'name', t: 'text', label: 'Title' },
-      { k: 'slug', t: 'slug', label: 'Slug', hint: 'The page address. Letters, numbers and dashes.' },
+      { k: 'name', t: 'text', label: 'Title', placeholder: 'Project name' },
+      { k: 'slug', t: 'slug', label: 'Slug', hint: 'The page address. Fills in from the title; letters, numbers and dashes.' },
+      { k: 'draft', t: 'toggle', label: 'Hide from site', hint: 'Draft: saved, but not shown anywhere on the website yet.' },
       { k: 'featured', t: 'toggle', label: 'Show on homepage', hint: 'Up to 3 projects' },
-      { k: 'cover', t: 'image', label: 'Cover', hint: '16:10 · about 1400px wide', ar: 1.6, dir: projDir, def: p => `images/projects/${p.slug}/cover.jpg` },
+      { k: 'cover', t: 'image', label: 'Cover', hint: '16:10 · about 1400px wide', ar: 1.6, dir: projDir, def: p => S.oldSlugs.has(p.slug) ? `images/projects/${p.slug}/cover.jpg` : '' },
       { k: 'category', t: 'text', label: 'Category', hint: 'e.g. Brand Identity' },
       { k: 'year', t: 'number', label: 'Year' },
       { k: 'scope', t: 'tags', label: 'Scope tags', hint: 'Comma separated. Used by the Work page filter.' },
@@ -578,11 +590,11 @@ function buildForm(obj, fields, ctx = {}) {
     const v = obj[f.k];
     switch (f.t) {
       case 'text': case 'slug': {
-        const i = el(`<input class="inp" value="${esc(v ?? '')}">`); box.appendChild(i);
+        const i = el(`<input class="inp" data-k="${esc(f.k)}" placeholder="${esc(f.placeholder || '')}" value="${esc(v ?? '')}">`); box.appendChild(i);
         if (f.max) { const c = el(`<span class="ctr"></span>`); box.prepend(c); const u = () => { c.textContent = i.value.length + ' / ' + f.max; c.classList.toggle('over', i.value.length > f.max); }; i.addEventListener('input', u); u(); }
         if (f.t === 'slug') {
           const url = el('<div class="url"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg><span></span></div>'); box.appendChild(url);
-          const u = () => url.querySelector('span').textContent = `uprizz.com/projects/${obj.slug}/`; u();
+          const u = () => url.querySelector('span').textContent = `uprizz.com/projects/${obj.slug}/`; u(); i.addEventListener('sync', u);
           i.addEventListener('change', () => { const nv = slugify(i.value); if (ctx.onSlug && !ctx.onSlug(obj.slug, nv)) { i.value = obj.slug; return; } i.value = nv; set(nv); u(); });
         } else i.addEventListener('input', () => set(i.value));
         break;
@@ -752,7 +764,7 @@ function renderCollection(m, id) {
   const q = S.q.toLowerCase();
   const rows = list.map((x, i) => ({ x, i })).filter(({ x }) => !q || JSON.stringify(x).toLowerCase().includes(q));
   m.innerHTML = `<div class="bar"><h2>${esc(c.label)}</h2><span class="count">${list.length}</span>
-      <button class="ibtn" id="addBtn" title="Add item">${'<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>'}</button>
+      ${c.addLabel ? `<button class="tbtn pub" id="addBtn" style="margin-left:6px"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>${esc(c.addLabel)}</button>` : `<button class="ibtn" id="addBtn" title="Add item"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>`}
       <label class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input id="q" placeholder="Search…" value="${esc(S.q)}"></label></div>
     ${c.hint ? `<p class="lead" style="padding:12px 18px 0;color:var(--mute)">${esc(c.hint)}</p>` : ''}
     <table><thead><tr><th></th>${c.thumb || c.sw ? '<th>' + (c.thumb ? 'Image' : '') + '</th>' : ''}<th>Title</th>${cols.map(([h]) => `<th>${esc(h)}</th>`).join('')}</tr></thead>
@@ -761,7 +773,12 @@ function renderCollection(m, id) {
       <td class="t">${esc(c.title(x) || 'Untitled')}</td>${cols.map(([, fn]) => `<td>${fn(x)}</td>`).join('')}</tr>`).join('')}</tbody></table>
     ${rows.length ? '' : '<div class="empty">Nothing here yet.</div>'}`;
   const qi = $('q'); qi.oninput = () => { S.q = qi.value; const pos = qi.selectionStart; renderCollection(m, id); const n = $('q'); n.focus(); n.setSelectionRange(pos, pos); };
-  $('addBtn').onclick = () => { list.push(c.make()); changed(); render(); openItem(list.length - 1); };
+  $('addBtn').onclick = () => {
+    const x = c.make(); if (c.autoSlug) S.autoSlug.add(x);
+    if (c.addFirst) list.unshift(x); else list.push(x);
+    S.q = ''; changed(); render(); openItem(c.addFirst ? 0 : list.length - 1);
+    setTimeout(() => { const t = $('dBody').querySelector('input.inp'); if (t) t.focus(); }, 350);
+  };
   let dragI = null;
   m.querySelectorAll('tbody tr').forEach(tr => {
     const i = +tr.dataset.i;
@@ -782,11 +799,18 @@ function openItem(i) {
   title();
   const body = $('dBody'); body.innerHTML = '<div class="form"></div>';
   const ctx = {
-    onChange: k => { title(); refreshRow(); },
+    onChange: k => {
+      title(); refreshRow();
+      if (k === 'name' && S.autoSlug.has(x)) {          // new project: page address follows the title
+        const ns = uniqueSlug(slugify(x.name || 'new-project'), x);
+        if (ns !== x.slug) { x.slug = ns; const si = $('dBody').querySelector('input[data-k="slug"]'); if (si) { si.value = ns; si.dispatchEvent(new Event('sync')); } }
+      }
+    },
     refresh: () => refreshRow(),
     onSlug: (oldS, newS) => {
       if (!newS) return false;
       if (S.data.projects.some(p => p !== x && p.slug === newS)) { toast('Another project already uses that slug.', null, true); return false; }
+      S.autoSlug.delete(x);   // typed by hand: stop following the title
       // keep existing photos pointing at their current folder
       if (!x.cover) x.cover = `images/projects/${oldS}/cover.jpg`;
       (x.gallery || []).forEach(g => { if (!g.file.includes('/')) g.file = `images/projects/${oldS}/${g.file}`; });
@@ -897,6 +921,7 @@ async function load(fresh) {
     const [content, projects] = await Promise.all([loadFile(FILES.content), loadFile(FILES.projects)]);
     S.base = { content: { ...content, norm: serialize(JSON.parse(content.text)) }, projects: { ...projects, norm: serialize(JSON.parse(projects.text)) } };
     S.data = { content: JSON.parse(content.text), projects: JSON.parse(projects.text) };
+    S.oldSlugs = new Set(S.data.projects.map(p => p.slug));
     S.uploads = {};
     const d = fresh ? null : await idb.get('draft');
     if (d && d.data) {

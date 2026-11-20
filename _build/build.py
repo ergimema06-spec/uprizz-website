@@ -24,7 +24,7 @@ Run it again after editing projects.json or the shared homepage parts.
 import json, re, html, os, datetime
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(ROOT)
-P = json.load(open('_build/projects.json'))
+P = [p for p in json.load(open('_build/projects.json')) if not p.get('draft')]   # drafts (hidden in the CMS) are skipped
 H = open('index.html').read()
 esc = lambda s: html.escape(str(s), quote=True)
 

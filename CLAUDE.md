@@ -11,7 +11,7 @@ The owner edits the site in the **CMS at uprizz.com/admin/** (Framer-style: coll
 | File | What it holds |
 |---|---|
 | `_build/content.json` | Every piece of homepage text, image and list: `seo`, `hero` (incl. stars + news strip), `logos`, `work` (heading/buttons), `comparison` (title, columns, highlight, rows), `process` (heading + `steps`), `pricing` (heading + `plans`), `testimonials` (heading + `items`), `faq` (heading + `items`), `contact` (email, phone, address, socials, footer links). |
-| `_build/projects.json` | Projects (name, slug, category, year, scope, timeline, intro, challenge/solution/process/conclusion paragraphs, optional `cover` path, `gallery` of `{file, shape}`, `featured`). `file`/`cover` may be a bare file name (inside `images/projects/<slug>/`) or a full `images/...` path. |
+| `_build/projects.json` | Projects (name, slug, category, year, scope, timeline, intro, challenge/solution/process/conclusion paragraphs, optional `cover` path, `gallery` of `{file, shape}`, `featured`, `draft`). Projects with `"draft": true` ("Hide from site" in the CMS) are skipped by the build. New projects made with the CMS's “New project” button go to the top of the list, so they show first on the Work page. `file`/`cover` may be a bare file name (inside `images/projects/<slug>/`) or a full `images/...` path. |
 
 `_build/build.py` renders `content.json` into the `<!-- CMS:name -->` … `<!-- /CMS:name -->` blocks of `index.html` (navmeta, hero, logos, workhead, workcta, compare, process, pricing, testimonials, faq, footer) and the homepage SEO tags. **Never edit inside those blocks by hand — edit `content.json` and run the build.** The GitHub Actions deploy runs the build too, so a CMS publish that only changes JSON still updates the site.
 
