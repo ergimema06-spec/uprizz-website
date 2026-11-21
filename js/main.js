@@ -254,12 +254,12 @@ const WAVES={
 })();
 
 /* ---------- Parallax gallery (between pricing and testimonials) ----------
-   Each card has a depth (data-d): it sets the card's size and speed, so closer cards move faster.
+   Each card has a depth (data-d): it sets the card's size and how far it shifts while scrolling.
    data-y places the card vertically (0 = top, 1 = bottom). Scrolling gives a small push and a
    slight vertical parallax. Pauses while off screen; stands still with reduced motion. */
 (()=>{
   const box=$('pgal'); if(!box)return;
-  const sec=box.parentElement, AR=.8, GAP=1.22;                    // every card is portrait 4:5 so the row reads as one set
+  const sec=box.parentElement, AR=.8, GAP=1.3;                    // every card is portrait 4:5 so the row reads as one set
   const src=[...box.children];
   let items=[], span=0, on=false, last=0, boost=0, lastY=scrollY;
   function build(vw){
@@ -277,14 +277,16 @@ const WAVES={
       Object.assign(it.el.style,{width:it.w+'px',height:it.h+'px',zIndex:Math.round(it.d*100)});
       it.x=x; x+=it.w*GAP;                                // a small gap between neighbours
     });
-    span=Math.max(x, vw+Math.max(...items.map(i=>i.w))+40);
+    span=Math.max(x, vw+Math.max(...items.map(i=>i.w))+200);
     draw();
   }
   function draw(){
     const r=box.getBoundingClientRect(), off=(r.top+r.height/2-innerHeight/2);
     items.forEach(it=>{
-      const ty=-off*(it.d-.9)*.16;
-      it.el.style.transform=`translate3d(${it.x.toFixed(1)}px,${(it.top+ty).toFixed(1)}px,0)`;
+      // depth comes from scrolling: closer cards shift further, but the shift is limited,
+      // so the even spacing between cards is never lost
+      const k=(it.d-.95), tx=-off*k*.22, ty=-off*k*.16;
+      it.el.style.transform=`translate3d(${(it.x+tx).toFixed(1)}px,${(it.top+ty).toFixed(1)}px,0)`;
     });
   }
   function frame(t){
@@ -292,8 +294,8 @@ const WAVES={
     const dt=last?Math.min((t-last)/1000,.05):0; last=t;
     const v=Math.abs(scrollY-lastY); lastY=scrollY;
     boost+=(Math.min(v*6,260)-boost)*.08;               // scrolling speeds the drift up a little
-    const speed=reduced?0:30+boost;
-    items.forEach(it=>{it.x-=speed*it.d*dt; if(it.x<-it.w-20)it.x+=span});
+    const speed=reduced?0:34+boost;
+    items.forEach(it=>{it.x-=speed*dt; if(it.x<-it.w-160)it.x+=span});   // one shared speed keeps the gaps even
     draw(); requestAnimationFrame(frame);
   }
   new IntersectionObserver(es=>{const was=on; on=es[0].isIntersecting; if(on){sec.classList.add('on'); if(!was)requestAnimationFrame(frame)}},{rootMargin:'100px 0px'}).observe(sec);
