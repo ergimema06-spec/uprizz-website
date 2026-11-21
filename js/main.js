@@ -254,48 +254,52 @@ const WAVES={
 })();
 
 /* ---------- Parallax gallery (between pricing and testimonials) ----------
-   Each card has a depth (data-d): it sets the card's size and how far it shifts while scrolling.
-   data-y places the card vertically (0 = top, 1 = bottom). Scrolling gives a small push and a
-   slight vertical parallax. Pauses while off screen; stands still with reduced motion. */
+   Cards sit in three depth layers (from data-d): far = small + slow, mid, near = big + fast.
+   Each layer is evenly spaced and loops on its own, so cards in a layer never bunch up;
+   the parallax comes from the layers sliding past each other. data-y places a card vertically
+   (0 = top, 1 = bottom). Scrolling adds a small push and a slight vertical shift.
+   Pauses while off screen; stands still with reduced motion. */
 (()=>{
   const box=$('pgal'); if(!box)return;
-  const sec=box.parentElement, AR=.8, GAP=1.3;                    // every card is portrait 4:5 so the row reads as one set
+  const sec=box.parentElement, AR=.8;
+  const LAYERS=[{max:.8,speed:.55},{max:1.08,speed:1},{max:9,speed:1.6}];
   const src=[...box.children];
-  let items=[], span=0, on=false, last=0, boost=0, lastY=scrollY;
+  let layers=[], on=false, last=0, boost=0, lastY=scrollY;
   function build(vw){
-    // enough cards to fill wide screens: repeat the set until it covers ~1.6 screens
     box.querySelectorAll('[data-clone]').forEach(n=>n.remove());
     const H=box.clientHeight, unit=Math.min(H*.44,vw*.34);
-    const one=src.reduce((s,el)=>s+unit*(+el.dataset.d||1)*AR*GAP,0);
-    const copies=Math.max(1,Math.ceil(vw*1.6/one));
-    const els=[...src];
-    for(let c=1;c<copies;c++)src.forEach(el=>{const n=el.cloneNode(true);n.dataset.clone='1';n.setAttribute('aria-hidden','true');n.querySelector('img').alt='';box.appendChild(n);els.push(n)});
-    items=els.map((el,i)=>({el,i,d:+el.dataset.d||1,y:+el.dataset.y||.5,x:0}));
-    let x=0;
-    items.forEach(it=>{
-      it.h=unit*it.d; it.w=it.h*AR; it.top=(H-it.h)*it.y;
-      Object.assign(it.el.style,{width:it.w+'px',height:it.h+'px',zIndex:Math.round(it.d*100)});
-      it.x=x; x+=it.w*GAP;                                // a small gap between neighbours
+    layers=LAYERS.map(L=>({speed:L.speed,items:[],span:0}));
+    src.forEach(el=>{const d=+el.dataset.d||1; layers[LAYERS.findIndex(L=>d<L.max)].items.push(el)});
+    layers.forEach((L,li)=>{
+      if(!L.items.length)return;
+      const ws=L.items.map(el=>unit*(+el.dataset.d||1)*AR);
+      const avg=ws.reduce((a,b)=>a+b,0)/ws.length;
+      const pitch=avg*(li===0?2.6:li===1?2.3:2.9);        // distance between cards in this layer
+      const copies=Math.max(1,Math.ceil((vw+avg*2)/(pitch*L.items.length)));
+      const els=[...L.items];
+      for(let c=1;c<copies;c++)L.items.forEach(el=>{const n=el.cloneNode(true);n.dataset.clone='1';n.setAttribute('aria-hidden','true');n.querySelector('img').alt='';box.appendChild(n);els.push(n)});
+      L.span=pitch*els.length;
+      const shift=pitch*[0,.38,.7][li];                     // offset layers so they start interleaved
+      L.items=els.map((el,i)=>{const d=+el.dataset.d||1, h=unit*d, w=h*AR;
+        Object.assign(el.style,{width:w+'px',height:h+'px',zIndex:Math.round(d*100)});
+        return {el,d,w,h,top:(H-h)*(+el.dataset.y||.5),x:i*pitch+shift};});
     });
-    span=Math.max(x, vw+Math.max(...items.map(i=>i.w))+200);
     draw();
   }
   function draw(){
     const r=box.getBoundingClientRect(), off=(r.top+r.height/2-innerHeight/2);
-    items.forEach(it=>{
-      // depth comes from scrolling: closer cards shift further, but the shift is limited,
-      // so the even spacing between cards is never lost
-      const k=(it.d-.95), tx=-off*k*.22, ty=-off*k*.16;
-      it.el.style.transform=`translate3d(${(it.x+tx).toFixed(1)}px,${(it.top+ty).toFixed(1)}px,0)`;
-    });
+    layers.forEach(L=>L.items.forEach(it=>{
+      const ty=-off*(it.d-.9)*.16;
+      it.el.style.transform=`translate3d(${it.x.toFixed(1)}px,${(it.top+ty).toFixed(1)}px,0)`;
+    }));
   }
   function frame(t){
     if(!on){last=0;return}
     const dt=last?Math.min((t-last)/1000,.05):0; last=t;
     const v=Math.abs(scrollY-lastY); lastY=scrollY;
     boost+=(Math.min(v*6,260)-boost)*.08;               // scrolling speeds the drift up a little
-    const speed=reduced?0:34+boost;
-    items.forEach(it=>{it.x-=speed*dt; if(it.x<-it.w-160)it.x+=span});   // one shared speed keeps the gaps even
+    const base=reduced?0:28+boost;
+    layers.forEach(L=>L.items.forEach(it=>{it.x-=base*L.speed*dt; if(it.x<-it.w-40)it.x+=L.span}));
     draw(); requestAnimationFrame(frame);
   }
   new IntersectionObserver(es=>{const was=on; on=es[0].isIntersecting; if(on){sec.classList.add('on'); if(!was)requestAnimationFrame(frame)}},{rootMargin:'100px 0px'}).observe(sec);
