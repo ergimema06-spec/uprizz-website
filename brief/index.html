@@ -222,7 +222,9 @@
   .ub-checkout h2{font-family:var(--serif);font-weight:300;font-size:36px;line-height:1.1;letter-spacing:-.02em;margin-top:14px}
   .ub-checkout .sub{color:var(--ink-60);margin-top:8px;font-size:14px;line-height:1.5}
   .ub-checkout .ub-pay{margin-top:22px}
-  .ub-paybtn:disabled{opacity:.6;cursor:wait}
+  .ub-ppwrap{margin-top:16px;min-height:52px;position:relative;z-index:0}
+  .ub-pploading{height:50px;border-radius:1000px;background:var(--ink-08);display:grid;place-items:center;font-size:13px;color:var(--ink-60)}
+  .ub-ppwrap.busy{opacity:.5;pointer-events:none}
   .ub-steps-list{list-style:none;margin-top:22px;display:grid;gap:10px;counter-reset:s}
   .ub-steps-list li{display:flex;gap:12px;align-items:center;font-size:13px;color:var(--ink-60);counter-increment:s}
   .ub-steps-list li:before{content:counter(s);width:22px;height:22px;flex:none;border-radius:50%;border:1px solid var(--ink-15);display:grid;place-items:center;font-size:11px;color:var(--ink)}
@@ -290,9 +292,9 @@
       <div class="ub-pay">
         <div class="k">Total · one-time payment</div>
         <div class="amt" id="ubCoAmt">…</div>
-        <button type="button" class="ub-paybtn" id="ubCoBtn" disabled>Pay with PayPal</button>
+        <div class="ub-ppwrap" id="ubPPButtons"><div class="ub-pploading">Loading secure checkout…</div></div>
         <p class="ub-co-msg" id="ubCoMsg" hidden></p>
-        <p class="ub-paynote">You'll pay on PayPal's secure page and come straight back here to fill in your brief. Prefer a bank transfer? Email heyuprizz@gmail.com and we'll send you an invoice.</p>
+        <p class="ub-paynote">Payments are processed securely by PayPal; you never leave this page. Prefer a bank transfer? Email heyuprizz@gmail.com and we'll send you an invoice.</p>
       </div>
       <ol class="ub-steps-list">
         <li class="on">Pay securely with PayPal</li>
@@ -485,10 +487,11 @@
   const FORM_ENDPOINT = "https://formsubmit.co/24a4766d928c3f5697fb62ecf33bd3aa";   // = heyuprizz@gmail.com (activated)
   const MAX_TOTAL_MB = 10;
 
-  /* PayPal checkout: Start Now -> pay -> back here to fill in the brief.
+  /* PayPal checkout, on this page: Start Now -> pay in PayPal's window -> brief.
+     clientId: the LIVE Client ID from developer.paypal.com > Apps & Credentials (it is public, not a secret).
      Prices are read from the pricing cards on the homepage, so CMS price changes apply here too.
      Set `enabled` to false to skip payment and go straight to the brief. */
-  const PAYPAL = { enabled: true, business: "heyuprizz@gmail.com", currency: "USD" };
+  const PAYPAL = { enabled: true, clientId: "BAAiSIeBhkCH24Ugqx_UE83BO_A4VEb12jr9pGN5stF5SUZ7wzIT1edULZsXyfB3ipktp4VqJ0tHMWt3o8", currency: "USD" };
 
   /* Package chosen on the pricing card (Start Now -> /brief/?plan=Standard) */
   const plan = (new URLSearchParams(location.search).get("plan") || "").replace(/[^\w &+-]/g, "").slice(0, 40);
@@ -655,7 +658,7 @@
       ["Company", v("f-company")],
       ["Package", plan || "Not selected"],
       ["Payment", paid
-        ? `Paid with PayPal: $${paid.amount || "?"}${paid.tx ? " (transaction " + paid.tx + ")" : ""}. Check it in your PayPal account.`
+        ? `PayPal ${paid.status || ""}: $${paid.amount} USD, transaction ${paid.tx}${paid.payer ? ", paid by " + paid.payer : ""}`
         : "Not paid yet"],
       ["Industry", v("f-industry")],
       ["What they do", v("f-what")],
@@ -707,7 +710,20 @@
     } catch (e) {}
     return null;
   }
-  function showCheckout(cancelled) {
+  function loadPayPal() {
+    if (window.paypal) return Promise.resolve(window.paypal);
+    return new Promise((resolve, reject) => {
+      const sc = document.createElement("script");
+      sc.src = "https://www.paypal.com/sdk/js?client-id=" + encodeURIComponent(PAYPAL.clientId) +
+        "&currency=" + PAYPAL.currency + "&intent=capture&components=buttons&enable-funding=card";
+      sc.dataset.namespace = "paypal";
+      sc.onload = () => window.paypal ? resolve(window.paypal) : reject(new Error("no sdk"));
+      sc.onerror = () => reject(new Error("sdk blocked"));
+      document.head.append(sc);
+    });
+  }
+
+  function showCheckout() {
     const formEl = document.querySelector(".ub-form");
     formEl.classList.add("is-checkout");
     document.getElementById("ubCheckout").hidden = false;
@@ -716,33 +732,53 @@
     big.innerHTML = "One order. <br><em>Everything to launch.</em>";
     document.getElementById("ubCoTitle").textContent = plan + " package";
     document.getElementById("ubCoPlan").textContent = "Step 1 of 2";
-    const msg = document.getElementById("ubCoMsg"), btn = document.getElementById("ubCoBtn"), amt = document.getElementById("ubCoAmt");
-    if (cancelled) { msg.textContent = "Payment was cancelled; nothing was charged. You can try again whenever you're ready."; msg.hidden = false; }
-    planPrice(plan).then(price => {
-      if (!price) {
-        amt.textContent = "";
-        msg.textContent = "We couldn't load this package's price. Please refresh the page, or email heyuprizz@gmail.com.";
-        msg.hidden = false; return;
-      }
+    const msg = document.getElementById("ubCoMsg"), amt = document.getElementById("ubCoAmt"), wrap = document.getElementById("ubPPButtons");
+    const say = t => { msg.textContent = t; msg.hidden = !t; };
+    const fail = t => { wrap.innerHTML = ""; say(t); };
+
+    Promise.all([planPrice(plan), loadPayPal().catch(() => null)]).then(([price, pp]) => {
+      if (!price) { amt.textContent = ""; return fail("We couldn't load this package's price. Please refresh the page, or email heyuprizz@gmail.com."); }
       amt.innerHTML = `$${price.toLocaleString("en-US")}<small>USD</small>`;
-      btn.disabled = false;
-      btn.onclick = () => {
-        btn.disabled = true; btn.textContent = "Opening PayPal…";
-        const back = location.origin + "/brief/?plan=" + encodeURIComponent(plan);
-        try { sessionStorage.setItem("ub_checkout", JSON.stringify({ plan, amount: price.toFixed(2) })); } catch (e) {}
-        const f = document.createElement("form");
-        f.method = "POST"; f.action = "https://www.paypal.com/cgi-bin/webscr"; f.target = "_top";
-        const fields = {
-          cmd: "_xclick", business: PAYPAL.business, currency_code: PAYPAL.currency,
-          item_name: `Uprizz ${plan} package`, amount: price.toFixed(2), quantity: "1",
-          no_shipping: "1", no_note: "1", charset: "utf-8", rm: "1",
-          return: back + "&paid=1", cancel_return: back + "&cancelled=1",
-          cbt: "Continue to your brief",
-        };
-        Object.entries(fields).forEach(([k, val]) => { const i = document.createElement("input"); i.type = "hidden"; i.name = k; i.value = val; f.append(i); });
-        document.body.append(f); f.submit();
-      };
+      if (!pp) return fail("PayPal checkout couldn't load (an ad blocker can cause this). Please refresh, or email heyuprizz@gmail.com to pay by bank transfer.");
+      wrap.innerHTML = "";
+      pp.Buttons({
+        style: { layout: "vertical", color: "blue", shape: "pill", label: "pay", height: 48, tagline: false },
+        createOrder: (data, actions) => actions.order.create({
+          intent: "CAPTURE",
+          purchase_units: [{ description: `Uprizz ${plan} package`, amount: { currency_code: PAYPAL.currency, value: price.toFixed(2) } }],
+          application_context: { brand_name: "Uprizz", shipping_preference: "NO_SHIPPING", user_action: "PAY_NOW" },
+        }),
+        onClick: () => say(""),
+        onApprove: async (data, actions) => {
+          wrap.classList.add("busy"); say("");
+          try {
+            const order = await actions.order.capture();
+            const cap = order?.purchase_units?.[0]?.payments?.captures?.[0];
+            if (!cap || !["COMPLETED", "PENDING"].includes(cap.status)) throw new Error(cap?.status || "not captured");
+            paid = { plan, amount: cap.amount?.value || price.toFixed(2), tx: cap.id, status: cap.status,
+                     payer: order.payer?.email_address || "", name: [order.payer?.name?.given_name, order.payer?.name?.surname].filter(Boolean).join(" ") };
+            try { sessionStorage.setItem("ub_paid", JSON.stringify(paid)); } catch (e) {}
+            startBriefAfterPayment();
+          } catch (e) {
+            wrap.classList.remove("busy");
+            say("The payment didn't go through and you haven't been charged. Please try again or use another card.");
+          }
+        },
+        onCancel: () => say("Payment window closed; nothing was charged. You can try again whenever you're ready."),
+        onError: () => say("Something went wrong with PayPal. Please try again, or email heyuprizz@gmail.com."),
+      }).render("#ubPPButtons").catch(() => fail("PayPal checkout couldn't load. Please refresh the page."));
     });
+  }
+
+  function startBriefAfterPayment() {
+    hideCheckout();
+    const first = (paid.name || "").split(" ")[0];
+    document.getElementById("ubPaidText").innerHTML =
+      `<b>Payment ${paid.status === "PENDING" ? "submitted" : "received"}, thank you${first ? ", " + first.replace(/[<>&"]/g, "") : ""}!</b> Your transaction is complete and PayPal has emailed you a receipt. Now tell us about your brand so we can get started.`;
+    document.getElementById("ubPaidNote").hidden = false;
+    if (paid.name && !document.getElementById("f-name").value) document.getElementById("f-name").value = paid.name;
+    if (paid.payer && !document.getElementById("f-email").value) document.getElementById("f-email").value = paid.payer;
+    show(0);
   }
 
   function hideCheckout() {
@@ -778,25 +814,12 @@
     });
   }
 
-  const qs = new URLSearchParams(location.search);
   let paid = null;
-  if (qs.get("paid") === "1" && plan) {
-    let co = {};
-    try { co = JSON.parse(sessionStorage.getItem("ub_checkout") || "{}"); } catch (e) {}
-    paid = { plan, amount: qs.get("amt") || (co.plan === plan ? co.amount : ""), tx: (qs.get("tx") || "").replace(/[^\w-]/g, "") };
-    try { sessionStorage.setItem("ub_paid", JSON.stringify(paid)); } catch (e) {}
-    history.replaceState(null, "", location.pathname + "?plan=" + encodeURIComponent(plan));
-  } else {
-    try { const sp = JSON.parse(sessionStorage.getItem("ub_paid") || "null"); if (sp && sp.plan === plan) paid = sp; } catch (e) {}
-  }
+  try { const sp = JSON.parse(sessionStorage.getItem("ub_paid") || "null"); if (sp && sp.plan === plan && sp.tx) paid = sp; } catch (e) {}
 
-  if (paid) {
-    document.getElementById("ubPaidText").innerHTML = `<b>Payment received, thank you!</b> Your transaction is complete and PayPal has emailed you a receipt. Now tell us about your brand so we can get started.`;
-    document.getElementById("ubPaidNote").hidden = false;
-    show(0);
-  } else if (PAYPAL.enabled && plan) {
-    show(0); showCheckout(qs.get("cancelled") === "1");
-  } else show(0);
+  if (paid) startBriefAfterPayment();
+  else if (PAYPAL.enabled && plan) { show(0); showCheckout(); }
+  else show(0);
 })();
 </script>
 </body>
