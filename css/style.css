@@ -224,7 +224,7 @@ canvas.wave{position:absolute;inset:0;width:100%;height:100%;display:block}
 .pricing .sub{font-size:14px;color:var(--ink)}
 .pricing .sub em{font-style:italic}
 .plans{display:grid;grid-template-columns:repeat(3,1fr);gap:32px;align-items:center}
-.plan{background:var(--card);border-radius:20px;padding:24px;display:flex;flex-direction:column;min-height:550px;transition:transform .6s var(--ease),box-shadow .6s var(--ease)}
+.plan{background:var(--tile);border-radius:20px;padding:24px;display:flex;flex-direction:column;min-height:550px;transition:transform .6s var(--ease),box-shadow .6s var(--ease)}
 .plan:hover{transform:translateY(-4px)}
 .tag{align-self:flex-start;background:var(--bg);color:var(--muted);border-radius:6px;padding:4px 8px;font-size:12px;line-height:16px}
 .tag.blk{background:var(--ink);color:#fff}
