@@ -298,8 +298,9 @@ def page(title, desc, path, og_img, body, extra_js=''):
 <script>/* Page transition into a project (styles: "Page transition" in css/style.css).
    Plays only when the page being opened is a project; every other page change stays instant. */
 addEventListener('pagereveal',e=>{{const vt=e.viewTransition;if(!vt)return;
-  if(!location.pathname.startsWith('/projects/')||matchMedia('(prefers-reduced-motion: reduce)').matches){{vt.skipTransition();return}}
-  vt.types.add('project');const h=document.documentElement;h.classList.add('vt-enter');vt.finished.finally(()=>h.classList.remove('vt-enter'))}});</script>
+  if(!location.pathname.startsWith('/projects/')||matchMedia('(prefers-reduced-motion: reduce)').matches){{vt.ready.catch(()=>{{}});vt.finished.catch(()=>{{}});vt.skipTransition();return}}
+  const h=document.documentElement;try{{const o=JSON.parse(sessionStorage.getItem('vt-origin')||'null');if(o){{h.style.setProperty('--vt-ox',o.x+'%');h.style.setProperty('--vt-oy',o.y+'%')}}}}catch(_){{}}
+  vt.types.add('project')}});</script>
 <title>{esc(title)}</title>
 <meta name="description" content="{esc(desc)}">
 <link rel="canonical" href="{SITE}{path}">
@@ -398,19 +399,20 @@ for i, p in enumerate(P):
     scope = '<br>'.join(esc(s) for s in p['scope'])
     body = f'''<main>
 <section class="pj-top">
-  <div class="pj-head">
-    <h1>{esc(p["name"])}</h1>
-    <div class="pj-meta"><span>(01)</span><span>{esc(p["category"])}</span><span>{p["year"]}</span></div>
-  </div>
+  <div class="pj-head"><h1>{esc(p["name"])}</h1></div>
+  <div class="pj-meta"><span>{esc(p["category"])}, {p["year"]}</span><a href="/projects/{nxt["slug"]}/">Next — {esc(nxt["name"])}</a></div>
+  <div class="pj-cover"><div class="img" style="background-image:url(/{cover(p)})"></div></div>
+</section>
+
+<section class="pj-introsec">
+  <div class="label">(01) Introduction</div>
   <div class="pj-intro fade">
-    <div class="label">Introduction</div>
     <p>{esc(p["intro"])}</p>
     <div class="pj-facts">
       <div><div class="label">Scope</div>{scope}</div>
       <div><div class="label">Timeline</div>{esc(p["timeline"])}</div>
     </div>
   </div>
-  <div class="pj-cover"><div class="img par" style="background-image:url(/{cover(p)})"></div></div>
 </section>
 
 <section class="pj-sec">

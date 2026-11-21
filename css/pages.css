@@ -51,18 +51,22 @@
 .wk-card.hide{display:none}
 
 /* ---------- Project page: top ---------- */
-.pj-top{display:grid;grid-template-columns:minmax(0,1fr) min(800px,55%);column-gap:40px;padding:150px var(--pad) 0}
-.pj-head{grid-column:2}
-.pj-head h1{font-family:var(--display);font-weight:300;font-size:clamp(44px,5.6vw,84px);line-height:1.05;letter-spacing:-.035em;padding-bottom:14px}
-.pj-meta{display:grid;grid-template-columns:140px 1fr auto;border-top:1px solid var(--line);padding:12px 0 18px;font-size:12px}
-.pj-meta span:first-child{color:var(--muted);font-size:11px}
-.pj-intro{grid-column:1;grid-row:2;align-self:end;padding-bottom:30px;max-width:340px}
+/* Top of a project page (ONTO-style): huge title in open space, a thin meta row, then a wide
+   cover. The cover is the image the clicked card grows into (see "Page transition" in style.css). */
+.pj-top{padding:0 var(--pad)}
+.pj-head{min-height:calc(66vh - 44px);min-height:calc(66svh - 44px);display:flex;align-items:center;padding-top:96px}
+.pj-head h1{font-family:var(--display);font-weight:300;font-size:clamp(60px,10vw,168px);line-height:.95;letter-spacing:-.045em}
+.pj-meta{display:flex;justify-content:space-between;align-items:center;gap:24px;height:44px;font-size:12px}
+.pj-meta a{transition:opacity .3s}
+.pj-meta a:hover{opacity:.55}
+.pj-cover{position:relative;aspect-ratio:16/9;border-radius:20px;overflow:hidden;background:#ddd;view-transition-name:pj-hero}
+.pj-cover .img{position:absolute;inset:0}
+.pj-introsec{display:grid;grid-template-columns:minmax(0,1fr) min(800px,55%);column-gap:40px;padding:120px var(--pad) 0}
+.pj-introsec>.label{font-size:12px;color:var(--muted)}
+.pj-intro p{font-family:var(--display);font-weight:300;font-size:clamp(22px,2.1vw,30px);line-height:1.3;letter-spacing:-.01em}
 .pj-intro .label,.pj-facts .label{font-size:10px;color:var(--muted);margin-bottom:8px}
-.pj-intro p{font-size:17px;line-height:26px}
-.pj-facts{display:grid;grid-template-columns:1fr 1fr;margin-top:36px}
+.pj-facts{display:grid;grid-template-columns:1fr 1fr;margin-top:44px}
 .pj-facts div{font-size:16px;line-height:24px}
-.pj-cover{grid-column:2;grid-row:2;aspect-ratio:4/5;border-radius:20px;overflow:hidden;position:relative;background:#ddd}
-.pj-cover .img{position:absolute;inset:-6% 0}
 
 /* ---------- Project page: text sections ---------- */
 .pj-sec{padding:150px var(--pad) 0}
@@ -99,10 +103,11 @@
   .wk-tools{justify-content:space-between}
   .wk-card{aspect-ratio:4/5}
   .wk-list{padding-bottom:90px}
-  .pj-top{grid-template-columns:1fr;padding-top:130px}
-  .pj-head,.pj-intro,.pj-cover{grid-column:1;grid-row:auto}
-  .pj-meta{grid-template-columns:50px 1fr auto}
-  .pj-intro{order:3;padding:36px 0 0;max-width:none}
+  .pj-head{min-height:52vh;min-height:52svh;padding-top:110px}
+  .pj-head h1{font-size:clamp(48px,15vw,72px)}
+  .pj-meta{font-size:11px}
+  .pj-cover{aspect-ratio:4/5}
+  .pj-introsec{grid-template-columns:1fr;row-gap:16px;padding-top:70px}
   .pj-sec{padding-top:90px}
   .pj-sech{grid-template-columns:50px 1fr}
   .pj-row{grid-template-columns:1fr;gap:14px;padding:22px 0 46px}

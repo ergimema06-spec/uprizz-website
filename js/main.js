@@ -308,5 +308,21 @@ const WAVES={
   fit(); addEventListener('resize',fit);
 })();
 
+/* ---------- Page transition into a project ----------
+   Marks the clicked project card so the browser can grow it into the project's cover
+   (styles: "Page transition" in css/style.css). Also remembers where the card was, so the
+   page zooms out around it. */
+(()=>{
+  const clear=()=>document.querySelectorAll('.vt-from').forEach(n=>{n.classList.remove('vt-from');n.style.viewTransitionName=''});
+  document.addEventListener('click',e=>{
+    const a=e.target.closest('a.proj[href^="/projects/"],a.wk-card[href^="/projects/"]');
+    if(!a||e.defaultPrevented||e.button||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;
+    clear(); a.classList.add('vt-from'); a.style.viewTransitionName='pj-hero';
+    const r=a.getBoundingClientRect();
+    try{sessionStorage.setItem('vt-origin',JSON.stringify({x:+((r.left+r.width/2)/innerWidth*100).toFixed(1),y:+((r.top+r.height/2)/innerHeight*100).toFixed(1)}))}catch(_){}
+  });
+  addEventListener('pageshow',clear);              // coming back (Back button): reset the card
+})();
+
 /* ---------- Ready (starts the hero animation) ---------- */
 requestAnimationFrame(()=>document.body.classList.add('ready'));
