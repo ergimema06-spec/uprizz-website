@@ -224,6 +224,15 @@
   .ub-checkout .sub{color:var(--ink-60);margin-top:8px;font-size:14px;line-height:1.5}
   .ub-checkout .ub-pay{margin-top:22px}
   .ub-ppwrap{margin-top:16px;min-height:52px;position:relative;z-index:0}
+  /* PayPal's card form opens inside this box: instead of the whole page growing, the box keeps a
+     fixed maximum height and scrolls (thin scrollbar, soft fade at the bottom while there's more). */
+  .ub-ppwrap{max-height:320px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:rgba(25,25,25,.22) transparent;
+    scroll-behavior:smooth;border-radius:14px}
+  .ub-ppwrap::-webkit-scrollbar{width:6px}
+  .ub-ppwrap::-webkit-scrollbar-thumb{background:rgba(25,25,25,.22);border-radius:6px}
+  .ub-ppwrap::-webkit-scrollbar-track{background:transparent}
+  .ub-ppwrap.scrolls{padding-right:6px}
+  .ub-ppwrap.scrolls:not(.at-end){-webkit-mask-image:linear-gradient(#000 calc(100% - 36px),transparent);mask-image:linear-gradient(#000 calc(100% - 36px),transparent)}
   .ub-pploading{height:50px;border-radius:1000px;background:var(--ink-08);display:grid;place-items:center;font-size:13px;color:var(--ink-60)}
   .ub-ppwrap.busy{opacity:.5;pointer-events:none}
   .ub-steps-list{list-style:none;margin-top:22px;display:grid;gap:10px;counter-reset:s}
@@ -742,6 +751,16 @@
       amt.innerHTML = `$${price.toLocaleString("en-US")}<small>USD</small>`;
       if (!pp) return fail("PayPal checkout couldn't load (an ad blocker can cause this). Please refresh, or email heyuprizz@gmail.com to pay by bank transfer.");
       wrap.innerHTML = "";
+      // keep the checkout box a fixed height: when PayPal's card form opens, the box scrolls instead of growing
+      const fit = () => {
+        const more = wrap.scrollHeight > wrap.clientHeight + 2;
+        wrap.classList.toggle("scrolls", more);
+        wrap.classList.toggle("at-end", !more || wrap.scrollTop + wrap.clientHeight >= wrap.scrollHeight - 4);
+      };
+      if (window.ResizeObserver) new ResizeObserver(fit).observe(wrap);
+      new MutationObserver(() => { fit(); wrap.querySelectorAll("iframe,div").forEach(el => { if (!el._ubObs && window.ResizeObserver) { el._ubObs = 1; new ResizeObserver(fit).observe(el); } }); })
+        .observe(wrap, { childList: true, subtree: true, attributes: true, attributeFilter: ["style", "height"] });
+      wrap.addEventListener("scroll", fit, { passive: true });
       pp.Buttons({
         style: { layout: "vertical", color: "blue", shape: "pill", label: "pay", height: 48, tagline: false },
         createOrder: (data, actions) => actions.order.create({
