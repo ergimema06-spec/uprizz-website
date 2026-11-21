@@ -397,6 +397,7 @@ for i, p in enumerate(P):
     if not gal:  # no photos yet: neutral placeholders
         tiles = [f'<div class="g {c} fade"><span class="ph">Project image</span></div>' for c in ('full', 'half', 'half', 'full')]
     scope = '<br>'.join(esc(s) for s in p['scope'])
+    logo_html = (f'<img src="/{src(p["logo"])}" alt="{esc(p["name"])}">' if p.get('logo') else esc(p["name"]))
     scope_li = ''.join(f'<li>{esc(s)}</li>' for s in p['scope'])
     # headline: the project's own, or the first sentence of the Overview (then the Overview shows the rest)
     _m = re.match(r'(.+?[.!?])(\s|$)', (p.get('intro') or '').strip())
@@ -405,7 +406,7 @@ for i, p in enumerate(P):
     body = f'''<main>
 <section class="pj-top">
   <div class="pj-head">
-    <div class="pj-client">{esc(p["name"])}</div>
+    <div class="pj-client">{logo_html}</div>
     <h1>{esc(headline)}</h1>
   </div>
   <div class="pj-cover"><div class="img" style="background-image:url(/{cover(p)})"></div></div>

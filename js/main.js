@@ -377,14 +377,6 @@ const WAVES={
 
     extras.forEach(x=>anims.push(x.animate([{opacity:1},{opacity:0}],{duration:280,easing:'ease-out',fill:'forwards'})));
 
-    // the menu glides to where it sits on project pages (top-left), so nothing jumps when the page changes
-    const nav=document.getElementById('nav');
-    if(nav&&!document.querySelector('.pj-top')){
-      const pad=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--pad'))||61;
-      const nr=nav.getBoundingClientRect();
-      anims.push(nav.animate([{translate:'0 0'},{translate:`${pad-nr.left}px 0`}],opts));
-    }
-
     // everything else zooms away around the card; the menu stays where it is
     const cx=c.left+c.width/2, cy=c.top+c.height/2;
     [...document.body.children].forEach(el=>{

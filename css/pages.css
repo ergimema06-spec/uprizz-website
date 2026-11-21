@@ -52,18 +52,18 @@
 
 /* ---------- Project page: top ---------- */
 /* Project page (structure like together.agency case studies):
-   the Uprizz menu sits top-left; the project name on the left and a one-sentence headline on the
+   the client logo (or the project name) on the left and a one-sentence headline on the
    right; the wide cover starts at --pj-cover-top (style.css, also used by the click transition);
    then rows with a small label on the left and serif text on the right, separated by thin lines. */
-body:has(.pj-top) .nav{left:var(--pad);transform:none}
 .pj-top{padding:0 var(--pad)}
-.pj-head{height:var(--pj-cover-top);display:grid;grid-template-columns:240px minmax(0,640px);align-content:center;padding-top:64px}
-.pj-client{font-family:var(--display);font-weight:300;font-size:26px;line-height:38px;letter-spacing:-.01em}
+.pj-head{height:var(--pj-cover-top);display:grid;grid-template-columns:minmax(0,26%) minmax(0,640px);column-gap:40px;align-content:center;align-items:start;padding-top:64px}
+.pj-client{font-family:var(--display);font-weight:300;font-size:26px;line-height:38px;letter-spacing:-.01em;padding-top:6px}
+.pj-client img{display:block;height:34px;width:auto;max-width:220px;object-fit:contain;object-position:left center}
 .pj-head h1{font-family:var(--display);font-weight:300;font-size:clamp(28px,2.55vw,38px);line-height:1.22;letter-spacing:-.005em}
 .pj-cover{position:relative;aspect-ratio:16/9;border-radius:20px;overflow:hidden;background:#ddd;view-transition-name:pj-hero}
 .pj-cover .img{position:absolute;inset:0}
 .pj-rows{padding:110px var(--pad) 0}
-.pj-r{display:grid;grid-template-columns:240px minmax(0,1fr);padding:26px 0 44px}
+.pj-r{display:grid;grid-template-columns:minmax(0,26%) minmax(0,1fr);column-gap:40px;padding:26px 0 44px}
 .pj-r.line{border-top:1px solid var(--line)}
 .pj-l{font-family:var(--sans);font-weight:400;font-size:14px;line-height:22px}
 .pj-c{max-width:620px;font-family:var(--display);font-weight:300;font-size:20px;line-height:1.5;letter-spacing:-.005em}

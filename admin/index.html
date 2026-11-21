@@ -446,6 +446,7 @@ const COLLECTIONS = {
       { k: 'slug', t: 'slug', label: 'Slug', hint: 'The page address. Fills in from the title; letters, numbers and dashes.' },
       { k: 'draft', t: 'toggle', label: 'Hide from site', hint: 'Draft: saved, but not shown anywhere on the website yet.' },
       { k: 'featured', t: 'toggle', label: 'Show on homepage', hint: 'Up to 3 projects' },
+      { k: 'logo', t: 'image', label: 'Client logo', hint: 'Shown top-left on the project page. PNG or SVG with a transparent background, dark logo. Leave empty to show the project name instead.', ar: 3, dir: projDir },
       { k: 'cover', t: 'image', label: 'Cover', hint: '16:10 · about 1400px wide', ar: 1.6, dir: projDir, def: p => S.oldSlugs.has(p.slug) ? `images/projects/${p.slug}/cover.jpg` : '' },
       { k: 'category', t: 'text', label: 'Category', hint: 'e.g. Brand Identity' },
       { k: 'year', t: 'number', label: 'Year' },
