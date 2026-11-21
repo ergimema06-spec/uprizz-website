@@ -7,7 +7,8 @@
    Plays only when the page being opened is a project; every other page change stays instant. */
 addEventListener('pagereveal',e=>{const vt=e.viewTransition;if(!vt)return;
   if(!location.pathname.startsWith('/projects/')||matchMedia('(prefers-reduced-motion: reduce)').matches){vt.ready.catch(()=>{});vt.finished.catch(()=>{});vt.skipTransition();return}
-  vt.types.add('project')});</script>
+  vt.types.add('project')});
+addEventListener('pageswap',e=>{const vt=e.viewTransition;if(vt){vt.ready.catch(()=>{});vt.finished.catch(()=>{})}});</script>
 <title>NeoYokoto — Uprizz</title>
 <meta name="description" content="Naming and full identity for a streetwear label built on the ordinary. A hand-drawn wordmark, a system made to be worn in, and a launch campaign shot in…">
 <link rel="canonical" href="https://uprizz.com/projects/neoyokoto/">
@@ -25,8 +26,8 @@ addEventListener('pagereveal',e=>{const vt=e.viewTransition;if(!vt)return;
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,300&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/style.css?v=5a15cc31">
-<link rel="stylesheet" href="/css/pages.css?v=074356ea">
+<link rel="stylesheet" href="/css/style.css?v=183e6c27">
+<link rel="stylesheet" href="/css/pages.css?v=dcb7c90c">
 <style>
 /* ---------- Uprizz logo (recolours with the text colour) ---------- */
 .brandmark{display:inline-block;height:.95em;aspect-ratio:248.52/94.51;vertical-align:-.2em;background:currentColor;
@@ -54,27 +55,23 @@ addEventListener('pagereveal',e=>{const vt=e.viewTransition;if(!vt)return;
 </nav>
 <main>
 <section class="pj-top">
-  <div class="pj-head"><h1>NeoYokoto</h1></div>
-  <div class="pj-meta"><span>Content Systems, 2026</span><a href="/projects/meridian-automotive/">Next — Meridian Automotive</a></div>
+  <div class="pj-head">
+    <div class="pj-client">NeoYokoto</div>
+    <h1>Naming and full identity for a streetwear label built on the ordinary.</h1>
+  </div>
   <div class="pj-cover"><div class="img" style="background-image:url(/images/projects/neoyokoto/cover.jpg)"></div></div>
 </section>
 
-<section class="pj-introsec">
-  <div class="label">(01) Introduction</div>
-  <div class="pj-intro fade">
-    <p>Naming and full identity for a streetwear label built on the ordinary. A hand-drawn wordmark, a system made to be worn in, and a launch campaign shot in the unglamorous hours the clothes actually live in.</p>
-    <div class="pj-facts">
-      <div><div class="label">Scope</div>Naming<br>Toolkits<br>Packaging</div>
-      <div><div class="label">Timeline</div>8 weeks</div>
-    </div>
-  </div>
+<section class="pj-rows">
+  <div class="pj-r fade"><h2 class="pj-l">Overview</h2><div class="pj-c"><p>A hand-drawn wordmark, a system made to be worn in, and a launch campaign shot in the unglamorous hours the clothes actually live in.</p></div></div>
+  <div class="pj-r line fade"><h3 class="pj-l">Our Role</h3><div class="pj-c"><ul class="pj-list"><li>Naming</li><li>Toolkits</li><li>Packaging</li></ul></div></div>
+  <div class="pj-r line fade"><h3 class="pj-l">Details</h3><div class="pj-c"><ul class="pj-list"><li>Content Systems</li><li>2026</li><li>8 weeks</li></ul></div></div>
 </section>
 
-<section class="pj-sec">
-  <div class="pj-sech"><span>(02)</span><span>Overview</span></div>
-  <div class="pj-row fade"><h3>Challenge</h3><div><p>The founders came to us with garments and no name. What they had instead was a position: streetwear had become costume, styled on rooftops and shot like sneaker ads, and their clothes were meant for the parts of the week nobody photographs.</p></div></div>
-  <div class="pj-row fade"><h3>Solution</h3><div><p>The name came first. NeoYokoto is an invented place, a district that does not exist, which let the brand build its own mythology instead of borrowing Tokyo&#x27;s. The wordmark is hand-drawn in marker, kept deliberately uneven, with a small stick figure glyph that works alone as the label&#x27;s shorthand on tabs, zip pulls, and embroidery.</p></div></div>
-  <div class="pj-row fade"><h3>Process</h3><div><p>Weeks one and two were naming: 68 candidates, three rounds, trademark screening on the final four. Weeks three to five were the mark itself. We drew roughly 200 wordmark passes by hand, scanned the best 14, and stress-tested them at print scale on actual blanks before choosing.</p></div></div>
+<section class="pj-rows">
+  <div class="pj-r fade"><h3 class="pj-l">Challenge</h3><div class="pj-c"><p>The founders came to us with garments and no name. What they had instead was a position: streetwear had become costume, styled on rooftops and shot like sneaker ads, and their clothes were meant for the parts of the week nobody photographs.</p></div></div>
+  <div class="pj-r line fade"><h3 class="pj-l">Solution</h3><div class="pj-c"><p>The name came first. NeoYokoto is an invented place, a district that does not exist, which let the brand build its own mythology instead of borrowing Tokyo&#x27;s. The wordmark is hand-drawn in marker, kept deliberately uneven, with a small stick figure glyph that works alone as the label&#x27;s shorthand on tabs, zip pulls, and embroidery.</p></div></div>
+  <div class="pj-r line fade"><h3 class="pj-l">Process</h3><div class="pj-c"><p>Weeks one and two were naming: 68 candidates, three rounds, trademark screening on the final four. Weeks three to five were the mark itself. We drew roughly 200 wordmark passes by hand, scanned the best 14, and stress-tested them at print scale on actual blanks before choosing.</p></div></div>
 </section>
 
 <section class="pj-gal">
@@ -87,9 +84,8 @@ addEventListener('pagereveal',e=>{const vt=e.viewTransition;if(!vt)return;
   <div class="g full fade"><div class="img par" style="background-image:url(/images/projects/neoyokoto/07.jpg)"></div></div>
 </section>
 
-<section class="pj-sec">
-  <div class="pj-sech"><span>(03)</span><span>Final Thoughts</span></div>
-  <div class="pj-row fade"><h3>Conclusion</h3><div><p>The first drop sold out its hoodie run in eleven days, and the stick figure has already been tattooed on two customers, which is not a metric we planned for but is the only one the founders quote.</p></div></div>
+<section class="pj-rows">
+  <div class="pj-r fade"><h3 class="pj-l">Conclusion</h3><div class="pj-c"><p>The first drop sold out its hoodie run in eleven days, and the stick figure has already been tattooed on two customers, which is not a metric we planned for but is the only one the founders quote.</p></div></div>
 </section>
 
 <section class="pj-next">
@@ -144,6 +140,6 @@ addEventListener('pagereveal',e=>{const vt=e.viewTransition;if(!vt)return;
   <div class="wordmark" id="wordmark"><span><span class="brandmark big" role="img" aria-label="Uprizz"></span></span></div>
   <div class="legal"><div><a href="#">Terms of service</a><a href="#">Privacy Policy</a></div><span>© 2026 Uprizz®. All rights reserved.</span></div>
 </footer>
-<script src="/js/main.js?v=8324011d"></script>
+<script src="/js/main.js?v=704609b1"></script>
 </body>
 </html>

@@ -28,6 +28,7 @@
   --sans:'Uprizz Sans','Inter',system-ui,sans-serif;
   --display:var(--serif); --body:var(--sans);
   --pad:61px; --radius:20px;
+  --pj-cover-top:max(44vh,380px);   /* where a project's cover starts (css/pages.css + the click transition in main.js) */
   --ease:cubic-bezier(.22,1,.36,1);
 }
 *{box-sizing:border-box;margin:0;padding:0}
@@ -365,7 +366,7 @@ a:hover .roll span{transform:translateY(-100%)}
 @media (max-width:700px){
   .pgal{height:340px;margin-top:70px}
   .pgal + .testi{padding-top:50px}
-  :root{--pad:20px}
+  :root{--pad:20px;--pj-cover-top:max(46vh,360px)}
   .faq{padding-top:110px;padding-bottom:80px}
   .faq .shead{margin-bottom:40px}
   .faq .h2{font-size:32px;letter-spacing:-.8px}

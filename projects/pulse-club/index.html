@@ -7,7 +7,8 @@
    Plays only when the page being opened is a project; every other page change stays instant. */
 addEventListener('pagereveal',e=>{const vt=e.viewTransition;if(!vt)return;
   if(!location.pathname.startsWith('/projects/')||matchMedia('(prefers-reduced-motion: reduce)').matches){vt.ready.catch(()=>{});vt.finished.catch(()=>{});vt.skipTransition();return}
-  vt.types.add('project')});</script>
+  vt.types.add('project')});
+addEventListener('pageswap',e=>{const vt=e.viewTransition;if(vt){vt.ready.catch(()=>{});vt.finished.catch(()=>{})}});</script>
 <title>Pulse Club — Uprizz</title>
 <meta name="description" content="Naming, identity, and launch campaign for a gym built on a different question: what if training felt like arriving instead of proving yourself? A brand…">
 <link rel="canonical" href="https://uprizz.com/projects/pulse-club/">
@@ -25,8 +26,8 @@ addEventListener('pagereveal',e=>{const vt=e.viewTransition;if(!vt)return;
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,300&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/style.css?v=5a15cc31">
-<link rel="stylesheet" href="/css/pages.css?v=074356ea">
+<link rel="stylesheet" href="/css/style.css?v=183e6c27">
+<link rel="stylesheet" href="/css/pages.css?v=dcb7c90c">
 <style>
 /* ---------- Uprizz logo (recolours with the text colour) ---------- */
 .brandmark{display:inline-block;height:.95em;aspect-ratio:248.52/94.51;vertical-align:-.2em;background:currentColor;
@@ -54,27 +55,23 @@ addEventListener('pagereveal',e=>{const vt=e.viewTransition;if(!vt)return;
 </nav>
 <main>
 <section class="pj-top">
-  <div class="pj-head"><h1>Pulse Club</h1></div>
-  <div class="pj-meta"><span>Brand Identity, 2026</span><a href="/projects/basalt/">Next — Basalt</a></div>
+  <div class="pj-head">
+    <div class="pj-client">Pulse Club</div>
+    <h1>Naming, identity, and launch campaign for a gym built on a different question: what if training felt like arriving instead of proving yourself?</h1>
+  </div>
   <div class="pj-cover"><div class="img" style="background-image:url(/images/projects/pulse-club/cover.jpg)"></div></div>
 </section>
 
-<section class="pj-introsec">
-  <div class="label">(01) Introduction</div>
-  <div class="pj-intro fade">
-    <p>Naming, identity, and launch campaign for a gym built on a different question: what if training felt like arriving instead of proving yourself? A brand for people with full schedules who still show up.</p>
-    <div class="pj-facts">
-      <div><div class="label">Scope</div>Campaign<br>Packaging<br>Social<br>Toolkits<br>Naming<br>Animation</div>
-      <div><div class="label">Timeline</div>10 weeks</div>
-    </div>
-  </div>
+<section class="pj-rows">
+  <div class="pj-r fade"><h2 class="pj-l">Overview</h2><div class="pj-c"><p>A brand for people with full schedules who still show up.</p></div></div>
+  <div class="pj-r line fade"><h3 class="pj-l">Our Role</h3><div class="pj-c"><ul class="pj-list"><li>Campaign</li><li>Packaging</li><li>Social</li><li>Toolkits</li><li>Naming</li><li>Animation</li></ul></div></div>
+  <div class="pj-r line fade"><h3 class="pj-l">Details</h3><div class="pj-c"><ul class="pj-list"><li>Brand Identity</li><li>2026</li><li>10 weeks</li></ul></div></div>
 </section>
 
-<section class="pj-sec">
-  <div class="pj-sech"><span>(02)</span><span>Overview</span></div>
-  <div class="pj-row fade"><h3>Challenge</h3><div><p>Fitness branding runs on intensity. Condensed type, shouted verbs, before-and-after arithmetic. Pulse Club&#x27;s founders were building the opposite: a gym where progress means showing up weekly, adjusting the pace, and noticing how each day feels a little different from the last. The identity had to signal effort without aggression and calm without softness.</p></div></div>
-  <div class="pj-row fade"><h3>Solution</h3><div><p>The name holds the whole position. Pulse is the body&#x27;s quietest constant, proof of effort that never shouts, and Club reframes membership as belonging rather than subscription.</p></div></div>
-  <div class="pj-row fade"><h3>Process</h3><div><p>Naming ran the first three weeks: 54 candidates, screened down through two rounds with the founders, trademark checks on the final three.</p><p>Weeks four to seven were identity, where the glyph went through 60 drawn passes before the version that read as a pulse at ten meters and a scribble of energy up close. We tested every candidate on a printed shirt before showing it on a screen, because the chest print was always going to be the brand&#x27;s real home.</p></div></div>
+<section class="pj-rows">
+  <div class="pj-r fade"><h3 class="pj-l">Challenge</h3><div class="pj-c"><p>Fitness branding runs on intensity. Condensed type, shouted verbs, before-and-after arithmetic. Pulse Club&#x27;s founders were building the opposite: a gym where progress means showing up weekly, adjusting the pace, and noticing how each day feels a little different from the last. The identity had to signal effort without aggression and calm without softness.</p></div></div>
+  <div class="pj-r line fade"><h3 class="pj-l">Solution</h3><div class="pj-c"><p>The name holds the whole position. Pulse is the body&#x27;s quietest constant, proof of effort that never shouts, and Club reframes membership as belonging rather than subscription.</p></div></div>
+  <div class="pj-r line fade"><h3 class="pj-l">Process</h3><div class="pj-c"><p>Naming ran the first three weeks: 54 candidates, screened down through two rounds with the founders, trademark checks on the final three.</p><p>Weeks four to seven were identity, where the glyph went through 60 drawn passes before the version that read as a pulse at ten meters and a scribble of energy up close. We tested every candidate on a printed shirt before showing it on a screen, because the chest print was always going to be the brand&#x27;s real home.</p></div></div>
 </section>
 
 <section class="pj-gal">
@@ -88,9 +85,8 @@ addEventListener('pagereveal',e=>{const vt=e.viewTransition;if(!vt)return;
   <div class="g full fade"><div class="img par" style="background-image:url(/images/projects/pulse-club/08.jpg)"></div></div>
 </section>
 
-<section class="pj-sec">
-  <div class="pj-sech"><span>(03)</span><span>Final Thoughts</span></div>
-  <div class="pj-row fade"><h3>Conclusion</h3><div><p>Pulse Club opened with 300 founding memberships gone before the doors did, and the first merch run sold out to people who had never set foot in the gym, which says the identity works as belonging before it works as marketing. The in-house team has run the system solo since week one.</p></div></div>
+<section class="pj-rows">
+  <div class="pj-r fade"><h3 class="pj-l">Conclusion</h3><div class="pj-c"><p>Pulse Club opened with 300 founding memberships gone before the doors did, and the first merch run sold out to people who had never set foot in the gym, which says the identity works as belonging before it works as marketing. The in-house team has run the system solo since week one.</p></div></div>
 </section>
 
 <section class="pj-next">
@@ -145,6 +141,6 @@ addEventListener('pagereveal',e=>{const vt=e.viewTransition;if(!vt)return;
   <div class="wordmark" id="wordmark"><span><span class="brandmark big" role="img" aria-label="Uprizz"></span></span></div>
   <div class="legal"><div><a href="#">Terms of service</a><a href="#">Privacy Policy</a></div><span>© 2026 Uprizz®. All rights reserved.</span></div>
 </footer>
-<script src="/js/main.js?v=8324011d"></script>
+<script src="/js/main.js?v=704609b1"></script>
 </body>
 </html>

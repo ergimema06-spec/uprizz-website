@@ -299,7 +299,8 @@ def page(title, desc, path, og_img, body, extra_js='', extra_head=''):
    Plays only when the page being opened is a project; every other page change stays instant. */
 addEventListener('pagereveal',e=>{{const vt=e.viewTransition;if(!vt)return;
   if(!location.pathname.startsWith('/projects/')||matchMedia('(prefers-reduced-motion: reduce)').matches){{vt.ready.catch(()=>{{}});vt.finished.catch(()=>{{}});vt.skipTransition();return}}
-  vt.types.add('project')}});</script>
+  vt.types.add('project')}});
+addEventListener('pageswap',e=>{{const vt=e.viewTransition;if(vt){{vt.ready.catch(()=>{{}});vt.finished.catch(()=>{{}})}}}});</script>
 <title>{esc(title)}</title>
 <meta name="description" content="{esc(desc)}">
 <link rel="canonical" href="{SITE}{path}">
@@ -396,38 +397,38 @@ for i, p in enumerate(P):
     if not gal:  # no photos yet: neutral placeholders
         tiles = [f'<div class="g {c} fade"><span class="ph">Project image</span></div>' for c in ('full', 'half', 'half', 'full')]
     scope = '<br>'.join(esc(s) for s in p['scope'])
+    scope_li = ''.join(f'<li>{esc(s)}</li>' for s in p['scope'])
+    # headline: the project's own, or the first sentence of the Overview (then the Overview shows the rest)
+    _m = re.match(r'(.+?[.!?])(\s|$)', (p.get('intro') or '').strip())
+    headline = (p.get('headline') or '').strip() or (_m.group(1) if _m else p.get('intro', ''))
+    overview = p.get('intro', '') if (p.get('headline') or '').strip() else ((p.get('intro', '')[len(headline):].strip()) or p.get('intro', ''))
     body = f'''<main>
 <section class="pj-top">
-  <div class="pj-head"><h1>{esc(p["name"])}</h1></div>
-  <div class="pj-meta"><span>{esc(p["category"])}, {p["year"]}</span><a href="/projects/{nxt["slug"]}/">Next — {esc(nxt["name"])}</a></div>
+  <div class="pj-head">
+    <div class="pj-client">{esc(p["name"])}</div>
+    <h1>{esc(headline)}</h1>
+  </div>
   <div class="pj-cover"><div class="img" style="background-image:url(/{cover(p)})"></div></div>
 </section>
 
-<section class="pj-introsec">
-  <div class="label">(01) Introduction</div>
-  <div class="pj-intro fade">
-    <p>{esc(p["intro"])}</p>
-    <div class="pj-facts">
-      <div><div class="label">Scope</div>{scope}</div>
-      <div><div class="label">Timeline</div>{esc(p["timeline"])}</div>
-    </div>
-  </div>
+<section class="pj-rows">
+  <div class="pj-r fade"><h2 class="pj-l">Overview</h2><div class="pj-c"><p>{esc(overview)}</p></div></div>
+  <div class="pj-r line fade"><h3 class="pj-l">Our Role</h3><div class="pj-c"><ul class="pj-list">{scope_li}</ul></div></div>
+  <div class="pj-r line fade"><h3 class="pj-l">Details</h3><div class="pj-c"><ul class="pj-list"><li>{esc(p["category"])}</li><li>{p["year"]}</li><li>{esc(p["timeline"])}</li></ul></div></div>
 </section>
 
-<section class="pj-sec">
-  <div class="pj-sech"><span>(02)</span><span>Overview</span></div>
-  <div class="pj-row fade"><h3>Challenge</h3><div>{paras(p["challenge"])}</div></div>
-  <div class="pj-row fade"><h3>Solution</h3><div>{paras(p["solution"])}</div></div>
-  <div class="pj-row fade"><h3>Process</h3><div>{paras(p["process"])}</div></div>
+<section class="pj-rows">
+  <div class="pj-r fade"><h3 class="pj-l">Challenge</h3><div class="pj-c">{paras(p["challenge"])}</div></div>
+  <div class="pj-r line fade"><h3 class="pj-l">Solution</h3><div class="pj-c">{paras(p["solution"])}</div></div>
+  <div class="pj-r line fade"><h3 class="pj-l">Process</h3><div class="pj-c">{paras(p["process"])}</div></div>
 </section>
 
 <section class="pj-gal">
   {chr(10).join('  ' + t for t in tiles).strip()}
 </section>
 
-<section class="pj-sec">
-  <div class="pj-sech"><span>(03)</span><span>Final Thoughts</span></div>
-  <div class="pj-row fade"><h3>Conclusion</h3><div>{paras(p["conclusion"])}</div></div>
+<section class="pj-rows">
+  <div class="pj-r fade"><h3 class="pj-l">Conclusion</h3><div class="pj-c">{paras(p["conclusion"])}</div></div>
 </section>
 
 <section class="pj-next">

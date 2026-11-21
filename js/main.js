@@ -325,12 +325,13 @@ const WAVES={
   document.addEventListener('pointerover',e=>{const a=e.target.closest(sel); if(a)prefetch(a)});
   document.addEventListener('touchstart',e=>{const a=e.target.closest(sel); if(a)prefetch(a)},{passive:true});
 
-  // where the cover sits on a project page (mirrors .pj-head / .pj-meta / .pj-cover in css/pages.css)
+  // where the cover sits on a project page: --pj-cover-top (css/style.css) + .pj-cover (css/pages.css)
   function coverRect(){
-    const vw=document.documentElement.clientWidth, vh=innerHeight, mob=vw<=700;
+    const vw=document.documentElement.clientWidth, mob=vw<=700;
     const pad=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--pad'))||61;
-    const w=vw-2*pad, h=mob?w*1.25:w*9/16;
-    return {left:pad, top:(mob?vh*.52:vh*.66-44)+44, width:w, height:h};
+    const probe=document.createElement('div'); probe.style.cssText='position:absolute;visibility:hidden;height:var(--pj-cover-top)';
+    document.body.appendChild(probe); const top=probe.offsetHeight; probe.remove();
+    const w=vw-2*pad; return {left:pad, top, width:w, height:mob?w*1.25:w*9/16};
   }
   let running=null;
   function reset(){
@@ -375,6 +376,14 @@ const WAVES={
       {left:'0px',top:'0px',width:t.width+'px',height:t.height+'px'}],opts));
 
     extras.forEach(x=>anims.push(x.animate([{opacity:1},{opacity:0}],{duration:280,easing:'ease-out',fill:'forwards'})));
+
+    // the menu glides to where it sits on project pages (top-left), so nothing jumps when the page changes
+    const nav=document.getElementById('nav');
+    if(nav&&!document.querySelector('.pj-top')){
+      const pad=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--pad'))||61;
+      const nr=nav.getBoundingClientRect();
+      anims.push(nav.animate([{translate:'0 0'},{translate:`${pad-nr.left}px 0`}],opts));
+    }
 
     // everything else zooms away around the card; the menu stays where it is
     const cx=c.left+c.width/2, cy=c.top+c.height/2;

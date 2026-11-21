@@ -7,7 +7,8 @@
    Plays only when the page being opened is a project; every other page change stays instant. */
 addEventListener('pagereveal',e=>{const vt=e.viewTransition;if(!vt)return;
   if(!location.pathname.startsWith('/projects/')||matchMedia('(prefers-reduced-motion: reduce)').matches){vt.ready.catch(()=>{});vt.finished.catch(()=>{});vt.skipTransition();return}
-  vt.types.add('project')});</script>
+  vt.types.add('project')});
+addEventListener('pageswap',e=>{const vt=e.viewTransition;if(vt){vt.ready.catch(()=>{});vt.finished.catch(()=>{})}});</script>
 <title>Russells — Uprizz</title>
 <meta name="description" content="Naming, identity, and an own-label packaging line for a dog store and grooming studio that refuses to be cute. A geometric hound, a concrete flagship, and…">
 <link rel="canonical" href="https://uprizz.com/projects/russells/">
@@ -25,8 +26,8 @@ addEventListener('pagereveal',e=>{const vt=e.viewTransition;if(!vt)return;
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,300&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/style.css?v=5a15cc31">
-<link rel="stylesheet" href="/css/pages.css?v=074356ea">
+<link rel="stylesheet" href="/css/style.css?v=183e6c27">
+<link rel="stylesheet" href="/css/pages.css?v=dcb7c90c">
 <style>
 /* ---------- Uprizz logo (recolours with the text colour) ---------- */
 .brandmark{display:inline-block;height:.95em;aspect-ratio:248.52/94.51;vertical-align:-.2em;background:currentColor;
@@ -54,27 +55,23 @@ addEventListener('pagereveal',e=>{const vt=e.viewTransition;if(!vt)return;
 </nav>
 <main>
 <section class="pj-top">
-  <div class="pj-head"><h1>Russells</h1></div>
-  <div class="pj-meta"><span>Brand Identity, 2026</span><a href="/projects/studio-116/">Next — Studio 116</a></div>
+  <div class="pj-head">
+    <div class="pj-client">Russells</div>
+    <h1>Naming, identity, and an own-label packaging line for a dog store and grooming studio that refuses to be cute.</h1>
+  </div>
   <div class="pj-cover"><div class="img" style="background-image:url(/images/projects/russells/cover.jpg)"></div></div>
 </section>
 
-<section class="pj-introsec">
-  <div class="label">(01) Introduction</div>
-  <div class="pj-intro fade">
-    <p>Naming, identity, and an own-label packaging line for a dog store and grooming studio that refuses to be cute. A geometric hound, a concrete flagship, and a brand built for the humans who take their dogs seriously.</p>
-    <div class="pj-facts">
-      <div><div class="label">Scope</div>Animation<br>Campaign<br>Packaging<br>Toolkits<br>Social</div>
-      <div><div class="label">Timeline</div>9 weeks</div>
-    </div>
-  </div>
+<section class="pj-rows">
+  <div class="pj-r fade"><h2 class="pj-l">Overview</h2><div class="pj-c"><p>A geometric hound, a concrete flagship, and a brand built for the humans who take their dogs seriously.</p></div></div>
+  <div class="pj-r line fade"><h3 class="pj-l">Our Role</h3><div class="pj-c"><ul class="pj-list"><li>Animation</li><li>Campaign</li><li>Packaging</li><li>Toolkits</li><li>Social</li></ul></div></div>
+  <div class="pj-r line fade"><h3 class="pj-l">Details</h3><div class="pj-c"><ul class="pj-list"><li>Brand Identity</li><li>2026</li><li>9 weeks</li></ul></div></div>
 </section>
 
-<section class="pj-sec">
-  <div class="pj-sech"><span>(02)</span><span>Overview</span></div>
-  <div class="pj-row fade"><h3>Challenge</h3><div><p>Pet retail is drowning in paw prints, pastels, and puns. Russells was opening a flagship store and grooming studio in a neighborhood of design-literate owners, selling considered gear and its own food and treat line. The founders wanted a brand their customers would respect as much as the studios and cafes next door, without tipping into coldness.</p></div></div>
-  <div class="pj-row fade"><h3>Solution</h3><div><p>The name came from the shop dog, a Jack Russell, and it gave the brand a family surname&#x27;s confidence: Russells, like a business that has been on this corner for decades. The mark is a hound&#x27;s head built from hard angles, an X for an eye and diamonds for teeth, fierce at first glance and a grin at the second.</p></div></div>
-  <div class="pj-row fade"><h3>Process</h3><div><p>Weeks one and two settled the name and registered it without drama. The mark took four weeks and roughly 90 passes, most of them spent tuning how sharp the teeth could be before the grin disappeared.</p><p>We tested at three scales throughout: facade, package, and stamp, because a mark that only works at one size is a logo, not an identity.</p></div></div>
+<section class="pj-rows">
+  <div class="pj-r fade"><h3 class="pj-l">Challenge</h3><div class="pj-c"><p>Pet retail is drowning in paw prints, pastels, and puns. Russells was opening a flagship store and grooming studio in a neighborhood of design-literate owners, selling considered gear and its own food and treat line. The founders wanted a brand their customers would respect as much as the studios and cafes next door, without tipping into coldness.</p></div></div>
+  <div class="pj-r line fade"><h3 class="pj-l">Solution</h3><div class="pj-c"><p>The name came from the shop dog, a Jack Russell, and it gave the brand a family surname&#x27;s confidence: Russells, like a business that has been on this corner for decades. The mark is a hound&#x27;s head built from hard angles, an X for an eye and diamonds for teeth, fierce at first glance and a grin at the second.</p></div></div>
+  <div class="pj-r line fade"><h3 class="pj-l">Process</h3><div class="pj-c"><p>Weeks one and two settled the name and registered it without drama. The mark took four weeks and roughly 90 passes, most of them spent tuning how sharp the teeth could be before the grin disappeared.</p><p>We tested at three scales throughout: facade, package, and stamp, because a mark that only works at one size is a logo, not an identity.</p></div></div>
 </section>
 
 <section class="pj-gal">
@@ -88,9 +85,8 @@ addEventListener('pagereveal',e=>{const vt=e.viewTransition;if(!vt)return;
   <div class="g full fade"><div class="img par" style="background-image:url(/images/projects/russells/08.jpg)"></div></div>
 </section>
 
-<section class="pj-sec">
-  <div class="pj-sech"><span>(03)</span><span>Final Thoughts</span></div>
-  <div class="pj-row fade"><h3>Conclusion</h3><div><p>Russells opened to a queue with dogs in it, and the own-label treat line became the store&#x27;s best seller within the first month. The sign is now a local landmark and has its own geotag, which no one planned and no one is complaining about.</p></div></div>
+<section class="pj-rows">
+  <div class="pj-r fade"><h3 class="pj-l">Conclusion</h3><div class="pj-c"><p>Russells opened to a queue with dogs in it, and the own-label treat line became the store&#x27;s best seller within the first month. The sign is now a local landmark and has its own geotag, which no one planned and no one is complaining about.</p></div></div>
 </section>
 
 <section class="pj-next">
@@ -145,6 +141,6 @@ addEventListener('pagereveal',e=>{const vt=e.viewTransition;if(!vt)return;
   <div class="wordmark" id="wordmark"><span><span class="brandmark big" role="img" aria-label="Uprizz"></span></span></div>
   <div class="legal"><div><a href="#">Terms of service</a><a href="#">Privacy Policy</a></div><span>© 2026 Uprizz®. All rights reserved.</span></div>
 </footer>
-<script src="/js/main.js?v=8324011d"></script>
+<script src="/js/main.js?v=704609b1"></script>
 </body>
 </html>
