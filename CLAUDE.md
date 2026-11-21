@@ -21,7 +21,7 @@ The owner edits the site in the **CMS at uprizz.com/admin/** (Framer-style: coll
 |---|---|
 | `index.html` | Page layout and head; the CMS blocks above are generated. The comparison, pricing and FAQ blocks also sit inside `<!-- COMPARE:START -->`, `<!-- PRICING:START -->`, `<!-- FAQ:START -->` markers because the build reuses them on other pages. |
 | `js/main.js` | Interactions only (sticky step cards, infinite testimonial carousel, FAQ accordion, news ticker, waves, scroll reveals). It no longer holds content. |
-| `css/style.css` | Colors, fonts, spacing and animation styles. Colors are variables at the top (`--bg` cream, `--card`, `--ink`, `--accent` orange). Fonts: `--serif` (Recital by Optimo, variable upright + italic, hosted in `/fonts/`, headings) and `--sans` (Suisse BP Int'l, everything else); see the note at the top of the file about adding the licensed web-font files. |
+| `css/style.css` | Colors, fonts, spacing and animation styles. Colors are variables at the top (`--bg` cream, `--card`, `--ink`, `--accent` orange). Fonts: `--serif` (ABC Arizona Flare Light, headings) and `--sans` (Suisse BP Int'l, everything else); see the note at the top of the file about adding the licensed web-font files. |
 | `admin/index.html` | The CMS. Schema for each collection/section is the `COLLECTIONS` / `SECTIONS` objects in its script; add a field there when you add one to `content.json`. |
 | `admin/ai.html` | The older AI editor (comments + "ask Claude"), linked from the CMS sidebar. |
 | `images/` | Every image. CMS uploads get unique names (`images/cms/…`, `images/projects/<slug>/…`). |
@@ -73,7 +73,7 @@ The CMS (`admin/index.html`) and the older AI editor (`admin/ai.html`) both log 
 
 ## Rules
 
-- Keep the visual style: cream background, blurred orange hero, Recital headings with Suisse text, rounded cards, the animations. Don't redesign unless asked.
+- Keep the visual style: cream background, blurred orange hero, Arizona Flare headings with Suisse text, rounded cards, the animations. Don't redesign unless asked.
 - Keep everything static: no frameworks, no build tools, no npm.
 - Before pushing, open the page in a headless browser and look at the sections you changed.
 - After pushing, tell the owner the change goes live in a few minutes, and that a hard refresh (Ctrl/Cmd+Shift+R) may be needed.
