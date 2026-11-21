@@ -3,6 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>/* Page transition into a project (styles: "Page transition" in css/style.css).
+   Plays only when the page being opened is a project; every other page change stays instant. */
+addEventListener('pagereveal',e=>{const vt=e.viewTransition;if(!vt)return;
+  if(!location.pathname.startsWith('/projects/')||matchMedia('(prefers-reduced-motion: reduce)').matches){vt.skipTransition();return}
+  vt.types.add('project');const h=document.documentElement;h.classList.add('vt-enter');vt.finished.finally(()=>h.classList.remove('vt-enter'))});</script>
 <title>Pulse Club — Uprizz</title>
 <meta name="description" content="Naming, identity, and launch campaign for a gym built on a different question: what if training felt like arriving instead of proving yourself? A brand…">
 <link rel="canonical" href="https://uprizz.com/projects/pulse-club/">
@@ -20,7 +25,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,300&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/style.css?v=ca1a5ba9">
+<link rel="stylesheet" href="/css/style.css?v=00862589">
 <link rel="stylesheet" href="/css/pages.css?v=4d6513d5">
 <style>
 /* ---------- Uprizz logo (recolours with the text colour) ---------- */

@@ -295,6 +295,11 @@ def page(title, desc, path, og_img, body, extra_js=''):
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>/* Page transition into a project (styles: "Page transition" in css/style.css).
+   Plays only when the page being opened is a project; every other page change stays instant. */
+addEventListener('pagereveal',e=>{{const vt=e.viewTransition;if(!vt)return;
+  if(!location.pathname.startsWith('/projects/')||matchMedia('(prefers-reduced-motion: reduce)').matches){{vt.skipTransition();return}}
+  vt.types.add('project');const h=document.documentElement;h.classList.add('vt-enter');vt.finished.finally(()=>h.classList.remove('vt-enter'))}});</script>
 <title>{esc(title)}</title>
 <meta name="description" content="{esc(desc)}">
 <link rel="canonical" href="{SITE}{path}">

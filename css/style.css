@@ -425,3 +425,22 @@ a:hover .roll span{transform:translateY(-100%)}
   .lead{padding-top:120px}
   .lead.compare{padding-top:100px}
 }
+
+/* ---------- Page transition into a project (like studio-onto.com) ----------
+   Uses the browser's built-in page-to-page transitions (Chrome/Edge, Safari 18.2+; other
+   browsers simply open the page). Only runs when opening a project: the page you leave dims and
+   sinks back, the project grows from a rounded panel to full screen, then its small details
+   fade in. The script that limits it to projects is in the <head> of every page. */
+@view-transition{navigation:auto}
+html:active-view-transition-type(project)::view-transition-old(root){animation:vt-sink 1s cubic-bezier(.7,0,.2,1) both}
+html:active-view-transition-type(project)::view-transition-new(root){animation:vt-grow 1s cubic-bezier(.7,0,.2,1) both}
+@keyframes vt-sink{to{filter:brightness(.32);transform:scale(.96)}}
+@keyframes vt-grow{
+  0%{clip-path:inset(16% 14% 16% 14% round 18px);transform:translateY(5%);opacity:0}
+  22%{opacity:1}
+  45%{clip-path:inset(8% 10% 8% 10% round 18px);transform:none}
+  100%{clip-path:inset(0 0 0 0 round 0);transform:none;opacity:1}}
+.vt-enter .pj-meta{animation:vt-late .5s .75s ease both}
+.vt-enter .nav{animation:vt-fade .5s .75s ease both}
+@keyframes vt-late{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes vt-fade{from{opacity:0}}
