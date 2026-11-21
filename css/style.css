@@ -436,13 +436,13 @@ a:hover .roll span{transform:translateY(-100%)}
 :root{--vt-t:1.3s;--vt-ease:cubic-bezier(.72,0,.16,1)}
 html:active-view-transition-type(project)::view-transition-group(pj-hero){animation-duration:var(--vt-t);animation-timing-function:var(--vt-ease);z-index:2}   /* the image always stays on top */
 html:active-view-transition-type(project)::view-transition-old(pj-hero),
-html:active-view-transition-type(project)::view-transition-new(pj-hero){height:100%;width:100%;object-fit:cover;mix-blend-mode:normal}
+html:active-view-transition-type(project)::view-transition-new(pj-hero){height:100%;width:100%;object-fit:cover}   /* keeps the browser's plus-lighter blend: the two pictures always add up to a solid image */
 html:active-view-transition-type(project)::view-transition-old(pj-hero){animation:vt-hide var(--vt-t) linear both}
 html:active-view-transition-type(project)::view-transition-new(pj-hero){animation:vt-show var(--vt-t) linear both}
 html:active-view-transition-type(project)::view-transition-old(root){animation:vt-away var(--vt-t) var(--vt-ease) both;transform-origin:var(--vt-ox,50%) var(--vt-oy,50%)}
 html:active-view-transition-type(project)::view-transition-new(root){animation:vt-arrive calc(var(--vt-t) * .55) calc(var(--vt-t) * .55) ease both}
-@keyframes vt-hide{0%,55%{opacity:1}85%,100%{opacity:0}}      /* clicked card's picture, handing over to... */
-@keyframes vt-show{0%,35%{opacity:0}80%,100%{opacity:1}}      /* ...the sharp full-size cover */
+@keyframes vt-hide{0%,45%{opacity:1}75%,100%{opacity:0}}      /* clicked card's picture, handing over to... */
+@keyframes vt-show{0%,45%{opacity:0}75%,100%{opacity:1}}      /* ...the sharp full-size cover (exact opposite, so no fade-through) */
 @keyframes vt-away{0%{transform:none;opacity:1}60%{opacity:0}100%{transform:scale(1.9);opacity:0}}
 @keyframes vt-arrive{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 .vt-from .meta,.vt-from:after{opacity:0!important;transition:none!important}   /* clicked card: just the picture */

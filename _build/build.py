@@ -289,7 +289,7 @@ def relink(s):
 nav, footer = relink(nav), relink(absolutize(footer))
 compare, pricing = absolutize(compare), absolutize(pricing)
 
-def page(title, desc, path, og_img, body, extra_js=''):
+def page(title, desc, path, og_img, body, extra_js='', extra_head=''):
     return f'''<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -318,7 +318,7 @@ addEventListener('pagereveal',e=>{{const vt=e.viewTransition;if(!vt)return;
 {fonts}
 <link rel="stylesheet" href="/css/style.css?v={V['css/style.css']}">
 <link rel="stylesheet" href="/css/pages.css?v={V['css/pages.css']}">
-{inline_styles}</head>
+{inline_styles}{extra_head}</head>
 <body class="page">
 {svg_filter}
 {nav}
@@ -444,7 +444,8 @@ for i, p in enumerate(P):
     os.makedirs(d, exist_ok=True)
     desc = p['intro'] if len(p['intro']) <= 158 else p['intro'][:155].rsplit(' ', 1)[0] + '…'
     open(f'{d}/index.html', 'w').write(page(f'{p["name"]} — Uprizz', desc, f'/projects/{p["slug"]}/',
-                                            '/' + cover(p), body))
+                                            '/' + cover(p), body,
+                                            extra_head=f'<link rel="preload" as="image" href="/{cover(p)}" fetchpriority="high">\n'))
 
 # ---------- 5. Pricing + Comparison pages ----------
 def lead(section, cls):
