@@ -1,6 +1,6 @@
 {
   "seo": {
-    "title": "Uprizz — Everything first-time founders need to launch, in one order",
+    "title": "Uprizz | Everything first-time founders need to launch, in one order",
     "description": "Uprizz gives first-time founders everything they need to launch in one order: brand, design and a live business in 48 hours, made by real designers. Pay once, no subscription."
   },
   "hero": {
@@ -58,7 +58,7 @@
         "label": "Price",
         "values": [
           "Free - $50",
-          "From $1399",
+          "From $299",
           "$4000+"
         ]
       },
@@ -148,13 +148,14 @@
         "name": "Basic",
         "price": "$299",
         "highlight": false,
-        "features_title": "Standard contains:",
+        "features_title": "Basic includes:",
         "features": [
-          "Up to 45 studio hours per month",
-          "One active request at a time",
-          "Progress updates every 48 hours or sooner",
-          "Unlimited revisions until it's right",
-          "Pause anytime — unused days roll over"
+          "1 logo concept included",
+          "Logo transparency",
+          "Vector / source file",
+          "Printable file",
+          "2 revisions included",
+          "2 days delivery"
         ],
         "bonus": "",
         "button_text": "Start Now",
@@ -164,15 +165,21 @@
         "name": "Standard",
         "price": "$899",
         "highlight": true,
-        "features_title": "Standard contains:",
+        "features_title": "Standard includes:",
         "features": [
-          "Up to 70 studio hours per month",
-          "Two active requests in parallel",
-          "Progress updates every 48 hours or sooner",
-          "Unlimited revisions until it's right",
-          "Priority scheduling"
+          "3 logo concepts in total",
+          "Complete brand guidelines",
+          "Branding",
+          "10 social media creatives",
+          "Email marketing design",
+          "5 Google ad banners",
+          "5 static ad creatives",
+          "Packaging and merchandising",
+          "Pattern, icons and UI branding assets",
+          "5 business day delivery",
+          "Unlimited revisions to refine your chosen concept"
         ],
-        "bonus": "A monthly shoot day in-studio",
+        "bonus": "",
         "button_text": "Start Now",
         "button_link": "/brief/?plan=Standard"
       },
@@ -180,13 +187,9 @@
         "name": "Premium",
         "price": "$1,290",
         "highlight": false,
-        "features_title": "Standard contains:",
+        "features_title": "Everything in Standard, plus:",
         "features": [
-          "Up to 45 studio hours per month",
-          "One active request at a time",
-          "Progress updates every 48 hours or sooner",
-          "Unlimited revisions until it's right",
-          "Pause anytime — unused days roll over"
+          "Live website"
         ],
         "bonus": "",
         "button_text": "Start Now",
@@ -214,7 +217,7 @@
       {
         "name": "Aisha Rahman",
         "role": "CMO, Atlas Ventures",
-        "quote": "They presented one direction, not three. I pushed back on that in week one. By week six I understood it — every decision since has been faster because of it.",
+        "quote": "They presented one direction, not three. I pushed back on that in week one. By week six I understood it. Every decision since has been faster because of it.",
         "avatar": "images/cms/aisha-rahman-avatar-mwpgndrf.jpg",
         "photo": ""
       },
@@ -228,7 +231,7 @@
       {
         "name": "Mara Silva",
         "role": "Founder, Basalt Outerwear",
-        "quote": "The brand film paid for itself at the trade show — buyers kept asking who made it. Calm process, early delivery, zero drama.",
+        "quote": "The brand film paid for itself at the trade show. Buyers kept asking who made it. Calm process, early delivery, zero drama.",
         "avatar": "images/cms/mara-silva-avatar-mwpgnppa.jpg",
         "photo": ""
       }
@@ -240,7 +243,7 @@
     "items": [
       {
         "question": "How does the retainer actually work?",
-        "answer": "You get a monthly block of studio hours and a request queue. We work one request at a time (two on Pro), send progress every 48 hours, and revise until it's right. No scoping calls for every task — you brief, we build."
+        "answer": "You get a monthly block of studio hours and a request queue. We work one request at a time (two on Pro), send progress every 48 hours, and revise until it's right. No scoping calls for every task: you brief, we build."
       },
       {
         "question": "What's the difference between Standard and Pro?",
@@ -256,7 +259,7 @@
       },
       {
         "question": "Do you work with remote clients?",
-        "answer": "Yes — most projects run fully remote with weekly review calls. Shoots happen in our studio or on location; product can be shipped to us."
+        "answer": "Yes, most projects run fully remote with weekly review calls. Shoots happen in our studio or on location; product can be shipped to us."
       },
       {
         "question": "What do we receive at handover?",

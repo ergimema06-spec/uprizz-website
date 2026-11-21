@@ -13,11 +13,11 @@ addEventListener('pagereveal',e=>{const vt=e.viewTransition;if(!vt)return;vt.rea
   const release=()=>{if(done)return;done=true;document.getAnimations().forEach(a=>{if(a.effect&&a.effect.pseudoElement==='::view-transition-old(pj-hero)')a.finish()})};
   vt.ready.then(()=>{if(!u)return release();const im=new Image();im.src=u;(im.decode?im.decode():Promise.resolve()).then(()=>requestAnimationFrame(()=>requestAnimationFrame(release)),release)},release)});
 addEventListener('pageswap',e=>{const vt=e.viewTransition;if(vt){vt.ready.catch(()=>{});vt.finished.catch(()=>{});vt.updateCallbackDone?.catch(()=>{})}});</script>
-<title>Work — Uprizz</title>
+<title>Work | Uprizz</title>
 <meta name="description" content="Selected brand identity, art direction, photography, motion and content-system projects by Uprizz.">
 <link rel="canonical" href="https://uprizz.com/work/">
 <meta property="og:type" content="website"><meta property="og:site_name" content="Uprizz">
-<meta property="og:title" content="Work — Uprizz"><meta property="og:description" content="Selected brand identity, art direction, photography, motion and content-system projects by Uprizz.">
+<meta property="og:title" content="Work | Uprizz"><meta property="og:description" content="Selected brand identity, art direction, photography, motion and content-system projects by Uprizz.">
 <meta property="og:url" content="https://uprizz.com/work/"><meta property="og:image" content="https://uprizz.com/og-image.png">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="/favicon.ico" sizes="48x48">
@@ -117,7 +117,7 @@ addEventListener('pageswap',e=>{const vt=e.viewTransition;if(vt){vt.ready.catch(
       <h3>Start a Conversation</h3>
       <label class="field"><span class="sr">Email address</span><input type="email" placeholder="Email Address" required></label>
       <label class="field"><span class="sr">Message</span><input placeholder="Message" required><button class="dot" type="submit" aria-label="Send message"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M2 7h10M8 3l4 4-4 4"/></svg></button></label>
-      <span class="toast" id="contactToast">Thanks — we'll be in touch.</span>
+      <span class="toast" id="contactToast">Thanks, we'll be in touch.</span>
     </form>
   </div>
   <div class="wordmark" id="wordmark"><span><span class="brandmark big" role="img" aria-label="Uprizz"></span></span></div>

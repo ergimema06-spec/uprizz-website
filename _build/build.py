@@ -224,7 +224,7 @@ def r_footer(c):
             f'      <h3>{esc(k["form_title"])}</h3>\n'
             f'      <label class="field"><span class="sr">Email address</span><input type="email" placeholder="Email Address" required></label>\n'
             f'      <label class="field"><span class="sr">Message</span><input placeholder="Message" required><button class="dot" type="submit" aria-label="Send message"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M2 7h10M8 3l4 4-4 4"/></svg></button></label>\n'
-            f'      <span class="toast" id="contactToast">Thanks — we\'ll be in touch.</span>\n'
+            f'      <span class="toast" id="contactToast">Thanks, we\'ll be in touch.</span>\n'
             f'    </form>\n'
             f'  </div>\n'
             f'  <div class="wordmark" id="wordmark"><span><span class="brandmark big" role="img" aria-label="Uprizz"></span></span></div>\n'
@@ -375,7 +375,7 @@ work_body = f'''<main>
 work_js = f'<script src="/js/work.js?v={V["js/work.js"]}"></script>\n'
 os.makedirs('work', exist_ok=True)
 open('work/index.html', 'w').write(page(
-    'Work — Uprizz', 'Selected brand identity, art direction, photography, motion and content-system projects by Uprizz.',
+    'Work | Uprizz', 'Selected brand identity, art direction, photography, motion and content-system projects by Uprizz.',
     '/work/', '/og-image.png', work_body, work_js))
 
 # ---------- 4. Project pages ----------
@@ -448,7 +448,7 @@ for i, p in enumerate(P):
     d = f'projects/{p["slug"]}'
     os.makedirs(d, exist_ok=True)
     desc = p['intro'] if len(p['intro']) <= 158 else p['intro'][:155].rsplit(' ', 1)[0] + '…'
-    open(f'{d}/index.html', 'w').write(page(f'{p["name"]} — Uprizz', desc, f'/projects/{p["slug"]}/',
+    open(f'{d}/index.html', 'w').write(page(f'{p["name"]} | Uprizz', desc, f'/projects/{p["slug"]}/',
                                             '/' + cover(p), body,
                                             extra_head=f'<link rel="preload" as="image" href="/{cover(p)}" fetchpriority="high">\n'))
 
@@ -459,9 +459,9 @@ def lead(section, cls):
     return re.sub(r'<h2 class="h2([^"]*)">(.*?)</h2>', r'<h1 class="h2\1">\2</h1>', section, count=1, flags=re.S)
 no_more = lambda s: re.sub(r'\s*<a class="cmp-more".*?</a>', '', s, flags=re.S)
 pages = {
-    'pricing': ('Pricing — Uprizz', 'Pick your launch and pay once: Uprizz packages for first-time founders. No subscription, no hidden fees.',
+    'pricing': ('Pricing | Uprizz', 'Pick your launch and pay once: Uprizz packages for first-time founders. No subscription, no hidden fees.',
                 lead(pricing, 'pricing') + '\n' + no_more(compare).replace('id="compare"', 'id="compare" style="padding-top:120px"')),
-    'comparison': ('Uprizz vs DIY tools vs agencies — Uprizz', 'Three ways to launch: DIY and AI tools, a traditional agency, or Uprizz. Compare price, time to launch and risk.',
+    'comparison': ('Uprizz vs DIY tools vs agencies | Uprizz', 'Three ways to launch: DIY and AI tools, a traditional agency, or Uprizz. Compare price, time to launch and risk.',
                    lead(no_more(compare), 'compare') + '\n' + pricing),
 }
 for slug, (title, desc, body) in pages.items():
