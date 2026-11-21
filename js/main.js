@@ -318,9 +318,10 @@ const WAVES={
 (()=>{
   const DUR=reduced?650:1150, EASE='cubic-bezier(.76,0,.2,1)';
   const sel='a.proj[href^="/projects/"],a.wk-card[href^="/projects/"]';
-  const fetched=new Set();
-  const prefetch=a=>{const u=a.getAttribute('href'); if(fetched.has(u))return; fetched.add(u);
-    const l=document.createElement('link'); l.rel='prefetch'; l.href=u; document.head.appendChild(l)};
+  const fetched=new Map();
+  // load the project page early (fetch works in every browser, incl. Safari) so it opens instantly
+  const prefetch=a=>{const u=a.getAttribute('href'); if(fetched.has(u))return fetched.get(u);
+    const p=fetch(u,{credentials:'same-origin'}).then(r=>r.text()).catch(()=>{}); fetched.set(u,p); return p};
   document.addEventListener('pointerover',e=>{const a=e.target.closest(sel); if(a)prefetch(a)});
   document.addEventListener('touchstart',e=>{const a=e.target.closest(sel); if(a)prefetch(a)},{passive:true});
 
@@ -344,7 +345,7 @@ const WAVES={
     const a=e.target.closest(sel);
     if(!a||running||e.defaultPrevented||e.button||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;
     const img=a.querySelector('.img'); if(!img)return;
-    e.preventDefault(); prefetch(a);
+    e.preventDefault(); const loaded=prefetch(a);
     try{
     const url=a.getAttribute('href');
     const c=a.getBoundingClientRect(), ir=img.getBoundingClientRect(), t=coverRect();
@@ -386,8 +387,10 @@ const WAVES={
       anims.push(el.animate([{transform:'none',opacity:1},{opacity:1,offset:.35},{transform:'scale(2.4)',opacity:0}],{duration:DUR*.85,easing:'cubic-bezier(.6,0,.4,1)',fill:'forwards'}));
     });
     running={anims,fly,card:a};
-    const go=()=>{ location.href=url; };
-    anims[0].finished.then(go,go); setTimeout(go,DUR+600);     // always arrive, even if an animation is interrupted
+    let gone=false; const go=()=>{ if(gone)return; gone=true; location.href=url; };
+    // open the project once the picture has landed AND the page is loaded (so it appears instantly);
+    // on a very slow connection, stop waiting after 2.5s
+    Promise.all([anims[0].finished.catch(()=>{}), Promise.race([loaded, new Promise(r=>setTimeout(r,2500))])]).then(go,go);
     }catch(err){ location.href=url; }                         // anything unexpected: just open the project
   });
 })();

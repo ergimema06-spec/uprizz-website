@@ -296,12 +296,15 @@ def page(title, desc, path, og_img, body, extra_js='', extra_head=''):
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script>/* Page transition into a project (styles: "Page transition" in css/style.css).
-   Plays only when the page being opened is a project; every other page change stays instant. */
+   Plays only when the page being opened is a project; every other page change stays instant.
+   The picture that flew in stays on top until this project's cover photo is decoded, then hands over. */
 addEventListener('pagereveal',e=>{{const vt=e.viewTransition;if(!vt)return;vt.ready.catch(()=>{{}});vt.finished.catch(()=>{{}});vt.updateCallbackDone?.catch(()=>{{}});
   if(!location.pathname.startsWith('/projects/')){{vt.skipTransition();return}}
-  const h=document.documentElement;h.classList.add('vt-project');vt.finished.finally(()=>h.classList.remove('vt-project'))}});
-addEventListener('pageswap',e=>{{const vt=e.viewTransition;if(!vt)return;vt.ready.catch(()=>{{}});vt.finished.catch(()=>{{}});vt.updateCallbackDone?.catch(()=>{{}});
-  if(new URL(e.activation?.entry?.url||location.href).pathname.startsWith('/projects/'))document.documentElement.classList.add('vt-project')}});</script>
+  const h=document.documentElement;h.classList.add('vt-project');vt.finished.finally(()=>h.classList.remove('vt-project'));
+  const u=document.querySelector('link[rel=preload][as=image]')?.href;let done=false;
+  const release=()=>{{if(done)return;done=true;document.getAnimations().forEach(a=>{{if(a.effect&&a.effect.pseudoElement==='::view-transition-old(pj-hero)')a.finish()}})}};
+  vt.ready.then(()=>{{if(!u)return release();const im=new Image();im.src=u;(im.decode?im.decode():Promise.resolve()).then(()=>requestAnimationFrame(()=>requestAnimationFrame(release)),release)}},release)}});
+addEventListener('pageswap',e=>{{const vt=e.viewTransition;if(vt){{vt.ready.catch(()=>{{}});vt.finished.catch(()=>{{}});vt.updateCallbackDone?.catch(()=>{{}})}}}});</script>
 <title>{esc(title)}</title>
 <meta name="description" content="{esc(desc)}">
 <link rel="canonical" href="{SITE}{path}">

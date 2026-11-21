@@ -437,11 +437,16 @@ a:hover .roll span{transform:translateY(-100%)}
 .vt-fly{view-transition-name:pj-hero}
 .nav{view-transition-name:site-nav}
 .vt-busy,.vt-busy *{cursor:progress}
-html.vt-project::view-transition-group(pj-hero){animation-duration:.35s;animation-timing-function:cubic-bezier(.3,0,.2,1);z-index:3}
+html.vt-project::view-transition-group(pj-hero){animation-duration:.3s;animation-timing-function:cubic-bezier(.3,0,.2,1);z-index:3}
 html.vt-project::view-transition-group(site-nav){z-index:4}
 html.vt-project::view-transition-old(pj-hero),
-html.vt-project::view-transition-new(pj-hero){height:100%;width:100%;object-fit:cover;animation-duration:.35s}
+html.vt-project::view-transition-new(pj-hero){height:100%;width:100%;object-fit:cover;mix-blend-mode:normal}
+/* the landed picture stays on top until the project's own cover photo is ready (head script ends the hold),
+   so there is never a grey box or a pop-in; underneath, the real cover is the same image in the same place */
+html.vt-project::view-transition-new(pj-hero){animation:none;opacity:1}
+html.vt-project::view-transition-old(pj-hero){animation:vt-hold 3s linear both}
 html.vt-project::view-transition-old(root){animation:vt-out .2s linear both}
-html.vt-project::view-transition-new(root){animation:vt-arrive .6s .05s cubic-bezier(.2,0,.2,1) both}
+html.vt-project::view-transition-new(root){animation:vt-arrive .5s .05s ease both}
+@keyframes vt-hold{from{opacity:1}to{opacity:1}}
 @keyframes vt-out{to{opacity:0}}
-@keyframes vt-arrive{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@keyframes vt-arrive{from{opacity:0}to{opacity:1}}
