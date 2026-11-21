@@ -159,7 +159,16 @@
         ],
         "bonus": "",
         "button_text": "Start Now",
-        "button_link": "/brief/?plan=Basic"
+        "button_link": "/brief/?plan=Basic",
+        "excluded": [
+          "Complete brand guidelines",
+          "Social media creatives",
+          "Email marketing design",
+          "Ad banners and creatives",
+          "Packaging and merchandising",
+          "Live website"
+        ],
+        "spots": ""
       },
       {
         "name": "Standard",
@@ -181,19 +190,36 @@
         ],
         "bonus": "",
         "button_text": "Start Now",
-        "button_link": "/brief/?plan=Standard"
+        "button_link": "/brief/?plan=Standard",
+        "excluded": [
+          "Live website"
+        ],
+        "spots": "Only 3 spots left"
       },
       {
         "name": "Premium",
         "price": "$1,290",
         "highlight": false,
-        "features_title": "Everything in Standard, plus:",
+        "features_title": "Premium includes:",
         "features": [
-          "Live website"
+          "Live website",
+          "3 logo concepts in total",
+          "Complete brand guidelines",
+          "Branding",
+          "10 social media creatives",
+          "Email marketing design",
+          "5 Google ad banners",
+          "5 static ad creatives",
+          "Packaging and merchandising",
+          "Pattern, icons and UI branding assets",
+          "5 business day delivery",
+          "Unlimited revisions to refine your chosen concept"
         ],
         "bonus": "",
         "button_text": "Start Now",
-        "button_link": "/brief/?plan=Premium"
+        "button_link": "/brief/?plan=Premium",
+        "excluded": [],
+        "spots": "Only 1 spot left"
       }
     ]
   },
@@ -242,28 +268,32 @@
     "title_italic": "answered.",
     "items": [
       {
-        "question": "How does the retainer actually work?",
-        "answer": "You get a monthly block of studio hours and a request queue. We work one request at a time (two on Pro), send progress every 48 hours, and revise until it's right. No scoping calls for every task: you brief, we build."
+        "question": "How does it work?",
+        "answer": "Pick a package and pay once, right on the site. Then fill in a short brief about your business, your audience and the feel you want. Our designers review it and get back to you within 24 hours, and you receive your files on the delivery date of your package."
       },
       {
-        "question": "What's the difference between Standard and Pro?",
-        "answer": "Hours and speed. Pro carries 70 hours to Standard's 45, runs two requests in parallel, gets priority scheduling, and includes a monthly shoot day in-studio."
+        "question": "What's the difference between Basic, Standard and Premium?",
+        "answer": "Basic gets you a professional logo: one concept, every file format you need and two revisions, delivered in 2 days. Standard is a complete brand: three logo concepts, brand guidelines, social media, ad and email designs, packaging and brand assets, delivered in 5 business days. Premium is everything in Standard plus a live website."
       },
       {
-        "question": "Can I pause my retainer?",
-        "answer": "Anytime. Unused days roll over, and you resume exactly where you left off. There's no minimum term."
+        "question": "Is this a subscription?",
+        "answer": "No. You pay once for your package. There are no monthly fees, no hidden costs and nothing to cancel."
       },
       {
-        "question": "What if the first month isn't working out?",
-        "answer": "If the first week doesn't deliver, the rest of the month is refunded. We'd rather earn the retainer than hold you to it."
+        "question": "How do revisions work?",
+        "answer": "Basic includes 2 rounds of revisions. Standard and Premium include unlimited revisions to refine the concept you choose, so we keep going until it feels right."
       },
       {
-        "question": "Do you work with remote clients?",
-        "answer": "Yes, most projects run fully remote with weekly review calls. Shoots happen in our studio or on location; product can be shipped to us."
+        "question": "How do I pay?",
+        "answer": "By card or PayPal on our secure checkout, without leaving the site. Prefer a bank transfer? Email heyuprizz@gmail.com and we'll send you an invoice."
       },
       {
-        "question": "What do we receive at handover?",
-        "answer": "Everything: source files, brand guidelines, edited imagery, editable templates, and a walkthrough call with your team. The goal is that you don't need us for daily work."
+        "question": "Do you work with founders outside our city?",
+        "answer": "Yes. Everything runs online, so we work with founders anywhere. You send your brief, we share the designs and your feedback, and you receive all files digitally."
+      },
+      {
+        "question": "What do I receive at the end?",
+        "answer": "Every file you need to use your brand straight away: your logo with a transparent background, vector and source files, and print-ready files. Standard and Premium also include your brand guidelines and all the designs listed in your package. Everything is yours to keep."
       }
     ]
   },

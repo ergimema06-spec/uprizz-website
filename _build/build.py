@@ -145,14 +145,18 @@ def r_process(c):
 def r_pricing(c):
     pc = c['pricing']
     def plan(p):
-        feats = ''.join(f'<li>{esc(f)}</li>' for f in p['features'] if str(f).strip()) + (f'<li class="k">{esc(p["bonus"])}</li>' if p.get('bonus') else '')
-        tag = ' blk' if p.get('highlight') else ''
-        return (f'    <div class="plan fade">\n'
-                f'      <span class="tag{tag}">{esc(p["name"])}</span>\n'
+        feats = ''.join(f'<li>{esc(f)}</li>' for f in p['features'] if str(f).strip())
+        feats += ''.join(f'<li class="no"><span class="sr">Not included: </span>{esc(f)}</li>' for f in p.get('excluded', []) if str(f).strip())
+        feats += (f'<li class="k">{esc(p["bonus"])}</li>' if p.get('bonus') else '')
+        pop = p.get('highlight')
+        spots = f'<p class="spots"><i></i>{esc(p["spots"])}</p>' if p.get('spots') else ''
+        return (f'    <div class="plan{" pop" if pop else ""} fade">\n'
+                f'      <div class="plan-top"><span class="tag{" blk" if pop else ""}">{esc(p["name"])}</span>'
+                f'{"<span class=\"popular\">Most popular</span>" if pop else ""}</div>\n'
                 f'      <div class="price"><b>{esc(p["price"])}</b></div>\n'
                 f'      <h6>{esc(p["features_title"])}</h6>\n'
                 f'      <ul>{feats}</ul>\n'
-                f'      <a href="{esc(p["button_link"])}" class="btn btn--outline cta">{esc(p["button_text"])}</a>\n'
+                f'      <div class="plan-cta"><a href="{esc(p["button_link"])}" class="btn {"" if pop else "btn--outline "}cta">{esc(p["button_text"])}</a>{spots}</div>\n'
                 f'    </div>')
     sub = esc(pc.get('subtitle', '')) + (f' <em>{esc(pc["subtitle_italic"])}</em>' if pc.get('subtitle_italic') else '')
     plans = '\n'.join(plan(p) for p in pc['plans'])

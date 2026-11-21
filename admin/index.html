@@ -497,9 +497,11 @@ const COLLECTIONS = {
     make: () => ({ name: 'New plan', price: '$0', highlight: false, features_title: 'Includes:', features: [], bonus: '', button_text: 'Start Now', button_link: '#contact' }),
     fields: [
       { k: 'name', t: 'text', label: 'Plan name' }, { k: 'price', t: 'text', label: 'Price' },
-      { k: 'highlight', t: 'toggle', label: 'Highlight', hint: 'Dark name tag' },
+      { k: 'highlight', t: 'toggle', label: 'Most popular', hint: 'Bigger card with a "Most popular" tag' },
       { k: 'features_title', t: 'text', label: 'List title' },
       { k: 'features', t: 'lines', label: 'Features', hint: 'One per line.' },
+      { k: 'excluded', t: 'lines', label: 'Not included', hint: 'Optional. One per line, shown faded after the features so every card lists the same number of items.' },
+      { k: 'spots', t: 'text', label: 'Spots left', hint: 'Optional, e.g. Only 3 spots left. Shown under the button with a red dot.' },
       { k: 'bonus', t: 'text', label: 'Extra feature', hint: 'Optional. Shown last, in darker text.' },
       { k: 'button_text', t: 'text', label: 'Button text' }, { k: 'button_link', t: 'text', label: 'Button link', hint: '#contact, #pricing or a full https:// address' },
     ],
