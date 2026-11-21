@@ -218,7 +218,8 @@
   /* checkout (shown before the brief when a package is chosen) */
   .ub-form.is-checkout > :not(.ub-checkout){display:none!important}
   .ub-checkout[hidden]{display:none}
-  .ub-checkout{display:flex;flex-direction:column;flex:1;min-height:0;overflow-y:auto}
+  .ub-checkout{display:flex;flex-direction:column;flex:1;min-height:0}
+  .ub-card:has(.ub-form.is-checkout){height:auto;min-height:600px}
   .ub-checkout h2{font-family:var(--serif);font-weight:300;font-size:36px;line-height:1.1;letter-spacing:-.02em;margin-top:14px}
   .ub-checkout .sub{color:var(--ink-60);margin-top:8px;font-size:14px;line-height:1.5}
   .ub-checkout .ub-pay{margin-top:22px}
