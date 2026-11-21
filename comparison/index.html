@@ -30,7 +30,7 @@ addEventListener('pageswap',e=>{const vt=e.viewTransition;if(vt){vt.ready.catch(
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,300&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/style.css?v=5345f6d8">
+<link rel="stylesheet" href="/css/style.css?v=15da60ce">
 <link rel="stylesheet" href="/css/pages.css?v=9eee1e11">
 <style>
 /* ---------- Uprizz logo (recolours with the text colour) ---------- */
@@ -43,18 +43,13 @@ addEventListener('pageswap',e=>{const vt=e.viewTransition;if(vt){vt.ready.catch(
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency="1.4" numOctaves="2" result="n"/><feColorMatrix type="saturate" values="0"/><feComposite in="SourceGraphic" in2="n" operator="arithmetic" k1="1.3" k2="0" k3="0" k4="0"/></filter>
 </svg>
-<nav class="nav" id="nav">
-  <div class="nav-top" id="navToggle"><span class="logo"><span class="brandmark" role="img" aria-label="Uprizz"></span></span><span class="grid-ic"><i></i><i></i><i></i><i></i></span></div>
-  <div class="nav-body">
-    <div class="nav-links"><a href="/">Home</a><a href="/work/">Work</a><a href="/#process">Studio</a><a href="/pricing/">Pricing</a><a href="#contact">Contact</a></div>
-    <!-- CMS:navmeta -->
-<div class="nav-meta">
-      <div><h6>Socials</h6><a href="#">Facebook</a><br><a href="#">X</a><br><a href="#">Instagram</a></div>
-      <div><h6>Contacts</h6>+971 50 555 0173<br><u><a href="mailto:altastudio@gmail.com">altastudio@gmail.com</a></u></div>
-    </div>
-    <a href="#contact" class="btn btn--outline">Get a quote</a>
+<nav class="nav" id="nav" aria-label="Main">
+  <a href="/" class="logo" aria-label="Uprizz, back to the homepage"><span class="brandmark" role="img" aria-label="Uprizz"></span></a>
+  <div class="nav-links"><a href="/work/">Work</a><a href="/#process">How it works</a><a href="/#pricing">Pricing</a><a href="/#testimonials">Reviews</a><a href="/#faq">FAQ</a></div>
+  <!-- CMS:navmeta -->
+<a href="/#pricing" class="nav-cta">Start your launch</a>
 <!-- /CMS:navmeta -->
-  </div>
+  <button type="button" class="nav-burger" id="navToggle" aria-label="Open menu" aria-expanded="false"><i></i><i></i></button>
 </nav>
 <main>
 <!-- COMPARE:START (also used on /comparison/ and /pricing/) -->
@@ -160,6 +155,6 @@ addEventListener('pageswap',e=>{const vt=e.viewTransition;if(vt){vt.ready.catch(
   <div class="wordmark" id="wordmark"><span><span class="brandmark big" role="img" aria-label="Uprizz"></span></span></div>
   <div class="legal"><div><a href="#">Terms of service</a><a href="#">Privacy Policy</a></div><span>© 2026 Uprizz®. All rights reserved.</span></div>
 </footer>
-<script src="/js/main.js?v=990d15c9"></script>
+<script src="/js/main.js?v=c7fdf1c4"></script>
 </body>
 </html>

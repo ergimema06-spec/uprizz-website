@@ -27,9 +27,11 @@ document.querySelectorAll('.reveal').forEach(h=>{
 
 /* ---------- Nav ---------- */
 const nav=$('nav');
-$('navToggle').onclick=()=>nav.classList.toggle('open');
-nav.querySelectorAll('.nav-body a').forEach(a=>a.addEventListener('click',()=>nav.classList.remove('open')));
-document.addEventListener('click',e=>{if(!nav.contains(e.target))nav.classList.remove('open')});
+const navBtn=$('navToggle');
+const setNav=o=>{nav.classList.toggle('open',o);navBtn.setAttribute('aria-expanded',o);navBtn.setAttribute('aria-label',o?'Close menu':'Open menu')};
+navBtn.onclick=()=>setNav(!nav.classList.contains('open'));
+nav.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>setNav(false)));
+document.addEventListener('click',e=>{if(!nav.contains(e.target))setNav(false)});
 
 /* ---------- Scroll reveal ---------- */
 const io=new IntersectionObserver(es=>es.forEach(e=>{
@@ -87,8 +89,9 @@ function glideTo(y){
   })(t0);
 }
 ['wheel','touchstart','keydown'].forEach(ev=>addEventListener(ev,()=>{if(glide){glide.stop=true;glide=null;cur=target=scrollY}},{passive:true}));
-document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{
-  const id=a.getAttribute('href'); if(id.length<2)return;
+// "/#pricing" on a page that has its own #pricing (e.g. the Pricing page) glides there too
+document.querySelectorAll('a[href^="#"],a[href^="/#"]').forEach(a=>a.addEventListener('click',e=>{
+  const id=a.getAttribute('href').replace(/^\//,''); if(id.length<2)return;
   const el=document.querySelector(id); if(!el)return;
   e.preventDefault(); glideTo(el.getBoundingClientRect().top+scrollY);
 }));

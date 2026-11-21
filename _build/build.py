@@ -52,13 +52,9 @@ STAR = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6
 DARKS = ('#1b1b1b', '#000000', '#000', '#171717', '#191919', '#0b0b0b')
 
 def r_navmeta(c):
+    # the button on the right of the menu bar (text and link editable in the CMS: Contact > Menu button)
     k = c['contact']
-    socials = '<br>'.join(f'<a href="{esc(x["url"])}">{esc(x["name"])}</a>' for x in k['socials'])
-    return (f'<div class="nav-meta">\n'
-            f'      <div><h6>Socials</h6>{socials}</div>\n'
-            f'      <div><h6>Contacts</h6>{esc(k["phone"])}<br><u><a href="mailto:{esc(k["email"])}">{esc(k["email"])}</a></u></div>\n'
-            f'    </div>\n'
-            f'    <a href="#contact" class="btn btn--outline">{esc(k["quote_button"])}</a>')
+    return f'<a href="{esc(k.get("quote_link") or "#pricing")}" class="nav-cta">{esc(k["quote_button"])}</a>'
 
 def trust_html(t):
     # the first number (e.g. 3,114) gets its own span so js/main.js can count it up by one per visitor
@@ -282,7 +278,7 @@ def between(a, b, s=H, incl=True):
 fonts = '\n'.join(re.findall(r'<link (?:rel="preconnect"[^>]*|href="https://[^"]*(?:googleapis|fontshare)[^"]*" rel="stylesheet")>', H))
 inline_styles = ''.join(re.findall(r'<style>.*?</style>\n', H.split('</head>')[0], re.S))
 svg_filter = between('<svg width="0" height="0"', '</svg>')
-nav = between('<nav class="nav" id="nav">', '</nav>')
+nav = between('<nav class="nav" id="nav"', '</nav>')
 faq = between('<!-- FAQ:START', '<!-- FAQ:END -->')
 compare = between('<!-- COMPARE:START', '<!-- COMPARE:END -->')
 pricing = between('<!-- PRICING:START', '<!-- PRICING:END -->')
@@ -293,7 +289,8 @@ def absolutize(s):
     return s
 def relink(s):
     for a, b in (('href="#top"', 'href="/"'), ('href="#process"', 'href="/#process"'), ('href="#work"', 'href="/#work"'),
-                 ('href="#studio"', 'href="/#process"'), ('href="#blog"', 'href="/"')):
+                 ('href="#studio"', 'href="/#process"'), ('href="#blog"', 'href="/"'),
+                 ('href="#pricing"', 'href="/#pricing"'), ('href="#testimonials"', 'href="/#testimonials"'), ('href="#faq"', 'href="/#faq"')):
         s = s.replace(a, b)
     return s
 nav, footer = relink(nav), relink(absolutize(footer))

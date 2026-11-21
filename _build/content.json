@@ -317,7 +317,8 @@
       }
     ],
     "form_title": "Start a Conversation",
-    "quote_button": "Get a quote",
+    "quote_button": "Start your launch",
+    "quote_link": "#pricing",
     "copyright": "© 2026 Uprizz®. All rights reserved.",
     "terms_url": "#",
     "privacy_url": "#"
