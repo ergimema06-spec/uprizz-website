@@ -4,14 +4,14 @@
    ========================================================= */
 
 /* ---------- Brand fonts ----------
-   Headings: TWK Ghost (Weltkern), served from /fonts/. Text: Suisse BP Int'l.
+   Headings: Recital (Optimo), variable upright + italic, served from /fonts/. Text: Suisse BP Int'l.
    Suisse is licensed and not hosted yet, so visitors without it installed see Inter.
    To host it, put the .woff2 files in /fonts/ and add  , url('/fonts/FILE.woff2') format('woff2')
    after the local(...) entries below. */
-@font-face{font-family:'Uprizz Serif';font-weight:300 400;font-style:normal;font-display:swap;
-  src:url('/fonts/TWKGhost-Regular.woff2') format('woff2')}
-@font-face{font-family:'Uprizz Serif';font-weight:300 400;font-style:italic;font-display:swap;
-  src:url('/fonts/TWKGhost-Italic.woff2') format('woff2')}
+@font-face{font-family:'Uprizz Serif';font-weight:325 1300;font-style:normal;font-display:swap;
+  src:url('/fonts/Recital-Upright-Variable.woff2') format('woff2')}
+@font-face{font-family:'Uprizz Serif';font-weight:250 1225;font-style:italic;font-display:swap;
+  src:url('/fonts/Recital-Italic-Variable.woff2') format('woff2')}
 @font-face{font-family:'Uprizz Sans';font-weight:300;font-style:normal;font-display:swap;
   src:local("Suisse BP Int'l Light"),local('SuisseBPIntl-Light'),local('Suisse Intl Light'),local('SuisseIntl-Light')}
 @font-face{font-family:'Uprizz Sans';font-weight:400;font-style:normal;font-display:swap;
