@@ -253,5 +253,45 @@ const WAVES={
   if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fill);
 })();
 
+/* ---------- Parallax gallery (between pricing and testimonials) ----------
+   Each card has a depth (data-d): it sets the card's size and speed, so closer cards move faster.
+   data-y places the card vertically (0 = top, 1 = bottom). Scrolling gives a small push and a
+   slight vertical parallax. Pauses while off screen; stands still with reduced motion. */
+(()=>{
+  const box=$('pgal'); if(!box)return;
+  const sec=box.parentElement;
+  const items=[...box.children].map((el,i)=>{const im=el.querySelector('img');
+    return {el,i,d:+el.dataset.d||1,y:+el.dataset.y||.5,ar:(+im.getAttribute('width')||4)/(+im.getAttribute('height')||5),x:0,w:0,h:0,top:0}});
+  let span=0, placed=false, on=false, last=0, boost=0, lastY=scrollY;
+  function layout(){
+    const H=box.clientHeight, vw=box.clientWidth;
+    const unit=Math.min(215,H*.46,vw*.3);                // size of a square card at depth 1
+    items.forEach(it=>{it.w=unit*it.d*Math.sqrt(it.ar); it.h=it.w/it.ar; it.top=(H-it.h)*it.y;   // same area for portrait and landscape
+      Object.assign(it.el.style,{width:it.w+'px',height:it.h+'px',zIndex:Math.round(it.d*100)})});
+    const maxW=Math.max(...items.map(i=>i.w));
+    span=Math.max(vw+maxW+80, items.reduce((s,i)=>s+i.w+(vw<700?18:Math.max(50,vw*.05)),0));
+    if(!placed){const step=span/items.length; items.forEach(it=>it.x=it.i*step-maxW*.5); placed=true}
+    draw();
+  }
+  function draw(){
+    const r=box.getBoundingClientRect(), off=(r.top+r.height/2-innerHeight/2);
+    items.forEach(it=>{
+      const ty=-off*(it.d-.85)*.18;
+      it.el.style.transform=`translate3d(${it.x.toFixed(1)}px,${(it.top+ty).toFixed(1)}px,0)`;
+    });
+  }
+  function frame(t){
+    if(!on){last=0;return}
+    const dt=last?Math.min((t-last)/1000,.05):0; last=t;
+    const v=Math.abs(scrollY-lastY); lastY=scrollY;
+    boost+=(Math.min(v*6,260)-boost)*.08;               // scrolling speeds the drift up a little
+    const speed=reduced?0:34+boost;
+    items.forEach(it=>{it.x-=speed*it.d*dt; if(it.x<-it.w-20)it.x+=span});
+    draw(); requestAnimationFrame(frame);
+  }
+  new IntersectionObserver(es=>{const was=on; on=es[0].isIntersecting; if(on){sec.classList.add('on'); if(!was)requestAnimationFrame(frame)}},{rootMargin:'100px 0px'}).observe(sec);
+  layout(); addEventListener('resize',layout);
+})();
+
 /* ---------- Ready (starts the hero animation) ---------- */
 requestAnimationFrame(()=>document.body.classList.add('ready'));
