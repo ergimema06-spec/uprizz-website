@@ -52,9 +52,15 @@ STAR = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6
 DARKS = ('#1b1b1b', '#000000', '#000', '#171717', '#191919', '#0b0b0b')
 
 def r_navmeta(c):
-    # the button on the right of the menu bar (text and link editable in the CMS: Contact > Menu button)
+    # phones: socials + contacts inside the open menu; every size: the button on the right of the bar
+    # (button text and link are editable in the CMS: Contact > Menu button)
     k = c['contact']
-    return f'<a href="{esc(k.get("quote_link") or "#pricing")}" class="nav-cta">{esc(k["quote_button"])}</a>'
+    socials = '<br>'.join(f'<a href="{esc(x["url"])}">{esc(x["name"])}</a>' for x in k['socials'])
+    return (f'<div class="nav-meta">\n'
+            f'      <div><h6>Socials</h6>{socials}</div>\n'
+            f'      <div><h6>Contacts</h6>{esc(k["phone"])}<br><u><a href="mailto:{esc(k["email"])}">{esc(k["email"])}</a></u></div>\n'
+            f'    </div>\n'
+            f'    <a href="{esc(k.get("quote_link") or "#pricing")}" class="nav-cta">{esc(k["quote_button"])}</a>')
 
 def trust_html(t):
     # the first number (e.g. 3,114) gets its own span so js/main.js can count it up by one per visitor
