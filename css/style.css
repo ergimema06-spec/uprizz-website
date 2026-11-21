@@ -22,7 +22,7 @@
   src:local("Suisse BP Int'l Medium"),local('SuisseBPIntl-Medium'),local("Suisse BP Int'l Antique"),local('Suisse Intl Medium'),local('SuisseIntl-Medium')}
 
 :root{
-  --bg:#ffffff; --card:#f6f1e7; --white:#fff; --ink:#171717; --ink2:#191919; --muted:#737373; --soft:#a3a3a3;
+  --bg:#ffffff; --card:#f6f1e7; --white:#fff; --tile:#f6f6f4; --ink:#171717; --ink2:#191919; --muted:#737373; --soft:#a3a3a3;
   --grey:#858585; --line:#e8e2d3; --chip:#eaeaea; --plus:#f4efdf; --accent:#ed6c47; --dark:#0b0b0b;
   --serif:'Uprizz Serif','Newsreader',Georgia,serif;
   --sans:'Uprizz Sans','Inter',system-ui,sans-serif;
@@ -173,7 +173,7 @@ canvas.wave{position:absolute;inset:0;width:100%;height:100%;display:block}
 .proj .meta{position:absolute;left:24px;right:24px;bottom:22px;z-index:2;color:#fff;display:flex;justify-content:space-between;align-items:end;font-weight:500;font-size:15px}
 .proj .meta small{display:block;font-size:12px;font-weight:400;opacity:0;transform:translateY(8px);transition:.5s var(--ease);color:#e5e5e5}
 @media (hover:hover){.proj:hover .meta small{opacity:1;transform:none}}
-.see{background:var(--card);border-radius:20px;display:grid;place-items:center;aspect-ratio:1.11}
+.see{background:var(--tile);border-radius:20px;display:grid;place-items:center;aspect-ratio:1.11}
 .see a{width:290px;height:290px;border-radius:50%;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;gap:28px;font-weight:500;transition:background .5s var(--ease),color .5s,transform .6s var(--ease)}
 .see a:hover{background:var(--ink);color:#fafafa;transform:scale(1.04)}
 .center-cta{display:flex;justify-content:center;margin-top:64px}
@@ -206,7 +206,7 @@ canvas.wave{position:absolute;inset:0;width:100%;height:100%;display:block}
 .pr-nav button.on i{width:3px;margin-right:11px}
 .pr-card{position:sticky;top:var(--stick);height:412px;margin-bottom:40px}
 .pr-card:last-child{margin-bottom:0}
-.pr-in{height:100%;background:#fff;border-radius:17px;display:grid;grid-template-columns:1fr 471px;gap:27px;padding:27px}
+.pr-in{height:100%;background:var(--tile);border-radius:17px;display:grid;grid-template-columns:1fr 471px;gap:27px;padding:27px}
 .pr-txt{padding:28px 0 0 41px;display:flex;flex-direction:column;align-items:flex-start}
 .pr-txt h3{font-family:var(--serif);font-weight:300;font-size:28px;line-height:42px;letter-spacing:-.02em;color:var(--ink2);margin-top:73px}
 .pr-txt p{font-weight:300;font-size:16px;line-height:19px;color:var(--grey);max-width:290px;margin-top:11px}
@@ -248,7 +248,7 @@ canvas.wave{position:absolute;inset:0;width:100%;height:100%;display:block}
 .spots i{width:7px;height:7px;border-radius:50%;background:#e5482d;box-shadow:0 0 0 3px rgba(229,72,45,.18);animation:spotPulse 1.8s ease-in-out infinite}
 @keyframes spotPulse{50%{box-shadow:0 0 0 6px rgba(229,72,45,0)}}
 /* the most popular plan: bigger card */
-.plan.pop{background:#fff;padding:36px 32px;margin:-28px 0;outline:1px solid rgba(23,23,23,.08)}
+.plan.pop{background:var(--tile);padding:36px 32px;margin:-28px 0;outline:1px solid rgba(23,23,23,.08)}
 .plan.pop .price b{font-size:64px;line-height:68px}
 .plan.pop .cta{background:var(--ink);color:#fff}
 .plan.pop .cta:hover{background:#000}
@@ -285,7 +285,7 @@ canvas.wave{position:absolute;inset:0;width:100%;height:100%;display:block}
 .t-track.nt{transition:none}
 .t-slide{flex:none;width:var(--tw,872px)}
 /* Testimonial card, as designed in Figma: 872x412 white card, quote left, 411x358 photo right */
-.t-card{height:412px;background:#fff;border-radius:17px;display:grid;grid-template-columns:minmax(0,1fr) 411px;gap:27px;padding:27px}
+.t-card{height:412px;background:var(--tile);border-radius:17px;display:grid;grid-template-columns:minmax(0,1fr) 411px;gap:27px;padding:27px}
 .t-txt{padding:0 0 0 21px;display:flex;flex-direction:column;justify-content:center;gap:11px}
 .t-txt blockquote{font-family:var(--serif);font-weight:300;font-size:28px;line-height:1.3;letter-spacing:-.02em;color:var(--ink2)}
 .t-by{font-weight:300;font-size:16px;line-height:19px;color:var(--grey)}
