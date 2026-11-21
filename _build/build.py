@@ -269,7 +269,7 @@ open('index.html', 'w').write(H)
 def between(a, b, s=H, incl=True):
     i = s.index(a); j = s.index(b, i) + (len(b) if incl else 0)
     return s[i:j]
-fonts = '\n'.join(re.findall(r'<link (?:rel="preconnect"[^>]*|href="https://[^"]*(?:googleapis|fontshare)[^"]*" rel="stylesheet")>', H))
+fonts = '\n'.join(re.findall(r'<link (?:rel="preload"[^>]*as="font"[^>]*|rel="preconnect"[^>]*|href="https://[^"]*(?:googleapis|fontshare)[^"]*" rel="stylesheet")>', H))
 inline_styles = ''.join(re.findall(r'<style>.*?</style>\n', H.split('</head>')[0], re.S))
 svg_filter = between('<svg width="0" height="0"', '</svg>')
 nav = between('<nav class="nav" id="nav">', '</nav>')
