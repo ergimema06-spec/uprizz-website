@@ -7,7 +7,6 @@
    Plays only when the page being opened is a project; every other page change stays instant. */
 addEventListener('pagereveal',e=>{const vt=e.viewTransition;if(!vt)return;
   if(!location.pathname.startsWith('/projects/')||matchMedia('(prefers-reduced-motion: reduce)').matches){vt.ready.catch(()=>{});vt.finished.catch(()=>{});vt.skipTransition();return}
-  const h=document.documentElement;try{const o=JSON.parse(sessionStorage.getItem('vt-origin')||'null');if(o){h.style.setProperty('--vt-ox',o.x+'%');h.style.setProperty('--vt-oy',o.y+'%')}}catch(_){}
   vt.types.add('project')});</script>
 <title>Basalt — Uprizz</title>
 <meta name="description" content="Campaign photography for Basalt&#x27;s winter collection, starring the actor Solitaire. One figure, one landscape of black sand, and a collection shot as…">
@@ -26,7 +25,7 @@ addEventListener('pagereveal',e=>{const vt=e.viewTransition;if(!vt)return;
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,300&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/style.css?v=c3e5cdcd">
+<link rel="stylesheet" href="/css/style.css?v=5a15cc31">
 <link rel="stylesheet" href="/css/pages.css?v=074356ea">
 <style>
 /* ---------- Uprizz logo (recolours with the text colour) ---------- */
@@ -146,6 +145,6 @@ addEventListener('pagereveal',e=>{const vt=e.viewTransition;if(!vt)return;
   <div class="wordmark" id="wordmark"><span><span class="brandmark big" role="img" aria-label="Uprizz"></span></span></div>
   <div class="legal"><div><a href="#">Terms of service</a><a href="#">Privacy Policy</a></div><span>© 2026 Uprizz®. All rights reserved.</span></div>
 </footer>
-<script src="/js/main.js?v=4fdd89b3"></script>
+<script src="/js/main.js?v=8324011d"></script>
 </body>
 </html>

@@ -308,20 +308,85 @@ const WAVES={
   fit(); addEventListener('resize',fit);
 })();
 
-/* ---------- Page transition into a project ----------
-   Marks the clicked project card so the browser can grow it into the project's cover
-   (styles: "Page transition" in css/style.css). Also remembers where the card was, so the
-   page zooms out around it. */
+/* ---------- Page transition into a project (ONTO-style) ----------
+   Clicking a project card does not switch pages straight away. A copy of the card's picture is laid
+   exactly over the card (same crop and zoom), then grows to exactly where the project's cover sits on
+   the project page, while the rest of the page zooms away around it (the menu stays put). Only then
+   does the project page load, with its cover in that same spot, so the change of page is invisible;
+   its title fades in (styles: "Page transition" in css/style.css). The project page is fetched
+   on hover so it is ready. Skipped with reduced motion or modifier-clicks (new tab etc.). */
 (()=>{
-  const clear=()=>document.querySelectorAll('.vt-from').forEach(n=>{n.classList.remove('vt-from');n.style.viewTransitionName=''});
+  if(reduced) return;
+  const DUR=1150, EASE='cubic-bezier(.76,0,.2,1)';
+  const sel='a.proj[href^="/projects/"],a.wk-card[href^="/projects/"]';
+  const fetched=new Set();
+  const prefetch=a=>{const u=a.getAttribute('href'); if(fetched.has(u))return; fetched.add(u);
+    const l=document.createElement('link'); l.rel='prefetch'; l.href=u; document.head.appendChild(l)};
+  document.addEventListener('pointerover',e=>{const a=e.target.closest(sel); if(a)prefetch(a)});
+  document.addEventListener('touchstart',e=>{const a=e.target.closest(sel); if(a)prefetch(a)},{passive:true});
+
+  // where the cover sits on a project page (mirrors .pj-head / .pj-meta / .pj-cover in css/pages.css)
+  function coverRect(){
+    const vw=document.documentElement.clientWidth, vh=innerHeight, mob=vw<=700;
+    const pad=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--pad'))||61;
+    const w=vw-2*pad, h=mob?w*1.25:w*9/16;
+    return {left:pad, top:(mob?vh*.52:vh*.66-44)+44, width:w, height:h};
+  }
+  let running=null;
+  function reset(){
+    if(!running)return;
+    running.anims.forEach(a=>a.cancel()); running.fly.remove(); running.card.style.visibility='';
+    document.documentElement.classList.remove('vt-busy'); running=null;
+  }
+  addEventListener('pageshow',reset);           // back button: put everything back
+
   document.addEventListener('click',e=>{
-    const a=e.target.closest('a.proj[href^="/projects/"],a.wk-card[href^="/projects/"]');
-    if(!a||e.defaultPrevented||e.button||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;
-    clear(); a.classList.add('vt-from'); a.style.viewTransitionName='pj-hero';
-    const r=a.getBoundingClientRect();
-    try{sessionStorage.setItem('vt-origin',JSON.stringify({x:+((r.left+r.width/2)/innerWidth*100).toFixed(1),y:+((r.top+r.height/2)/innerHeight*100).toFixed(1)}))}catch(_){}
+    const a=e.target.closest(sel);
+    if(!a||running||e.defaultPrevented||e.button||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;
+    const img=a.querySelector('.img'); if(!img)return;
+    e.preventDefault(); prefetch(a);
+    const url=a.getAttribute('href');
+    const c=a.getBoundingClientRect(), ir=img.getBoundingClientRect(), t=coverRect();
+    const cs=getComputedStyle(a), radius=cs.borderTopLeftRadius;
+
+    // the flying picture: an outer frame (crop + rounded corners) with the image inside it
+    const fly=document.createElement('div'); fly.className='vt-fly';
+    fly.style.cssText=`position:fixed;left:0;top:0;width:${c.width}px;height:${c.height}px;transform:translate(${c.left}px,${c.top}px);border-radius:${radius};overflow:hidden;z-index:45;background:#ddd;pointer-events:none`;   // 45: under the menu (50)
+    const pic=document.createElement('div');
+    pic.style.cssText=`position:absolute;left:${ir.left-c.left}px;top:${ir.top-c.top}px;width:${ir.width}px;height:${ir.height}px;background:${getComputedStyle(img).backgroundImage} center/cover no-repeat`;
+    fly.appendChild(pic);
+    // the card's dark shade and name come along and fade out as the picture starts to grow
+    const after=getComputedStyle(a,'::after'), extras=[];
+    if(after.backgroundImage!=='none'){const g=document.createElement('div');
+      g.style.cssText=`position:absolute;left:0;right:0;bottom:0;height:${after.height};background:${after.backgroundImage}`;fly.appendChild(g);extras.push(g)}
+    const meta=a.querySelector('.meta'); if(meta){const m=meta.cloneNode(true);const mr=meta.getBoundingClientRect();
+      m.style.cssText+=`;position:absolute;margin:0;left:${mr.left-c.left}px;top:${mr.top-c.top}px;width:${mr.width}px;right:auto;bottom:auto`;fly.appendChild(m);extras.push(m)}
+    document.body.appendChild(fly);
+    a.style.visibility='hidden';
+    document.documentElement.classList.add('vt-busy');
+
+    const anims=[];
+    const opts={duration:DUR,easing:EASE,fill:'forwards'};
+    anims.push(fly.animate([
+      {width:c.width+'px',height:c.height+'px',transform:`translate(${c.left}px,${c.top}px)`},
+      {width:t.width+'px',height:t.height+'px',transform:`translate(${t.left}px,${t.top}px)`,borderRadius:'20px'}],opts));
+    anims.push(pic.animate([
+      {left:(ir.left-c.left)+'px',top:(ir.top-c.top)+'px',width:ir.width+'px',height:ir.height+'px'},
+      {left:'0px',top:'0px',width:t.width+'px',height:t.height+'px'}],opts));
+
+    extras.forEach(x=>anims.push(x.animate([{opacity:1},{opacity:0}],{duration:280,easing:'ease-out',fill:'forwards'})));
+
+    // everything else zooms away around the card; the menu stays where it is
+    const cx=c.left+c.width/2, cy=c.top+c.height/2;
+    [...document.body.children].forEach(el=>{
+      if(el===fly||el.id==='nav'||/^(SCRIPT|STYLE|LINK)$/.test(el.tagName))return;
+      const r=el.getBoundingClientRect(); if(!r.width||!r.height)return;
+      el.style.transformOrigin=`${cx-r.left}px ${cy-r.top}px`;
+      anims.push(el.animate([{transform:'none',opacity:1},{opacity:1,offset:.35},{transform:'scale(2.4)',opacity:0}],{duration:DUR*.85,easing:'cubic-bezier(.6,0,.4,1)',fill:'forwards'}));
+    });
+    running={anims,fly,card:a};
+    anims[0].finished.then(()=>{ location.href=url; });
   });
-  addEventListener('pageshow',clear);              // coming back (Back button): reset the card
 })();
 
 /* ---------- Ready (starts the hero animation) ---------- */

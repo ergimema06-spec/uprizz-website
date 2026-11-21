@@ -427,22 +427,20 @@ a:hover .roll span{transform:translateY(-100%)}
 }
 
 /* ---------- Page transition into a project (like studio-onto.com) ----------
-   Uses the browser's built-in page-to-page transitions (Chrome/Edge, Safari 18.2+; other browsers
-   just open the page). When a project card is clicked (js/main.js marks it), that card's image grows
-   into the project's cover (.pj-cover, both named "pj-hero"); the page you leave zooms out around the
-   card and fades; the project's title and details fade in as the image lands. Only runs when
-   opening a project; the deciding script is in the <head> of every page. Timing: --vt-t. */
+   The movement happens on the page you leave (js/main.js: the clicked picture grows to exactly where
+   the project cover sits, everything else zooms away). The project page then loads with its cover in
+   that same spot; the browser's page-to-page transition (Chrome/Edge, Safari 18.2+) holds the frame,
+   lines the picture up with the real cover ("pj-hero") and fades the title in, so the page change
+   can't be seen. The menu is the same element on both pages ("site-nav") and never moves. */
 @view-transition{navigation:auto}
-:root{--vt-t:1.3s;--vt-ease:cubic-bezier(.72,0,.16,1)}
-html:active-view-transition-type(project)::view-transition-group(pj-hero){animation-duration:var(--vt-t);animation-timing-function:var(--vt-ease);z-index:2}   /* the image always stays on top */
+.vt-fly{view-transition-name:pj-hero}
+.nav{view-transition-name:site-nav}
+.vt-busy,.vt-busy *{cursor:progress}
+html:active-view-transition-type(project)::view-transition-group(pj-hero){animation-duration:.35s;animation-timing-function:cubic-bezier(.3,0,.2,1);z-index:3}
+html:active-view-transition-type(project)::view-transition-group(site-nav){z-index:4}
 html:active-view-transition-type(project)::view-transition-old(pj-hero),
-html:active-view-transition-type(project)::view-transition-new(pj-hero){height:100%;width:100%;object-fit:cover}   /* keeps the browser's plus-lighter blend: the two pictures always add up to a solid image */
-html:active-view-transition-type(project)::view-transition-old(pj-hero){animation:vt-hide var(--vt-t) linear both}
-html:active-view-transition-type(project)::view-transition-new(pj-hero){animation:vt-show var(--vt-t) linear both}
-html:active-view-transition-type(project)::view-transition-old(root){animation:vt-away var(--vt-t) var(--vt-ease) both;transform-origin:var(--vt-ox,50%) var(--vt-oy,50%)}
-html:active-view-transition-type(project)::view-transition-new(root){animation:vt-arrive calc(var(--vt-t) * .55) calc(var(--vt-t) * .55) ease both}
-@keyframes vt-hide{0%,45%{opacity:1}75%,100%{opacity:0}}      /* clicked card's picture, handing over to... */
-@keyframes vt-show{0%,45%{opacity:0}75%,100%{opacity:1}}      /* ...the sharp full-size cover (exact opposite, so no fade-through) */
-@keyframes vt-away{0%{transform:none;opacity:1}60%{opacity:0}100%{transform:scale(1.9);opacity:0}}
-@keyframes vt-arrive{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-.vt-from .meta,.vt-from:after{opacity:0!important;transition:none!important}   /* clicked card: just the picture */
+html:active-view-transition-type(project)::view-transition-new(pj-hero){height:100%;width:100%;object-fit:cover;animation-duration:.35s}
+html:active-view-transition-type(project)::view-transition-old(root){animation:vt-out .2s linear both}
+html:active-view-transition-type(project)::view-transition-new(root){animation:vt-arrive .6s .05s cubic-bezier(.2,0,.2,1) both}
+@keyframes vt-out{to{opacity:0}}
+@keyframes vt-arrive{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}

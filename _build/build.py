@@ -299,7 +299,6 @@ def page(title, desc, path, og_img, body, extra_js='', extra_head=''):
    Plays only when the page being opened is a project; every other page change stays instant. */
 addEventListener('pagereveal',e=>{{const vt=e.viewTransition;if(!vt)return;
   if(!location.pathname.startsWith('/projects/')||matchMedia('(prefers-reduced-motion: reduce)').matches){{vt.ready.catch(()=>{{}});vt.finished.catch(()=>{{}});vt.skipTransition();return}}
-  const h=document.documentElement;try{{const o=JSON.parse(sessionStorage.getItem('vt-origin')||'null');if(o){{h.style.setProperty('--vt-ox',o.x+'%');h.style.setProperty('--vt-oy',o.y+'%')}}}}catch(_){{}}
   vt.types.add('project')}});</script>
 <title>{esc(title)}</title>
 <meta name="description" content="{esc(desc)}">
