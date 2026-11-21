@@ -314,10 +314,9 @@ const WAVES={
    the project page, while the rest of the page zooms away around it (the menu stays put). Only then
    does the project page load, with its cover in that same spot, so the change of page is invisible;
    its title fades in (styles: "Page transition" in css/style.css). The project page is fetched
-   on hover so it is ready. Skipped with reduced motion or modifier-clicks (new tab etc.). */
+   on hover so it is ready. With reduced motion it is shorter and the page doesn't zoom. Skipped for modifier-clicks (new tab etc.). */
 (()=>{
-  if(reduced) return;
-  const DUR=1150, EASE='cubic-bezier(.76,0,.2,1)';
+  const DUR=reduced?650:1150, EASE='cubic-bezier(.76,0,.2,1)';
   const sel='a.proj[href^="/projects/"],a.wk-card[href^="/projects/"]';
   const fetched=new Set();
   const prefetch=a=>{const u=a.getAttribute('href'); if(fetched.has(u))return; fetched.add(u);
@@ -346,6 +345,7 @@ const WAVES={
     if(!a||running||e.defaultPrevented||e.button||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;
     const img=a.querySelector('.img'); if(!img)return;
     e.preventDefault(); prefetch(a);
+    try{
     const url=a.getAttribute('href');
     const c=a.getBoundingClientRect(), ir=img.getBoundingClientRect(), t=coverRect();
     const cs=getComputedStyle(a), radius=cs.borderTopLeftRadius;
@@ -379,14 +379,16 @@ const WAVES={
 
     // everything else zooms away around the card; the menu stays where it is
     const cx=c.left+c.width/2, cy=c.top+c.height/2;
-    [...document.body.children].forEach(el=>{
+    if(!reduced)[...document.body.children].forEach(el=>{
       if(el===fly||el.id==='nav'||/^(SCRIPT|STYLE|LINK)$/.test(el.tagName))return;
       const r=el.getBoundingClientRect(); if(!r.width||!r.height)return;
       el.style.transformOrigin=`${cx-r.left}px ${cy-r.top}px`;
       anims.push(el.animate([{transform:'none',opacity:1},{opacity:1,offset:.35},{transform:'scale(2.4)',opacity:0}],{duration:DUR*.85,easing:'cubic-bezier(.6,0,.4,1)',fill:'forwards'}));
     });
     running={anims,fly,card:a};
-    anims[0].finished.then(()=>{ location.href=url; });
+    const go=()=>{ location.href=url; };
+    anims[0].finished.then(go,go); setTimeout(go,DUR+600);     // always arrive, even if an animation is interrupted
+    }catch(err){ location.href=url; }                         // anything unexpected: just open the project
   });
 })();
 

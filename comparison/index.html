@@ -5,10 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script>/* Page transition into a project (styles: "Page transition" in css/style.css).
    Plays only when the page being opened is a project; every other page change stays instant. */
-addEventListener('pagereveal',e=>{const vt=e.viewTransition;if(!vt)return;
-  if(!location.pathname.startsWith('/projects/')||matchMedia('(prefers-reduced-motion: reduce)').matches){vt.ready.catch(()=>{});vt.finished.catch(()=>{});vt.skipTransition();return}
-  vt.types.add('project')});
-addEventListener('pageswap',e=>{const vt=e.viewTransition;if(vt){vt.ready.catch(()=>{});vt.finished.catch(()=>{})}});</script>
+addEventListener('pagereveal',e=>{const vt=e.viewTransition;if(!vt)return;vt.ready.catch(()=>{});vt.finished.catch(()=>{});vt.updateCallbackDone?.catch(()=>{});
+  if(!location.pathname.startsWith('/projects/')){vt.skipTransition();return}
+  const h=document.documentElement;h.classList.add('vt-project');vt.finished.finally(()=>h.classList.remove('vt-project'))});
+addEventListener('pageswap',e=>{const vt=e.viewTransition;if(!vt)return;vt.ready.catch(()=>{});vt.finished.catch(()=>{});vt.updateCallbackDone?.catch(()=>{});
+  if(new URL(e.activation?.entry?.url||location.href).pathname.startsWith('/projects/'))document.documentElement.classList.add('vt-project')});</script>
 <title>Uprizz vs DIY tools vs agencies — Uprizz</title>
 <meta name="description" content="Three ways to launch: DIY and AI tools, a traditional agency, or Uprizz. Compare price, time to launch and risk.">
 <link rel="canonical" href="https://uprizz.com/comparison/">
@@ -26,8 +27,8 @@ addEventListener('pageswap',e=>{const vt=e.viewTransition;if(vt){vt.ready.catch(
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,300&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/style.css?v=183e6c27">
-<link rel="stylesheet" href="/css/pages.css?v=5bd12c3b">
+<link rel="stylesheet" href="/css/style.css?v=e7273cd7">
+<link rel="stylesheet" href="/css/pages.css?v=602e5878">
 <style>
 /* ---------- Uprizz logo (recolours with the text colour) ---------- */
 .brandmark{display:inline-block;height:.95em;aspect-ratio:248.52/94.51;vertical-align:-.2em;background:currentColor;
@@ -155,6 +156,6 @@ addEventListener('pageswap',e=>{const vt=e.viewTransition;if(vt){vt.ready.catch(
   <div class="wordmark" id="wordmark"><span><span class="brandmark big" role="img" aria-label="Uprizz"></span></span></div>
   <div class="legal"><div><a href="#">Terms of service</a><a href="#">Privacy Policy</a></div><span>© 2026 Uprizz®. All rights reserved.</span></div>
 </footer>
-<script src="/js/main.js?v=b92cf607"></script>
+<script src="/js/main.js?v=400bc248"></script>
 </body>
 </html>

@@ -297,10 +297,11 @@ def page(title, desc, path, og_img, body, extra_js='', extra_head=''):
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script>/* Page transition into a project (styles: "Page transition" in css/style.css).
    Plays only when the page being opened is a project; every other page change stays instant. */
-addEventListener('pagereveal',e=>{{const vt=e.viewTransition;if(!vt)return;
-  if(!location.pathname.startsWith('/projects/')||matchMedia('(prefers-reduced-motion: reduce)').matches){{vt.ready.catch(()=>{{}});vt.finished.catch(()=>{{}});vt.skipTransition();return}}
-  vt.types.add('project')}});
-addEventListener('pageswap',e=>{{const vt=e.viewTransition;if(vt){{vt.ready.catch(()=>{{}});vt.finished.catch(()=>{{}})}}}});</script>
+addEventListener('pagereveal',e=>{{const vt=e.viewTransition;if(!vt)return;vt.ready.catch(()=>{{}});vt.finished.catch(()=>{{}});vt.updateCallbackDone?.catch(()=>{{}});
+  if(!location.pathname.startsWith('/projects/')){{vt.skipTransition();return}}
+  const h=document.documentElement;h.classList.add('vt-project');vt.finished.finally(()=>h.classList.remove('vt-project'))}});
+addEventListener('pageswap',e=>{{const vt=e.viewTransition;if(!vt)return;vt.ready.catch(()=>{{}});vt.finished.catch(()=>{{}});vt.updateCallbackDone?.catch(()=>{{}});
+  if(new URL(e.activation?.entry?.url||location.href).pathname.startsWith('/projects/'))document.documentElement.classList.add('vt-project')}});</script>
 <title>{esc(title)}</title>
 <meta name="description" content="{esc(desc)}">
 <link rel="canonical" href="{SITE}{path}">
