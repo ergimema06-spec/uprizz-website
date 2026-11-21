@@ -158,7 +158,7 @@
         ],
         "bonus": "",
         "button_text": "Start Now",
-        "button_link": "#contact"
+        "button_link": "/brief/?plan=Basic"
       },
       {
         "name": "Standard",
@@ -174,7 +174,7 @@
         ],
         "bonus": "A monthly shoot day in-studio",
         "button_text": "Start Now",
-        "button_link": "#contact"
+        "button_link": "/brief/?plan=Standard"
       },
       {
         "name": "Premium",
@@ -190,7 +190,7 @@
         ],
         "bonus": "",
         "button_text": "Start Now",
-        "button_link": "#contact"
+        "button_link": "/brief/?plan=Premium"
       }
     ]
   },

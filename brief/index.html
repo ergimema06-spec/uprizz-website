@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Start your brief — Uprizz</title>
+<meta name="description" content="Tell us about your brand. Fill in the Uprizz brief and our designers get started.">
+<meta name="robots" content="noindex">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,300&display=swap" rel="stylesheet">
+<style>
+  /* Same brand font setup as /css/style.css */
+  @font-face{font-family:'Uprizz Serif';font-weight:300;font-style:normal;font-display:swap;
+    src:local('ABC Arizona Flare Light'),local('ABCArizonaFlare-Light'),local('ABC Arizona Flare')}
+  @font-face{font-family:'Uprizz Sans';font-weight:400;font-style:normal;font-display:swap;
+    src:local("Suisse BP Int'l"),local("Suisse BP Int'l Regular"),local('SuisseBPIntl-Regular'),local('Suisse Intl'),local('SuisseIntl-Regular')}
+  @font-face{font-family:'Uprizz Sans';font-weight:500;font-style:normal;font-display:swap;
+    src:local("Suisse BP Int'l Medium"),local('SuisseBPIntl-Medium'),local('Suisse Intl Medium'),local('SuisseIntl-Medium')}
+  :root{
+    --serif:"Uprizz Serif", Newsreader, Georgia, serif;
+    --sans:"Uprizz Sans", Inter, system-ui, sans-serif;
+    --cream:#FEFBF2;
+    --cream-2:#FEF9ED;
+    --paper:#FFFFFF;
+    --ink:#191919;
+    --ink-60:rgba(25,25,25,.6);
+    --ink-40:rgba(25,25,25,.4);
+    --ink-15:rgba(25,25,25,.15);
+    --ink-08:rgba(25,25,25,.08);
+    --rust:#D9562F;
+    --sage:#B9C2A8;
+    --peach:#E9C08F;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:var(--sans);font-size:14px;color:var(--ink);
+    background:var(--cream);min-height:100vh;
+    display:flex;align-items:center;justify-content:center;padding:40px 20px;
+    -webkit-font-smoothing:antialiased;flex-direction:column;gap:22px;
+  }
+  .ub-home{align-self:center;display:inline-flex;align-items:center;gap:8px;font-family:var(--sans);font-size:14px;color:var(--ink);text-decoration:none;
+    background:#fff;border-radius:1000px;padding:10px 20px;box-shadow:0 6px 20px -10px rgba(25,25,25,.25)}
+  .ub-home:hover{background:var(--cream-2)}
+  .ub-plan{display:inline-block;margin-left:8px;padding:2px 9px;border-radius:1000px;background:var(--cream);color:var(--ink);letter-spacing:.08em}
+  .ub-plan[hidden]{display:none}
+  .ub-send-err{display:none;margin-right:auto;margin-left:16px;font-size:12px;line-height:1.4;color:var(--rust);max-width:220px}
+  .ub-send-err.on{display:block}
+  .ub-hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+
+  /* ---------- Card ---------- */
+  .ub-card{
+    width:100%;max-width:1000px;height:600px;display:grid;grid-template-columns:42% 58%;
+    background:var(--paper);border-radius:24px;overflow:hidden;
+    box-shadow:0 30px 80px -30px rgba(25,25,25,.18),0 2px 6px rgba(25,25,25,.04);
+  }
+
+  /* ---------- Visual panel ---------- */
+  .ub-visual{position:relative;overflow:hidden;background:var(--sage)}
+  .ub-visual .layer{
+    position:absolute;inset:-20%;filter:blur(40px) saturate(1.05);
+    opacity:0;transition:opacity .9s ease, transform 6s ease;transform:scale(1.05);
+  }
+  .ub-visual .layer.on{opacity:1;transform:scale(1)}
+  .ub-visual .grain{
+    position:absolute;inset:0;opacity:.18;mix-blend-mode:overlay;pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .ub-visual .big{
+    position:absolute;left:32px;right:32px;top:34px;color:#fff;
+    font-family:var(--serif);font-weight:300;font-size:46px;line-height:1.02;letter-spacing:-.02em;
+    text-shadow:0 2px 30px rgba(0,0,0,.08);
+  }
+  .ub-visual .big em{font-style:italic}
+  .ub-visual .foot{
+    position:absolute;left:24px;right:24px;bottom:24px;display:flex;justify-content:space-between;align-items:center;
+  }
+  .ub-tag{
+    font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#fff;
+    background:rgba(255,255,255,.18);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    border:1px solid rgba(255,255,255,.25);padding:7px 13px;border-radius:1000px;font-weight:500;
+  }
+  .ub-motto{font-family:var(--serif);font-style:italic;font-weight:300;color:rgba(255,255,255,.9);font-size:15px}
+
+  /* ---------- Form panel ---------- */
+  .ub-form{display:flex;flex-direction:column;padding:44px 48px 28px;min-width:0}
+  .ub-progress{height:2px;background:var(--ink-08);border-radius:2px;position:relative;flex:none}
+  .ub-progress span{position:absolute;left:0;top:0;bottom:0;background:var(--ink);border-radius:2px;transition:width .5s cubic-bezier(.4,.1,.2,1)}
+  .ub-count{margin-top:10px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-40);flex:none}
+
+  .ub-steps{position:relative;flex:1;min-height:0;margin-top:22px}
+  .ub-step{
+    position:absolute;inset:0;overflow-y:auto;padding-right:8px;margin-right:-8px;
+    opacity:0;pointer-events:none;transform:translateY(10px);
+    transition:opacity .35s ease, transform .35s ease;
+    scrollbar-width:thin;scrollbar-color:var(--ink-15) transparent;
+  }
+  .ub-step.active{opacity:1;pointer-events:auto;transform:none}
+  .ub-step h2{font-family:var(--serif);font-weight:300;font-size:36px;line-height:1.1;letter-spacing:-.02em}
+  .ub-step .sub{color:var(--ink-60);margin-top:8px;font-size:14px;line-height:1.5}
+  .ub-fields{margin-top:26px;display:flex;flex-direction:column;gap:22px;padding-bottom:12px}
+
+  .ub-field{display:flex;flex-direction:column;gap:8px}
+  .ub-row{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+  .ub-label{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink);font-weight:500}
+  .ub-label .req{color:var(--rust)}
+  .ub-label .opt{color:var(--ink-40);letter-spacing:.06em;text-transform:none;font-weight:400;margin-left:4px}
+  .ub-hint{font-size:12px;color:var(--ink-40);margin-top:-2px}
+
+  .ub-input,.ub-textarea,.ub-select{
+    width:100%;font-family:var(--sans);font-size:15px;color:var(--ink);
+    background:transparent;border:0;border-bottom:1px solid var(--ink-15);
+    padding:8px 0 10px;outline:none;border-radius:0;transition:border-color .2s;
+  }
+  .ub-textarea{resize:none;min-height:66px;line-height:1.5}
+  .ub-input::placeholder,.ub-textarea::placeholder{color:var(--ink-40)}
+  .ub-input:focus,.ub-textarea:focus,.ub-select:focus{border-bottom-color:var(--ink)}
+  .ub-select{appearance:none;-webkit-appearance:none;cursor:pointer;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1.5l5 5 5-5' stroke='%23191919' stroke-opacity='.5' stroke-width='1.3'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right 2px center;padding-right:24px}
+  .ub-select.empty{color:var(--ink-40)}
+  .ub-field.err .ub-input,.ub-field.err .ub-textarea,.ub-field.err .ub-select{border-bottom-color:var(--rust)}
+  .ub-error{font-size:12px;color:var(--rust);display:none}
+  .ub-field.err .ub-error{display:block}
+
+  /* chips */
+  .ub-chips{display:flex;flex-wrap:wrap;gap:8px}
+  .ub-chip{
+    font-family:var(--sans);font-size:13px;color:var(--ink);background:transparent;cursor:pointer;
+    border:1px solid var(--ink-15);border-radius:1000px;padding:7px 15px;transition:all .18s ease;
+    display:inline-flex;align-items:center;gap:6px;
+  }
+  .ub-chip:hover{border-color:var(--ink-40)}
+  .ub-chip[aria-pressed="true"]{background:var(--ink);color:var(--cream);border-color:var(--ink)}
+  .ub-chip .x{opacity:.6;font-size:15px;line-height:1}
+  .ub-chip-add{display:flex;gap:8px;margin-top:4px}
+  .ub-chip-add .ub-input{font-size:14px;padding:6px 0 8px}
+
+  /* colours */
+  .ub-swatches{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .ub-swatch{
+    display:inline-flex;align-items:center;gap:8px;border:1px solid var(--ink-15);border-radius:1000px;
+    padding:4px 10px 4px 4px;font-size:12px;font-family:var(--sans);background:#fff;color:var(--ink);
+  }
+  .ub-swatch i{width:22px;height:22px;border-radius:50%;display:block;border:1px solid rgba(0,0,0,.08)}
+  .ub-swatch button{border:0;background:none;cursor:pointer;color:var(--ink-60);font-size:15px;line-height:1;padding:0 2px}
+  .ub-picker{
+    position:relative;display:inline-flex;align-items:center;gap:8px;cursor:pointer;
+    border:1px dashed var(--ink-40);border-radius:1000px;padding:7px 14px;font-size:13px;color:var(--ink-60);
+  }
+  .ub-picker input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+  .ub-check{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--ink-60);cursor:pointer;user-select:none}
+  .ub-check input{appearance:none;-webkit-appearance:none;width:16px;height:16px;border:1px solid var(--ink-40);border-radius:4px;cursor:pointer;display:grid;place-content:center;margin:0}
+  .ub-check input:checked{background:var(--ink);border-color:var(--ink)}
+  .ub-check input:checked::after{content:"";width:8px;height:4px;border-left:1.5px solid #fff;border-bottom:1.5px solid #fff;transform:rotate(-45deg) translate(1px,-1px)}
+
+  /* upload */
+  .ub-drop{
+    border:1px dashed var(--ink-15);border-radius:16px;padding:20px;text-align:center;cursor:pointer;
+    background:var(--cream);transition:all .2s;color:var(--ink-60);font-size:13px;line-height:1.5;
+  }
+  .ub-drop:hover,.ub-drop.over{border-color:var(--ink);color:var(--ink)}
+  .ub-drop strong{color:var(--ink);font-weight:500;text-decoration:underline;text-underline-offset:3px}
+  .ub-drop input{display:none}
+  .ub-files{display:flex;flex-direction:column;gap:6px;margin-top:4px}
+  .ub-file{display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:8px 12px;border-radius:10px;background:var(--cream)}
+  .ub-file span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-right:10px}
+  .ub-file small{color:var(--ink-40);margin-right:10px;white-space:nowrap}
+  .ub-file button{border:0;background:none;cursor:pointer;color:var(--ink-60);font-size:16px}
+
+  /* footer */
+  .ub-foot{flex:none;border-top:1px solid var(--ink-08);padding-top:20px;margin-top:10px;display:flex;align-items:center;justify-content:space-between}
+  .ub-back{
+    font-family:var(--sans);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-60);
+    background:none;border:0;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:color .2s,opacity .2s;
+  }
+  .ub-back:hover{color:var(--ink)}
+  .ub-back[hidden]{display:inline-flex;visibility:hidden}
+  .ub-next{
+    font-family:var(--sans);font-size:14px;color:var(--cream);background:var(--ink);border:1px solid var(--ink);
+    border-radius:1000px;padding:12px 26px;cursor:pointer;display:inline-flex;align-items:center;gap:10px;
+    transition:transform .2s ease, background .2s, box-shadow .2s;box-shadow:0 10px 24px -10px rgba(25,25,25,.5);
+  }
+  .ub-next:hover{transform:translateY(-1px)}
+  .ub-next:disabled{opacity:.6;cursor:wait;transform:none}
+  .ub-next svg,.ub-back svg{width:14px;height:14px}
+
+  /* success */
+  .ub-done{text-align:left}
+  .ub-done .mark{width:52px;height:52px;border-radius:50%;background:var(--ink);display:grid;place-items:center;margin-bottom:26px}
+  .ub-done .mark svg{width:22px;height:22px}
+  .ub-done .ub-ghost{
+    margin-top:26px;font-family:var(--sans);font-size:14px;color:var(--ink);background:transparent;
+    border:1px solid rgba(25,25,25,.5);border-radius:1000px;padding:8px 22px;cursor:pointer;text-decoration:none;display:inline-block
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width:820px){
+    body{padding:0;align-items:stretch;gap:0}
+    .ub-home{position:absolute;top:14px;left:14px;z-index:3;padding:8px 16px;font-size:13px}
+    .ub-card{grid-template-columns:1fr;grid-template-rows:180px 1fr;height:auto;min-height:100vh;border-radius:0;box-shadow:none}
+    .ub-visual .big{font-size:32px;top:auto;bottom:62px;left:24px}
+    .ub-visual .big br{display:none}
+    .ub-motto{display:none}
+    .ub-form{padding:28px 22px 22px}
+    .ub-steps{min-height:480px}
+    .ub-step h2{font-size:30px}
+    .ub-row{grid-template-columns:1fr}
+    .ub-foot{position:sticky;bottom:0;background:var(--paper);padding-bottom:6px}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<a class="ub-home" href="/">← uprizz</a>
+
+<div class="ub-card" id="ubForm">
+  <!-- Visual -->
+  <aside class="ub-visual" aria-hidden="true">
+    <div class="layer" data-step="0" style="background:radial-gradient(60% 60% at 20% 15%,#B9C2A8 0%,transparent 70%),radial-gradient(55% 55% at 85% 20%,#E9C08F 0%,transparent 70%),radial-gradient(70% 60% at 70% 95%,#C9522B 0%,transparent 70%),#D9B48E"></div>
+    <div class="layer" data-step="1" style="background:radial-gradient(60% 60% at 80% 10%,#B9C2A8 0%,transparent 70%),radial-gradient(60% 55% at 15% 70%,#D86A35 0%,transparent 70%),radial-gradient(50% 50% at 90% 90%,#E9C08F 0%,transparent 70%),#CFA27A"></div>
+    <div class="layer" data-step="2" style="background:radial-gradient(70% 60% at 30% 25%,#E9C08F 0%,transparent 70%),radial-gradient(55% 55% at 90% 60%,#C9522B 0%,transparent 70%),radial-gradient(50% 50% at 10% 95%,#A9B596 0%,transparent 70%),#DDB085"></div>
+    <div class="layer" data-step="3" style="background:radial-gradient(60% 60% at 70% 20%,#C9522B 0%,transparent 70%),radial-gradient(60% 60% at 15% 40%,#E9C08F 0%,transparent 70%),radial-gradient(60% 50% at 60% 100%,#B9C2A8 0%,transparent 70%),#D48C5E"></div>
+    <div class="layer" data-step="4" style="background:radial-gradient(55% 55% at 15% 20%,#C9522B 0%,transparent 70%),radial-gradient(60% 60% at 85% 35%,#F0D2A3 0%,transparent 70%),radial-gradient(60% 55% at 40% 95%,#D86A35 0%,transparent 70%),#E0A877"></div>
+    <div class="layer" data-step="5" style="background:radial-gradient(60% 60% at 85% 85%,#C9522B 0%,transparent 70%),radial-gradient(60% 60% at 20% 30%,#B9C2A8 0%,transparent 70%),radial-gradient(50% 50% at 80% 15%,#E9C08F 0%,transparent 70%),#C9B08F"></div>
+    <div class="layer" data-step="6" style="background:radial-gradient(70% 70% at 50% 30%,#E9C08F 0%,transparent 70%),radial-gradient(60% 60% at 20% 90%,#C9522B 0%,transparent 70%),radial-gradient(50% 50% at 90% 85%,#B9C2A8 0%,transparent 70%),#DDB085"></div>
+    <div class="grain"></div>
+    <div class="big" id="ubBig"></div>
+    <div class="foot">
+      <span class="ub-tag" id="ubTag">01 / Intro</span>
+      <span class="ub-motto">Made by people, for people.</span>
+    </div>
+  </aside>
+
+  <!-- Form -->
+  <section class="ub-form">
+    <div class="ub-progress"><span id="ubBar"></span></div>
+    <div class="ub-count"><span id="ubCount">Step 1 of 6</span><span class="ub-plan" id="ubPlan" hidden></span></div>
+
+    <div class="ub-steps">
+
+      <!-- 1. Intro -->
+      <div class="ub-step" data-title="Let's start<br><em>with you.</em>" data-tag="01 / Intro">
+        <h2>The Founder</h2>
+        <p class="sub">Before we sketch anything, tell us who's behind the idea.</p>
+        <div class="ub-fields">
+          <div class="ub-field" data-required>
+            <label class="ub-label" for="f-name">Full name <span class="req">*</span></label>
+            <input class="ub-input" id="f-name" name="name" placeholder="Jane Doe" autocomplete="name">
+            <span class="ub-error">Please tell us your name.</span>
+          </div>
+          <div class="ub-field" data-required data-type="email">
+            <label class="ub-label" for="f-email">Email <span class="req">*</span></label>
+            <input class="ub-input" id="f-email" name="email" type="email" placeholder="jane@company.com" autocomplete="email">
+            <span class="ub-error">We need a valid email to send your concepts.</span>
+          </div>
+          <div class="ub-field" data-required>
+            <label class="ub-label" for="f-company">Company name <span class="req">*</span></label>
+            <input class="ub-input" id="f-company" name="company" placeholder="Acme Studio" autocomplete="organization">
+            <span class="ub-error">What's the company called?</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Business -->
+      <div class="ub-step" data-title="What you<br><em>do best.</em>" data-tag="02 / Business">
+        <h2>The Business</h2>
+        <p class="sub">Help us understand what you're building and why it matters.</p>
+        <div class="ub-fields">
+          <div class="ub-field" data-required>
+            <label class="ub-label" for="f-industry">Industry <span class="req">*</span></label>
+            <select class="ub-select empty" id="f-industry" name="industry">
+              <option value="" disabled selected>Select…</option>
+              <option>Technology &amp; Software</option>
+              <option>E-commerce &amp; Retail</option>
+              <option>Food &amp; Beverage</option>
+              <option>Health &amp; Wellness</option>
+              <option>Beauty &amp; Cosmetics</option>
+              <option>Fashion &amp; Apparel</option>
+              <option>Finance &amp; Fintech</option>
+              <option>Real Estate &amp; Property</option>
+              <option>Hospitality &amp; Travel</option>
+              <option>Education</option>
+              <option>Creative &amp; Media</option>
+              <option>Consulting &amp; Professional Services</option>
+              <option>Fitness &amp; Sports</option>
+              <option>Non-profit</option>
+              <option>Other</option>
+            </select>
+            <span class="ub-error">Pick the closest industry.</span>
+          </div>
+          <div class="ub-field" data-required>
+            <label class="ub-label" for="f-what">What do you do? <span class="req">*</span></label>
+            <textarea class="ub-textarea" id="f-what" name="what_they_do" rows="2" placeholder="In a sentence or two, what does your business offer?"></textarea>
+            <span class="ub-error">A short description is enough.</span>
+          </div>
+          <div class="ub-field">
+            <label class="ub-label" for="f-diff">What makes you different?</label>
+            <textarea class="ub-textarea" id="f-diff" name="differentiator" rows="2" placeholder="Your edge: price, quality, story, approach…"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Audience -->
+      <div class="ub-step" data-title="Who you're<br><em>talking to.</em>" data-tag="03 / Audience">
+        <h2>The Audience</h2>
+        <p class="sub">The people you want to win, and the ones you're up against.</p>
+        <div class="ub-fields">
+          <div class="ub-field" data-required>
+            <label class="ub-label" for="f-audience">Target audience <span class="req">*</span></label>
+            <textarea class="ub-textarea" id="f-audience" name="target_audience" rows="2" placeholder="e.g. Busy professionals, 25–40, who value design and convenience"></textarea>
+            <span class="ub-error">Tell us who you're designing for.</span>
+          </div>
+          <div class="ub-field">
+            <label class="ub-label" for="f-comp">Competitors <span class="opt">optional</span></label>
+            <textarea class="ub-textarea" id="f-comp" name="competitors" rows="2" placeholder="Names or websites of your main competitors"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. Vision -->
+      <div class="ub-step" data-title="Shape the<br><em>feeling.</em>" data-tag="04 / Vision">
+        <h2>The Vision</h2>
+        <p class="sub">Share what you have in mind, even if it's just a rough idea.</p>
+        <div class="ub-fields">
+          <div class="ub-field">
+            <label class="ub-label" for="f-idea">Logo idea</label>
+            <textarea class="ub-textarea" id="f-idea" name="logo_idea" rows="2" placeholder="Symbols, shapes, wordmark vs. icon… or 'surprise me'"></textarea>
+          </div>
+          <div class="ub-field" data-required data-type="chips" data-group="feel">
+            <label class="ub-label">How should it feel? <span class="req">*</span></label>
+            <span class="ub-hint">Pick as many as you like.</span>
+            <div class="ub-chips" id="feelChips"></div>
+            <div class="ub-chip-add">
+              <input class="ub-input" id="feelCustom" placeholder="Add your own word, then press Enter" aria-label="Add a custom feeling">
+            </div>
+            <span class="ub-error">Choose at least one.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. Palette -->
+      <div class="ub-step" data-title="Colour &amp;<br><em>no-gos.</em>" data-tag="05 / Palette">
+        <h2>The Palette</h2>
+        <p class="sub">Colours you love, and anything we should steer clear of.</p>
+        <div class="ub-fields">
+          <div class="ub-field">
+            <label class="ub-label">Colours</label>
+            <div class="ub-swatches" id="swatches">
+              <label class="ub-picker">+ Add colour<input type="color" id="colorPick" value="#C9522B" aria-label="Pick a colour"></label>
+            </div>
+            <input class="ub-input" id="f-colors" name="colour_notes" placeholder="Or describe them: earthy greens, warm neutrals…">
+            <label class="ub-check"><input type="checkbox" id="f-colorfree" name="colour_open"> No preference, you decide</label>
+          </div>
+          <div class="ub-field">
+            <label class="ub-label" for="f-avoid">What to avoid</label>
+            <textarea class="ub-textarea" id="f-avoid" name="avoid" rows="2" placeholder="Colours, styles, symbols or clichés you don't want"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. References -->
+      <div class="ub-step" data-title="Show us<br><em>what you love.</em>" data-tag="06 / References">
+        <h2>The References</h2>
+        <p class="sub">Brands, links and moodboards help us get it right faster.</p>
+        <div class="ub-fields">
+          <div class="ub-field">
+            <label class="ub-label" for="f-brands">Brands you like</label>
+            <textarea class="ub-textarea" id="f-brands" name="brands_liked" rows="2" placeholder="Brands whose look you admire, and why"></textarea>
+          </div>
+          <div class="ub-field">
+            <label class="ub-label" for="f-links">Links &amp; moodboards</label>
+            <textarea class="ub-textarea" id="f-links" name="reference_links" rows="2" placeholder="Pinterest, Behance, Dribbble, Google Drive… one per line"></textarea>
+          </div>
+          <div class="ub-field">
+            <label class="ub-label">Attachments <span class="opt">optional</span></label>
+            <label class="ub-drop" id="drop">
+              <input type="file" id="f-files" name="attachments" multiple accept="image/*,.pdf,.ai,.eps,.svg,.psd,.fig,.zip">
+              Drop files here or <strong>browse</strong><br>
+              <small>Images, PDF, AI, SVG, ZIP · up to 10MB in total</small>
+            </label>
+            <div class="ub-files" id="fileList"></div>
+            <span class="ub-error" id="fileErr">Attachments can be up to 10MB in total. For larger files, share a link above.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Done -->
+      <div class="ub-step ub-done" data-title="Thank<br><em>you.</em>" data-tag="Received">
+        <div class="mark"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="#FEFBF2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <h2>Brief received.</h2>
+        <p class="sub" id="doneMsg">Thanks! Our designers will review everything and get back to you within 24 hours.</p>
+        <a class="ub-ghost" href="/">Back to Uprizz →</a>
+      </div>
+    </div>
+
+    <div class="ub-foot" id="ubFoot">
+      <button type="button" class="ub-back" id="ubBack" hidden>
+        <svg viewBox="0 0 16 16" fill="none"><path d="M13 8H3m0 0l4.5-4.5M3 8l4.5 4.5" stroke="currentColor" stroke-width="1.3"/></svg>Back
+      </button>
+      <span class="ub-send-err" id="ubSendErr" role="alert">Couldn't send your brief. Please try again, or email it to heyuprizz@gmail.com.</span>
+      <label class="ub-hp" aria-hidden="true">Leave empty <input id="ubHoney" tabindex="-1" autocomplete="off"></label>
+      <button type="button" class="ub-next" id="ubNext">
+        <span>Continue</span>
+        <svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10m0 0L8.5 3.5M13 8l-4.5 4.5" stroke="currentColor" stroke-width="1.3"/></svg>
+      </button>
+    </div>
+  </section>
+</div>
+
+<script>
+(() => {
+  /* ===== CONFIG =====
+     Briefs are emailed through FormSubmit (formsubmit.co, free, no account).
+     After activating, you can swap the email for the random ID FormSubmit sends you
+     to hide the address from the page source. */
+  const FORM_ENDPOINT = "https://formsubmit.co/heyuprizz@gmail.com";
+  const MAX_TOTAL_MB = 10;
+
+  /* Package chosen on the pricing card (Start Now -> /brief/?plan=Standard) */
+  const plan = (new URLSearchParams(location.search).get("plan") || "").replace(/[^\w &+-]/g, "").slice(0, 40);
+  if (plan) { const b = document.getElementById("ubPlan"); b.textContent = plan + " package"; b.hidden = false; }
+
+  const FEELINGS = ["Bold","Friendly","Modern","Innovative","Colourful","Minimal","Elegant","Playful",
+    "Premium","Trustworthy","Timeless","Warm","Calm","Energetic","Earthy","Techy","Handcrafted",
+    "Rebellious","Classic","Approachable","Geometric","Organic","Confident","Quirky"];
+
+  const form = document.getElementById("ubForm");
+  const steps = [...document.querySelectorAll(".ub-step")];
+  const layers = [...document.querySelectorAll(".ub-visual .layer")];
+  const total = steps.length - 1;            // last is success screen
+  const bar = document.getElementById("ubBar"), count = document.getElementById("ubCount");
+  const tag = document.getElementById("ubTag"), big = document.getElementById("ubBig");
+  const back = document.getElementById("ubBack"), next = document.getElementById("ubNext");
+  let current = 0;
+
+  /* ---- Feel chips ---- */
+  const chipWrap = document.getElementById("feelChips");
+  const feel = new Set();
+  const addChip = (word, custom = false) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "ub-chip"; b.setAttribute("aria-pressed", custom ? "true" : "false");
+    b.textContent = word;
+    if (custom) { feel.add(word); const x = document.createElement("span"); x.className = "x"; x.textContent = "×"; b.append(x); }
+    b.addEventListener("click", () => {
+      if (custom) { feel.delete(word); b.remove(); return; }
+      const on = b.getAttribute("aria-pressed") !== "true";
+      b.setAttribute("aria-pressed", on); on ? feel.add(word) : feel.delete(word);
+      b.closest(".ub-field").classList.remove("err");
+    });
+    chipWrap.append(b);
+  };
+  FEELINGS.forEach(w => addChip(w));
+  const feelCustom = document.getElementById("feelCustom");
+  feelCustom.addEventListener("keydown", e => {
+    if (e.key !== "Enter") return;
+    e.preventDefault();
+    const v = feelCustom.value.trim();
+    if (v && !feel.has(v)) { addChip(v, true); feelCustom.closest(".ub-field").classList.remove("err"); }
+    feelCustom.value = "";
+  });
+
+  /* ---- Colours ---- */
+  const swatches = document.getElementById("swatches"), pick = document.getElementById("colorPick");
+  const colours = [];
+  pick.addEventListener("change", () => {
+    const hex = pick.value.toUpperCase();
+    if (colours.includes(hex)) return;
+    colours.push(hex);
+    const s = document.createElement("span"); s.className = "ub-swatch";
+    s.innerHTML = `<i style="background:${hex}"></i>${hex}<button type="button" aria-label="Remove ${hex}">×</button>`;
+    s.querySelector("button").onclick = () => { colours.splice(colours.indexOf(hex), 1); s.remove(); };
+    swatches.insertBefore(s, swatches.lastElementChild);
+  });
+
+  /* ---- Files ---- */
+  const drop = document.getElementById("drop"), fileInput = document.getElementById("f-files");
+  const fileList = document.getElementById("fileList"), fileErr = document.getElementById("fileErr");
+  let files = [];
+  const fmt = b => b > 1048576 ? (b / 1048576).toFixed(1) + " MB" : Math.ceil(b / 1024) + " KB";
+  const renderFiles = () => {
+    fileList.innerHTML = "";
+    files.forEach((f, i) => {
+      const row = document.createElement("div"); row.className = "ub-file";
+      const name = document.createElement("span"); name.textContent = f.name;
+      const size = document.createElement("small"); size.textContent = fmt(f.size);
+      const rm = document.createElement("button"); rm.type = "button"; rm.textContent = "×"; rm.setAttribute("aria-label", "Remove file");
+      rm.onclick = () => { files.splice(i, 1); renderFiles(); };
+      const left = document.createElement("div"); left.style.cssText = "display:flex;min-width:0;align-items:center"; left.append(name);
+      const right = document.createElement("div"); right.style.cssText = "display:flex;align-items:center"; right.append(size, rm);
+      row.append(left, right); fileList.append(row);
+    });
+  };
+  const addFiles = list => {
+    let tooBig = false;
+    let used = files.reduce((n, f) => n + f.size, 0);
+    [...list].forEach(f => { if (used + f.size > MAX_TOTAL_MB * 1048576) tooBig = true; else { files.push(f); used += f.size; } });
+    fileErr.closest(".ub-field").classList.toggle("err", tooBig);
+    renderFiles();
+  };
+  fileInput.addEventListener("change", () => { addFiles(fileInput.files); fileInput.value = ""; });
+  ["dragenter", "dragover"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("over"); }));
+  ["dragleave", "drop"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove("over"); }));
+  drop.addEventListener("drop", e => addFiles(e.dataTransfer.files));
+
+  /* ---- Select placeholder style ---- */
+  const ind = document.getElementById("f-industry");
+  ind.addEventListener("change", () => ind.classList.toggle("empty", !ind.value));
+
+  /* ---- Clear errors on input ---- */
+  form.addEventListener("input", e => e.target.closest(".ub-field")?.classList.remove("err"));
+
+  /* ---- Validation ---- */
+  const validate = i => {
+    let ok = true, first = null;
+    steps[i].querySelectorAll(".ub-field[data-required]").forEach(f => {
+      let valid;
+      if (f.dataset.type === "chips") valid = feel.size > 0;
+      else {
+        const el = f.querySelector("input,textarea,select"), v = el.value.trim();
+        valid = f.dataset.type === "email" ? /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) : !!v;
+      }
+      f.classList.toggle("err", !valid);
+      if (!valid) { ok = false; first ??= f; }
+    });
+    if (first) { first.scrollIntoView({ behavior: "smooth", block: "center" }); first.querySelector("input,textarea,select")?.focus({ preventScroll: true }); }
+    return ok;
+  };
+
+  /* ---- Navigation ---- */
+  const show = i => {
+    current = i;
+    steps.forEach((s, n) => { s.classList.toggle("active", n === i); s.inert = n !== i; });
+    layers.forEach((l, n) => l.classList.toggle("on", n === i));
+    const done = i === total;
+    bar.style.width = (done ? 100 : ((i + 1) / total) * 100) + "%";
+    count.textContent = done ? "Complete" : `Step ${i + 1} of ${total}`;
+    tag.textContent = steps[i].dataset.tag;
+    big.innerHTML = steps[i].dataset.title.replace("<br>", " <br>");
+    back.hidden = i === 0 || done;
+    document.getElementById("ubFoot").style.display = done ? "none" : "";
+    next.querySelector("span").textContent = i === total - 1 ? "Submit brief" : "Continue";
+    steps[i].scrollTop = 0;
+    if (!done) setTimeout(() => steps[i].querySelector("input:not([type=checkbox]):not([type=color]),textarea,select")?.focus({ preventScroll: true }), 350);
+  };
+
+  back.addEventListener("click", () => show(Math.max(0, current - 1)));
+
+  // Enter in single-line inputs = continue (textarea keeps newlines)
+  form.addEventListener("keydown", e => {
+    if (e.key === "Enter" && e.target.matches(".ub-input:not(#feelCustom)") ) { e.preventDefault(); next.click(); }
+  });
+
+  next.addEventListener("click", async () => {
+    if (next.disabled) return;
+    if (!validate(current)) return;
+    if (current < total - 1) return show(current + 1);
+
+    const v = id => document.getElementById(id).value.trim();
+    if (document.getElementById("ubHoney").value) return show(total);   // bot
+
+    const fields = [
+      ["_subject", `New brief: ${v("f-company")}${plan ? " (" + plan + ")" : ""}`],
+      ["_template", "table"],
+      ["_captcha", "false"],
+      ["Name", v("f-name")],
+      ["email", v("f-email")],
+      ["Company", v("f-company")],
+      ["Package", plan || "Not selected"],
+      ["Industry", v("f-industry")],
+      ["What they do", v("f-what")],
+      ["What makes them different", v("f-diff") || "-"],
+      ["Target audience", v("f-audience")],
+      ["Competitors", v("f-comp") || "-"],
+      ["Logo idea", v("f-idea") || "-"],
+      ["How it should feel", [...feel].join(", ")],
+      ["Colours", colours.join(", ") || "-"],
+      ["Colour notes", v("f-colors") || "-"],
+      ["Open to any colours", document.getElementById("f-colorfree").checked ? "Yes" : "No"],
+      ["What to avoid", v("f-avoid") || "-"],
+      ["Brands they like", v("f-brands") || "-"],
+      ["Links and moodboards", v("f-links") || "-"],
+      ["Attachments", files.length ? files.map(f => f.name).join(", ") : "None"],
+    ];
+
+    const err = document.getElementById("ubSendErr");
+    err.classList.remove("on");
+    next.disabled = true; next.querySelector("span").textContent = "Sending…";
+    try {
+      await sendBrief(fields, files);
+      document.getElementById("doneMsg").textContent =
+        `Thanks, ${v("f-name").split(" ")[0]}! Our designers will review your brief for ${v("f-company")} and get back to you within 24 hours.`;
+      show(total);
+    } catch (e) {
+      err.classList.add("on");
+      next.querySelector("span").textContent = "Try again";
+    } finally {
+      next.disabled = false;
+    }
+  });
+
+  /* Posts a real multipart form into a hidden frame, so attachments travel as
+     email attachments and nothing depends on cross-site fetch rules. */
+  function sendBrief(fields, fileArr) {
+    return new Promise((resolve, reject) => {
+      if (!navigator.onLine) return reject(new Error("offline"));
+      const name = "ub_sink_" + Date.now();
+      const frame = document.createElement("iframe");
+      frame.name = name; frame.hidden = true;
+      document.body.append(frame);            // blank frame loads synchronously here
+
+      const f = document.createElement("form");
+      f.action = FORM_ENDPOINT; f.method = "POST"; f.enctype = "multipart/form-data"; f.target = name; f.hidden = true;
+      fields.forEach(([k, val]) => { const i = document.createElement("input"); i.type = "hidden"; i.name = k; i.value = val; f.append(i); });
+      fileArr.forEach((file, n) => {
+        const i = document.createElement("input"); i.type = "file"; i.name = "attachment" + (fileArr.length > 1 ? n + 1 : "");
+        const dt = new DataTransfer(); dt.items.add(file); i.files = dt.files; f.append(i);
+      });
+      document.body.append(f);
+
+      const timer = setTimeout(() => reject(new Error("timeout")), 45000);
+      frame.addEventListener("load", () => {
+        clearTimeout(timer); resolve();
+        setTimeout(() => { f.remove(); frame.remove(); }, 1000);
+      }, { once: true });
+      f.submit();
+    });
+  }
+
+  show(0);
+})();
+</script>
+</body>
+</html>
