@@ -791,7 +791,7 @@
   }
 
   if (paid) {
-    document.getElementById("ubPaidText").innerHTML = `<b>Payment received</b>, thank you! Now tell us about your brand so we can get started.`;
+    document.getElementById("ubPaidText").innerHTML = `<b>Payment received, thank you!</b> Your transaction is complete and PayPal has emailed you a receipt. Now tell us about your brand so we can get started.`;
     document.getElementById("ubPaidNote").hidden = false;
     show(0);
   } else if (PAYPAL.enabled && plan) {
