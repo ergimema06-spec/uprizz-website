@@ -60,6 +60,12 @@ def r_navmeta(c):
             f'    </div>\n'
             f'    <a href="#contact" class="btn btn--outline">{esc(k["quote_button"])}</a>')
 
+def trust_html(t):
+    # the first number (e.g. 3,114) gets its own span so js/main.js can count it up by one per visitor
+    t = esc(t); m = re.search(r'\d[\d,.]*\d|\d', t)
+    if not m: return t
+    return f'<span>{t[:m.start()]}<span class="trust-n" data-n="{m.group(0)}">{m.group(0)}</span>{t[m.end():]}</span>'
+
 def r_hero(c):
     h = c['hero']; lines = str(h['title']).split('\n')
     title = ' '.join(f'<span class="l l{i+1}"><span>{esc(l.strip())}</span></span>' for i, l in enumerate(lines))
@@ -75,7 +81,7 @@ def r_hero(c):
     return (f'<div class="hero-in">\n'
             f'    <p class="eyebrow">{esc(h["eyebrow"])}</p>\n'
             f'    <h1>{title}</h1>{btn}\n'
-            f'    <p class="trust">{esc(h["trust"])}{sep}{tag}</p>{stars}\n'
+            f'    <p class="trust">{trust_html(h.get("trust", ""))}{sep}{tag}</p>{stars}\n'
             f'  </div>{news}')
 
 def r_logos(c):

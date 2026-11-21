@@ -150,6 +150,11 @@ canvas.wave{position:absolute;inset:0;width:100%;height:100%;display:block}
 .ready .hero-cta{transition-delay:.25s}.ready .trust,.ready .stars{transition-delay:.35s}.ready .news{transition-delay:.5s}
 .hero-cta{display:flex;gap:15px;margin-top:36px}
 .trust{margin-top:28px;font-size:14px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.trust-n{display:inline-block;vertical-align:top}
+.trust-n.rolling{height:1.3em;line-height:1.3em;overflow:hidden}
+.tn-roll{display:flex;flex-direction:column;transition:transform .9s cubic-bezier(.65,0,.35,1)}
+.tn-roll span{display:block;height:1.3em}
+.trust-n.go .tn-roll{transform:translateY(-1.3em)}
 .trust em{font-family:var(--serif);font-weight:300;font-style:italic;font-size:16px;letter-spacing:-.01em}
 
 /* ---------- Clients (logo marquee) ---------- */

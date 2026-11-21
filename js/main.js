@@ -67,11 +67,52 @@ if(smooth){
     requestAnimationFrame(loop);
   })();
 }
+/* Links to a section on the same page (e.g. "See Packages" -> #pricing): a slow, eased glide.
+   Time grows with the distance (about 1.2s up to 2.6s), ease-in-out so it starts and lands gently.
+   Any wheel, touch or key press by the visitor stops it. */
+let glide=null;
+function glideTo(y){
+  y=Math.max(0,Math.min(document.documentElement.scrollHeight-innerHeight,y));
+  if(reduced){window.scrollTo(0,y);cur=target=y;return}
+  const from=scrollY, d=y-from; if(Math.abs(d)<2)return;
+  const dur=Math.min(2600,Math.max(1200,800+Math.abs(d)*.28));
+  const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;   // ease-in-out (cubic)
+  const me={stop:false}; if(glide)glide.stop=true; glide=me;
+  const t0=performance.now();
+  (function step(now){
+    if(me.stop)return;
+    const t=Math.min(1,(now-t0)/dur), v=from+d*ease(t);
+    window.scrollTo(0,v); cur=target=v;
+    if(t<1)requestAnimationFrame(step); else glide=null;
+  })(t0);
+}
+['wheel','touchstart','keydown'].forEach(ev=>addEventListener(ev,()=>{if(glide){glide.stop=true;glide=null;cur=target=scrollY}},{passive:true}));
 document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{
   const id=a.getAttribute('href'); if(id.length<2)return;
   const el=document.querySelector(id); if(!el)return;
-  e.preventDefault(); scrollToY(el.getBoundingClientRect().top+scrollY);
+  e.preventDefault(); glideTo(el.getBoundingClientRect().top+scrollY);
 }));
+
+/* ---------- Hero: customer count goes up by one, once per visitor ----------
+   About 3.5s after a first visit, "3,114" rolls to "3,115". The browser remembers it
+   (localStorage), so reloads and later visits show 3,115 straight away. The number itself
+   comes from the CMS (Hero > trust text); this always shows that number plus one. */
+(function(){
+  const el=document.querySelector('.trust-n'); if(!el)return;
+  const raw=el.dataset.n||el.textContent, base=parseInt(raw.replace(/\D/g,''),10); if(isNaN(base))return;
+  const fmt=n=>raw.includes(',')?n.toLocaleString('en-US'):String(n);
+  const next=fmt(base+1), KEY='uprizz-count-'+base;
+  let seen=false; try{seen=localStorage.getItem(KEY)==='1'}catch(e){}
+  if(seen){el.textContent=next;return}
+  setTimeout(()=>{
+    try{localStorage.setItem(KEY,'1')}catch(e){}
+    if(reduced){el.textContent=next;return}
+    el.innerHTML=`<span class="tn-roll"><span>${el.textContent}</span><span>${next}</span></span>`;
+    el.classList.add('rolling');
+    requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.add('go')));
+    setTimeout(()=>{el.textContent=next;el.classList.remove('rolling','go')},1200);
+  },3500);
+})();
 
 /* ---------- Process: sticky stacking step cards ----------
    Cards stick and stack as you scroll; the step list on the left follows along and
