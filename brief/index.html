@@ -215,6 +215,25 @@
   .ub-paybtn:hover{background:#005EA6}
   .ub-paynote{margin-top:12px;font-size:12px;line-height:1.5;color:var(--ink-60)}
 
+  /* checkout (shown before the brief when a package is chosen) */
+  .ub-form.is-checkout > :not(.ub-checkout){display:none!important}
+  .ub-checkout[hidden]{display:none}
+  .ub-checkout{display:flex;flex-direction:column;flex:1;min-height:0;overflow-y:auto}
+  .ub-checkout h2{font-family:var(--serif);font-weight:300;font-size:36px;line-height:1.1;letter-spacing:-.02em;margin-top:14px}
+  .ub-checkout .sub{color:var(--ink-60);margin-top:8px;font-size:14px;line-height:1.5}
+  .ub-checkout .ub-pay{margin-top:22px}
+  .ub-paybtn:disabled{opacity:.6;cursor:wait}
+  .ub-steps-list{list-style:none;margin-top:22px;display:grid;gap:10px;counter-reset:s}
+  .ub-steps-list li{display:flex;gap:12px;align-items:center;font-size:13px;color:var(--ink-60);counter-increment:s}
+  .ub-steps-list li:before{content:counter(s);width:22px;height:22px;flex:none;border-radius:50%;border:1px solid var(--ink-15);display:grid;place-items:center;font-size:11px;color:var(--ink)}
+  .ub-steps-list li.on{color:var(--ink)}
+  .ub-steps-list li.on:before{background:var(--ink);color:var(--cream);border-color:var(--ink)}
+  .ub-co-msg{margin-top:12px;font-size:13px;color:var(--rust)}
+  .ub-co-msg[hidden]{display:none}
+  .ub-paid{margin-top:16px;display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:12px;background:#EEF3E6;color:#2F4A1E;font-size:13px;line-height:1.45}
+  .ub-paid[hidden]{display:none}
+  .ub-paid b{font-weight:500}
+
   /* ---------- Responsive ---------- */
   @media (max-width:820px){
     body{padding:16px 14px 28px;align-items:stretch;justify-content:flex-start;gap:14px}
@@ -230,7 +249,8 @@
     .ub-step{position:relative;inset:auto;overflow:visible;padding-right:0;margin-right:0;display:none;transform:none}
     .ub-step.active{display:block;animation:ubIn .35s ease}
     @keyframes ubIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-    .ub-step h2{font-size:30px}
+    .ub-step h2,.ub-checkout h2{font-size:30px}
+    .ub-checkout{overflow:visible}
     .ub-row{grid-template-columns:minmax(0,1fr)}
     .ub-foot{position:sticky;bottom:0;background:var(--paper);padding:16px 0 calc(6px + env(safe-area-inset-bottom));flex-wrap:wrap;gap:10px;z-index:2}
     .ub-send-err{order:3;flex-basis:100%;margin:0;max-width:none}
@@ -262,6 +282,25 @@
 
   <!-- Form -->
   <section class="ub-form">
+    <div class="ub-checkout" id="ubCheckout" hidden>
+      <div class="ub-progress"><span style="width:0%"></span></div>
+      <div class="ub-count"><span>Checkout</span><span class="ub-plan" id="ubCoPlan"></span></div>
+      <h2 id="ubCoTitle">Your package</h2>
+      <p class="sub">Pay once, then tell us about your brand in a short brief. Our designers start as soon as it's in.</p>
+      <div class="ub-pay">
+        <div class="k">Total · one-time payment</div>
+        <div class="amt" id="ubCoAmt">…</div>
+        <button type="button" class="ub-paybtn" id="ubCoBtn" disabled>Pay with PayPal</button>
+        <p class="ub-co-msg" id="ubCoMsg" hidden></p>
+        <p class="ub-paynote">You'll pay on PayPal's secure page and come straight back here to fill in your brief. Prefer a bank transfer? Email heyuprizz@gmail.com and we'll send you an invoice.</p>
+      </div>
+      <ol class="ub-steps-list">
+        <li class="on">Pay securely with PayPal</li>
+        <li>Fill in your brand brief (about 5 minutes)</li>
+        <li>Our designers get started within 24 hours</li>
+      </ol>
+    </div>
+
     <div class="ub-progress"><span id="ubBar"></span></div>
     <div class="ub-count"><span id="ubCount">Step 1 of 6</span><span class="ub-plan" id="ubPlan" hidden></span></div>
 
@@ -271,6 +310,7 @@
       <div class="ub-step" data-title="Let's start<br><em>with you.</em>" data-tag="01 / Intro">
         <h2>The Founder</h2>
         <p class="sub">Before we sketch anything, tell us who's behind the idea.</p>
+        <div class="ub-paid" id="ubPaidNote" hidden><span>✓</span><span id="ubPaidText"></span></div>
         <div class="ub-fields">
           <div class="ub-field" data-required>
             <label class="ub-label" for="f-name">Full name <span class="req">*</span></label>
@@ -418,12 +458,6 @@
         <div class="mark"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="#FEFBF2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <h2>Brief received.</h2>
         <p class="sub" id="doneMsg">Thanks! Our designers will review everything and get back to you within 24 hours.</p>
-        <div class="ub-pay" id="ubPay" hidden>
-          <div class="k">Last step · secure your spot</div>
-          <div class="amt" id="ubPayAmt"></div>
-          <button type="button" class="ub-paybtn" id="ubPayBtn">Pay with PayPal or card</button>
-          <p class="ub-paynote">You'll pay on PayPal's secure page. Prefer a bank transfer? Email heyuprizz@gmail.com and we'll send you an invoice.</p>
-        </div>
         <a class="ub-ghost" href="/" id="ubHomeBtn">Back to Uprizz →</a>
       </div>
     </div>
@@ -451,10 +485,10 @@
   const FORM_ENDPOINT = "https://formsubmit.co/24a4766d928c3f5697fb62ecf33bd3aa";   // = heyuprizz@gmail.com (activated)
   const MAX_TOTAL_MB = 10;
 
-  /* PayPal: payment step shown after the brief is sent.
-     Switch `enabled` to true once the PayPal Business account can receive money.
-     Prices are read from the pricing cards on the homepage, so CMS price changes apply here too. */
-  const PAYPAL = { enabled: false, business: "heyuprizz@gmail.com", currency: "USD" };
+  /* PayPal checkout: Start Now -> pay -> back here to fill in the brief.
+     Prices are read from the pricing cards on the homepage, so CMS price changes apply here too.
+     Set `enabled` to false to skip payment and go straight to the brief. */
+  const PAYPAL = { enabled: true, business: "heyuprizz@gmail.com", currency: "USD" };
 
   /* Package chosen on the pricing card (Start Now -> /brief/?plan=Standard) */
   const plan = (new URLSearchParams(location.search).get("plan") || "").replace(/[^\w &+-]/g, "").slice(0, 40);
@@ -613,13 +647,16 @@
     if (document.getElementById("ubHoney").value) return show(total);   // bot
 
     const fields = [
-      ["_subject", `New brief: ${v("f-company")}${plan ? " (" + plan + ")" : ""}`],
+      ["_subject", `New brief: ${v("f-company")}${plan ? " (" + plan + ")" : ""}${paid ? " - PAID" : ""}`],
       ["_template", "table"],
       ["_captcha", "false"],
       ["Name", v("f-name")],
       ["email", v("f-email")],
       ["Company", v("f-company")],
       ["Package", plan || "Not selected"],
+      ["Payment", paid
+        ? `Paid with PayPal: $${paid.amount || "?"}${paid.tx ? " (transaction " + paid.tx + ")" : ""}. Check it in your PayPal account.`
+        : "Not paid yet"],
       ["Industry", v("f-industry")],
       ["What they do", v("f-what")],
       ["What makes them different", v("f-diff") || "-"],
@@ -644,7 +681,9 @@
       document.getElementById("doneMsg").textContent =
         `Thanks, ${v("f-name").split(" ")[0]}! Our designers will review your brief for ${v("f-company")} and get back to you within 24 hours.`;
       show(total);
-      showPayment(v("f-company"), v("f-email"));
+      if (paid) { document.querySelector(".ub-done h2").textContent = "All set."; 
+        document.getElementById("doneMsg").textContent = `Thanks, ${v("f-name").split(" ")[0]}! We've got your payment and your brief for ${v("f-company")}. Our designers will be in touch within 24 hours.`;
+        try { sessionStorage.removeItem("ub_paid"); } catch (e) {} }
     } catch (e) {
       err.classList.add("on");
       next.querySelector("span").textContent = "Try again";
@@ -668,31 +707,47 @@
     } catch (e) {}
     return null;
   }
-  async function showPayment(company, email) {
-    if (!PAYPAL.enabled || !plan) return;
-    const price = await planPrice(plan);
-    if (!price) return;
-    document.getElementById("ubPayAmt").innerHTML =
-      `$${price.toLocaleString("en-US")}<small>${plan} package</small>`;
-    document.getElementById("doneMsg").textContent =
-      "Thanks! We've got your brief. Pay below to lock in your start date; our designers will be in touch within 24 hours.";
-    document.getElementById("ubPay").hidden = false;
-    document.getElementById("ubHomeBtn").hidden = true;
-    document.getElementById("ubPayBtn").onclick = () => {
-      const f = document.createElement("form");
-      f.method = "POST"; f.action = "https://www.paypal.com/cgi-bin/webscr"; f.target = "_top";
-      const base = location.origin + "/brief/";
-      const fields = {
-        cmd: "_xclick", business: PAYPAL.business, currency_code: PAYPAL.currency,
-        item_name: `Uprizz ${plan} package - ${company}`.slice(0, 127),
-        amount: price.toFixed(2), quantity: "1", no_shipping: "1", no_note: "1",
-        custom: email.slice(0, 255), charset: "utf-8",
-        return: base + "?paid=1", cancel_return: base + "?plan=" + encodeURIComponent(plan) + "&cancelled=1",
-        rm: "1",
+  function showCheckout(cancelled) {
+    const formEl = document.querySelector(".ub-form");
+    formEl.classList.add("is-checkout");
+    document.getElementById("ubCheckout").hidden = false;
+    layers.forEach((l, n) => l.classList.toggle("on", n === 4));
+    tag.textContent = "Checkout";
+    big.innerHTML = "One order. <br><em>Everything to launch.</em>";
+    document.getElementById("ubCoTitle").textContent = plan + " package";
+    document.getElementById("ubCoPlan").textContent = "Step 1 of 2";
+    const msg = document.getElementById("ubCoMsg"), btn = document.getElementById("ubCoBtn"), amt = document.getElementById("ubCoAmt");
+    if (cancelled) { msg.textContent = "Payment was cancelled; nothing was charged. You can try again whenever you're ready."; msg.hidden = false; }
+    planPrice(plan).then(price => {
+      if (!price) {
+        amt.textContent = "";
+        msg.textContent = "We couldn't load this package's price. Please refresh the page, or email heyuprizz@gmail.com.";
+        msg.hidden = false; return;
+      }
+      amt.innerHTML = `$${price.toLocaleString("en-US")}<small>USD</small>`;
+      btn.disabled = false;
+      btn.onclick = () => {
+        btn.disabled = true; btn.textContent = "Opening PayPal…";
+        const back = location.origin + "/brief/?plan=" + encodeURIComponent(plan);
+        try { sessionStorage.setItem("ub_checkout", JSON.stringify({ plan, amount: price.toFixed(2) })); } catch (e) {}
+        const f = document.createElement("form");
+        f.method = "POST"; f.action = "https://www.paypal.com/cgi-bin/webscr"; f.target = "_top";
+        const fields = {
+          cmd: "_xclick", business: PAYPAL.business, currency_code: PAYPAL.currency,
+          item_name: `Uprizz ${plan} package`, amount: price.toFixed(2), quantity: "1",
+          no_shipping: "1", no_note: "1", charset: "utf-8", rm: "1",
+          return: back + "&paid=1", cancel_return: back + "&cancelled=1",
+          cbt: "Continue to your brief",
+        };
+        Object.entries(fields).forEach(([k, val]) => { const i = document.createElement("input"); i.type = "hidden"; i.name = k; i.value = val; f.append(i); });
+        document.body.append(f); f.submit();
       };
-      Object.entries(fields).forEach(([k, val]) => { const i = document.createElement("input"); i.type = "hidden"; i.name = k; i.value = val; f.append(i); });
-      document.body.append(f); f.submit();
-    };
+    });
+  }
+
+  function hideCheckout() {
+    document.querySelector(".ub-form").classList.remove("is-checkout");
+    document.getElementById("ubCheckout").hidden = true;
   }
 
   /* Posts a real multipart form into a hidden frame, so attachments travel as
@@ -724,10 +779,23 @@
   }
 
   const qs = new URLSearchParams(location.search);
-  if (qs.get("paid") === "1") {
-    show(total);
-    document.querySelector(".ub-done h2").textContent = "Payment received.";
-    document.getElementById("doneMsg").textContent = "Thank you! Your spot is secured. Our designers will be in touch within 24 hours. PayPal has emailed you a receipt.";
+  let paid = null;
+  if (qs.get("paid") === "1" && plan) {
+    let co = {};
+    try { co = JSON.parse(sessionStorage.getItem("ub_checkout") || "{}"); } catch (e) {}
+    paid = { plan, amount: qs.get("amt") || (co.plan === plan ? co.amount : ""), tx: (qs.get("tx") || "").replace(/[^\w-]/g, "") };
+    try { sessionStorage.setItem("ub_paid", JSON.stringify(paid)); } catch (e) {}
+    history.replaceState(null, "", location.pathname + "?plan=" + encodeURIComponent(plan));
+  } else {
+    try { const sp = JSON.parse(sessionStorage.getItem("ub_paid") || "null"); if (sp && sp.plan === plan) paid = sp; } catch (e) {}
+  }
+
+  if (paid) {
+    document.getElementById("ubPaidText").innerHTML = `<b>Payment received</b>, thank you! Now tell us about your brand so we can get started.`;
+    document.getElementById("ubPaidNote").hidden = false;
+    show(0);
+  } else if (PAYPAL.enabled && plan) {
+    show(0); showCheckout(qs.get("cancelled") === "1");
   } else show(0);
 })();
 </script>
