@@ -204,6 +204,17 @@
     border:1px solid rgba(25,25,25,.5);border-radius:1000px;padding:8px 22px;cursor:pointer;text-decoration:none;display:inline-block
   }
 
+  /* payment */
+  .ub-pay{margin-top:28px;padding:22px;border-radius:18px;background:var(--cream);border:1px solid var(--ink-08)}
+  .ub-pay[hidden],.ub-ghost[hidden]{display:none}
+  .ub-pay .k{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-60)}
+  .ub-pay .amt{font-family:var(--serif);font-weight:300;font-size:34px;line-height:1.1;margin-top:6px;letter-spacing:-.02em}
+  .ub-pay .amt small{font-family:var(--sans);font-size:14px;color:var(--ink-60);letter-spacing:0;margin-left:6px}
+  .ub-paybtn{margin-top:16px;width:100%;display:flex;align-items:center;justify-content:center;gap:10px;font-family:var(--sans);font-size:15px;
+    color:#fff;background:#0070E0;border:0;border-radius:1000px;padding:14px 22px;cursor:pointer;transition:background .2s}
+  .ub-paybtn:hover{background:#005EA6}
+  .ub-paynote{margin-top:12px;font-size:12px;line-height:1.5;color:var(--ink-60)}
+
   /* ---------- Responsive ---------- */
   @media (max-width:820px){
     body{padding:16px 14px 28px;align-items:stretch;justify-content:flex-start;gap:14px}
@@ -407,7 +418,13 @@
         <div class="mark"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="#FEFBF2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <h2>Brief received.</h2>
         <p class="sub" id="doneMsg">Thanks! Our designers will review everything and get back to you within 24 hours.</p>
-        <a class="ub-ghost" href="/">Back to Uprizz →</a>
+        <div class="ub-pay" id="ubPay" hidden>
+          <div class="k">Last step · secure your spot</div>
+          <div class="amt" id="ubPayAmt"></div>
+          <button type="button" class="ub-paybtn" id="ubPayBtn">Pay with PayPal or card</button>
+          <p class="ub-paynote">You'll pay on PayPal's secure page. Prefer a bank transfer? Email heyuprizz@gmail.com and we'll send you an invoice.</p>
+        </div>
+        <a class="ub-ghost" href="/" id="ubHomeBtn">Back to Uprizz →</a>
       </div>
     </div>
 
@@ -433,6 +450,11 @@
      to hide the address from the page source. */
   const FORM_ENDPOINT = "https://formsubmit.co/24a4766d928c3f5697fb62ecf33bd3aa";   // = heyuprizz@gmail.com (activated)
   const MAX_TOTAL_MB = 10;
+
+  /* PayPal: payment step shown after the brief is sent.
+     Switch `enabled` to true once the PayPal Business account can receive money.
+     Prices are read from the pricing cards on the homepage, so CMS price changes apply here too. */
+  const PAYPAL = { enabled: false, business: "heyuprizz@gmail.com", currency: "USD" };
 
   /* Package chosen on the pricing card (Start Now -> /brief/?plan=Standard) */
   const plan = (new URLSearchParams(location.search).get("plan") || "").replace(/[^\w &+-]/g, "").slice(0, 40);
@@ -622,6 +644,7 @@
       document.getElementById("doneMsg").textContent =
         `Thanks, ${v("f-name").split(" ")[0]}! Our designers will review your brief for ${v("f-company")} and get back to you within 24 hours.`;
       show(total);
+      showPayment(v("f-company"), v("f-email"));
     } catch (e) {
       err.classList.add("on");
       next.querySelector("span").textContent = "Try again";
@@ -629,6 +652,48 @@
       next.disabled = false;
     }
   });
+
+  /* ---- PayPal payment step ---- */
+  async function planPrice(name) {
+    try {
+      const html = await (await fetch("/", { cache: "no-store" })).text();
+      const doc = new DOMParser().parseFromString(html, "text/html");
+      for (const card of doc.querySelectorAll(".plan")) {
+        const tag = card.querySelector(".tag")?.textContent.trim();
+        if (tag && tag.toLowerCase() === name.toLowerCase()) {
+          const n = parseFloat((card.querySelector(".price")?.textContent || "").replace(/[^0-9.]/g, ""));
+          return n > 0 ? n : null;
+        }
+      }
+    } catch (e) {}
+    return null;
+  }
+  async function showPayment(company, email) {
+    if (!PAYPAL.enabled || !plan) return;
+    const price = await planPrice(plan);
+    if (!price) return;
+    document.getElementById("ubPayAmt").innerHTML =
+      `$${price.toLocaleString("en-US")}<small>${plan} package</small>`;
+    document.getElementById("doneMsg").textContent =
+      "Thanks! We've got your brief. Pay below to lock in your start date; our designers will be in touch within 24 hours.";
+    document.getElementById("ubPay").hidden = false;
+    document.getElementById("ubHomeBtn").hidden = true;
+    document.getElementById("ubPayBtn").onclick = () => {
+      const f = document.createElement("form");
+      f.method = "POST"; f.action = "https://www.paypal.com/cgi-bin/webscr"; f.target = "_top";
+      const base = location.origin + "/brief/";
+      const fields = {
+        cmd: "_xclick", business: PAYPAL.business, currency_code: PAYPAL.currency,
+        item_name: `Uprizz ${plan} package - ${company}`.slice(0, 127),
+        amount: price.toFixed(2), quantity: "1", no_shipping: "1", no_note: "1",
+        custom: email.slice(0, 255), charset: "utf-8",
+        return: base + "?paid=1", cancel_return: base + "?plan=" + encodeURIComponent(plan) + "&cancelled=1",
+        rm: "1",
+      };
+      Object.entries(fields).forEach(([k, val]) => { const i = document.createElement("input"); i.type = "hidden"; i.name = k; i.value = val; f.append(i); });
+      document.body.append(f); f.submit();
+    };
+  }
 
   /* Posts a real multipart form into a hidden frame, so attachments travel as
      email attachments and nothing depends on cross-site fetch rules. */
@@ -658,7 +723,12 @@
     });
   }
 
-  show(0);
+  const qs = new URLSearchParams(location.search);
+  if (qs.get("paid") === "1") {
+    show(total);
+    document.querySelector(".ub-done h2").textContent = "Payment received.";
+    document.getElementById("doneMsg").textContent = "Thank you! Your spot is secured. Our designers will be in touch within 24 hours. PayPal has emailed you a receipt.";
+  } else show(0);
 })();
 </script>
 </body>
