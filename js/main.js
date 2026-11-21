@@ -280,8 +280,13 @@ const WAVES={
     span=Math.max(x, vw+Math.max(...items.map(i=>i.w))+40);
     draw();
   }
+  // the section's position on the page is measured once (and again when the page resizes),
+  // not every frame: reading layout every frame while the page scrolls makes scrolling heavy
+  let secMid=0;
+  const measure=()=>{const r=box.getBoundingClientRect(); secMid=r.top+scrollY+r.height/2};
+  new ResizeObserver(measure).observe(document.body);
   function draw(){
-    const r=box.getBoundingClientRect(), off=(r.top+r.height/2-innerHeight/2);
+    const off=secMid-scrollY-innerHeight/2;
     items.forEach(it=>{
       const ty=-off*(it.d-.9)*.16;
       it.el.style.transform=`translate3d(${it.x.toFixed(1)}px,${(it.top+ty).toFixed(1)}px,0)`;
@@ -297,7 +302,7 @@ const WAVES={
     draw(); requestAnimationFrame(frame);
   }
   new IntersectionObserver(es=>{const was=on; on=es[0].isIntersecting; if(on){sec.classList.add('on'); if(!was)requestAnimationFrame(frame)}},{rootMargin:'100px 0px'}).observe(sec);
-  let lw=0; const fit=()=>{const vw=box.clientWidth; if(Math.abs(vw-lw)<2)return; lw=vw; build(vw)};
+  let lw=0; const fit=()=>{measure(); const vw=box.clientWidth; if(Math.abs(vw-lw)<2)return; lw=vw; build(vw)};
   fit(); addEventListener('resize',fit);
 })();
 
