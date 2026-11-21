@@ -60,7 +60,7 @@ def r_navmeta(c):
             f'      <div><h6>Socials</h6>{socials}</div>\n'
             f'      <div><h6>Contacts</h6>{esc(k["phone"])}<br><u><a href="mailto:{esc(k["email"])}">{esc(k["email"])}</a></u></div>\n'
             f'    </div>\n'
-            f'    <a href="{esc(k.get("quote_link") or "#pricing")}" class="nav-cta">{esc(k["quote_button"])}</a>')
+            f'    <a href="{esc(k.get("quote_link") or "#pricing")}" class="btn btn--outline nav-cta">{esc(k["quote_button"])}</a>')
 
 def trust_html(t):
     # the first number (e.g. 3,114) gets its own span so js/main.js can count it up by one per visitor
