@@ -191,7 +191,9 @@ const WAVES={
     float sx=smoothstep(0.,1.,uv.x+.08*sin(uv.y*3.+t*.2));
     vec3 W=mix(W1,W2,sx); W=mix(W,vec3(.98,.95,.9),.25*smoothstep(.55,1.,uv.y));
     vec3 D=mix(D1,D2,sx); D=mix(D,mix(D,W2,.55),lift*L);
-    gl_FragColor=vec4(mix(W,D,wave),1.);}`;
+    vec3 col=mix(W,D,wave);
+    col+=(h(gl_FragCoord.xy+fract(t))-.5)/255.;    // tiny dither: hides colour banding in the smooth gradient
+    gl_FragColor=vec4(col,1.);}`;
   const hex=h=>[1,3,5].map(k=>parseInt(h.substr(k,2),16)/255);
   let tx=.5,ty=.5; addEventListener('mousemove',e=>{tx=e.clientX/innerWidth;ty=e.clientY/innerHeight});
   document.querySelectorAll('canvas.wave').forEach(c=>{
