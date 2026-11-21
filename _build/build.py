@@ -345,38 +345,28 @@ def card(p, extra=''):
             f'<span class="plus">+</span></div></a>')
 
 # ---------- 3. Work page ----------
-cats = []
-for p in P:
-    for t in p['scope']:
-        if t not in cats: cats.append(t)
-options = '\n'.join(f'        <option value="{esc(c.lower())}">{esc(c)}</option>' for c in cats)
+# A plain two-column grid: picture, then the name, a one-line summary and (on hover) the scope tags.
+def summary(p):
+    s = (p.get('summary') or '').strip()
+    if s: return s
+    _m = re.match(r'(.+?[.!?])(\s|$)', p.get('intro', '').strip())
+    return _m.group(1) if _m else p.get('intro', '')
+
+def grid_card(p):
+    href = f'/projects/{p["slug"]}/'
+    tags = ''.join(f'<span>{esc(t)}</span>' for t in p.get('scope') or [])
+    return (f'<article class="wk-item fade">'
+            f'<a class="wk-card wk-pic" href="{href}" aria-label="{esc(p["name"])}"><div class="img par" style="background-image:url(/{cover(p)})"></div></a>'
+            f'<a class="wk-cap" href="{href}" tabindex="-1"><b>{esc(p["name"])}</b><p>{esc(summary(p))}</p>'
+            f'<span class="wk-tags">{tags}</span></a></article>')
+
 work_body = f'''<main>
-<header class="wk-hero" id="top">
-  <span class="wk-blob b1"></span><span class="wk-blob b2"></span>
-  <h1><span class="l"><span>Fewer projects</span></span> <span class="l"><span>deeper work</span></span></h1>
-  <div class="wk-side">
-    <div><span class="yr">2024-2026©</span><p>Every project here asked for something we hadn't done yet. That's why we took it.</p></div>
-    <a href="#all" class="down ink" aria-label="Scroll to projects"></a>
-  </div>
-</header>
-<section class="sec" id="all">
-  <div class="wk-bar"><h2>All Projects</h2></div>
-  <div class="wk-tools">
-    <label class="wk-select"><span class="sr-only" style="position:absolute;left:-9999px">Category</span>
-      <select id="wkCat" aria-label="Filter by category">
-        <option value="">Category</option>
-{options}
-      </select>
-    </label>
-    <label class="wk-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input id="wkSearch" type="search" placeholder="Search..." aria-label="Search projects"></label>
-  </div>
-  <div class="wk-list" id="wkList">
-{chr(10).join('    ' + card(p) for p in P)}
-    <p class="wk-empty" id="wkEmpty">No projects match that filter.</p>
-  </div>
+<h1 class="sr-only" style="position:absolute;left:-9999px">Work</h1>
+<section class="wk-grid" id="all">
+{chr(10).join('  ' + grid_card(p) for p in P)}
 </section>
 </main>'''
-work_js = f'<script src="/js/work.js?v={V["js/work.js"]}"></script>\n'
+work_js = ''
 os.makedirs('work', exist_ok=True)
 open('work/index.html', 'w').write(page(
     'Work | Uprizz', 'Selected brand identity, art direction, photography, motion and content-system projects by Uprizz.',

@@ -31,7 +31,7 @@ addEventListener('pageswap',e=>{const vt=e.viewTransition;if(vt){vt.ready.catch(
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,300&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/style.css?v=6dc67895">
-<link rel="stylesheet" href="/css/pages.css?v=602e5878">
+<link rel="stylesheet" href="/css/pages.css?v=9eee1e11">
 <style>
 /* ---------- Uprizz logo (recolours with the text colour) ---------- */
 .brandmark{display:inline-block;height:.95em;aspect-ratio:248.52/94.51;vertical-align:-.2em;background:currentColor;
@@ -57,41 +57,16 @@ addEventListener('pageswap',e=>{const vt=e.viewTransition;if(vt){vt.ready.catch(
   </div>
 </nav>
 <main>
-<header class="wk-hero" id="top">
-  <span class="wk-blob b1"></span><span class="wk-blob b2"></span>
-  <h1><span class="l"><span>Fewer projects</span></span> <span class="l"><span>deeper work</span></span></h1>
-  <div class="wk-side">
-    <div><span class="yr">2024-2026©</span><p>Every project here asked for something we hadn't done yet. That's why we took it.</p></div>
-    <a href="#all" class="down ink" aria-label="Scroll to projects"></a>
-  </div>
-</header>
-<section class="sec" id="all">
-  <div class="wk-bar"><h2>All Projects</h2></div>
-  <div class="wk-tools">
-    <label class="wk-select"><span class="sr-only" style="position:absolute;left:-9999px">Category</span>
-      <select id="wkCat" aria-label="Filter by category">
-        <option value="">Category</option>
-        <option value="campaign">Campaign</option>
-        <option value="social">Social</option>
-        <option value="naming">Naming</option>
-        <option value="toolkits">Toolkits</option>
-        <option value="packaging">Packaging</option>
-        <option value="animation">Animation</option>
-      </select>
-    </label>
-    <label class="wk-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input id="wkSearch" type="search" placeholder="Search..." aria-label="Search projects"></label>
-  </div>
-  <div class="wk-list" id="wkList">
-    <a class="wk-card fade" href="/projects/mira-eyewear/" data-tags="campaign social" data-name="mira eyewear"><div class="img par" style="background-image:url(/images/projects/mira-eyewear/cover.jpg)"></div><div class="meta"><div><b>Mira Eyewear</b><small><span>Art Direction &amp; Photography</span><span>·</span><span>2025</span></small></div><span class="plus">+</span></div></a>
-    <a class="wk-card fade" href="/projects/neoyokoto/" data-tags="naming toolkits packaging" data-name="neoyokoto"><div class="img par" style="background-image:url(/images/projects/neoyokoto/cover.jpg)"></div><div class="meta"><div><b>NeoYokoto</b><small><span>Content Systems</span><span>·</span><span>2026</span></small></div><span class="plus">+</span></div></a>
-    <a class="wk-card fade" href="/projects/meridian-automotive/" data-tags="naming social" data-name="meridian automotive"><div class="img par" style="background-image:url(/images/projects/meridian-automotive/cover.jpg)"></div><div class="meta"><div><b>Meridian Automotive</b><small><span>Motion &amp; Film</span><span>·</span><span>2024</span></small></div><span class="plus">+</span></div></a>
-    <a class="wk-card fade" href="/projects/pulse-club/" data-tags="campaign packaging social toolkits naming animation" data-name="pulse club"><div class="img par" style="background-image:url(/images/projects/pulse-club/cover.jpg)"></div><div class="meta"><div><b>Pulse Club</b><small><span>Brand Identity</span><span>·</span><span>2026</span></small></div><span class="plus">+</span></div></a>
-    <a class="wk-card fade" href="/projects/basalt/" data-tags="campaign social" data-name="basalt"><div class="img par" style="background-image:url(/images/projects/basalt/cover.jpg)"></div><div class="meta"><div><b>Basalt</b><small><span>Art Direction &amp; Photography</span><span>·</span><span>2025</span></small></div><span class="plus">+</span></div></a>
-    <a class="wk-card fade" href="/projects/kano/" data-tags="naming toolkits social packaging" data-name="kano"><div class="img par" style="background-image:url(/images/projects/kano/cover.jpg)"></div><div class="meta"><div><b>Kano</b><small><span>Content Systems</span><span>·</span><span>2026</span></small></div><span class="plus">+</span></div></a>
-    <a class="wk-card fade" href="/projects/russells/" data-tags="animation campaign packaging toolkits social" data-name="russells"><div class="img par" style="background-image:url(/images/projects/russells/cover.jpg)"></div><div class="meta"><div><b>Russells</b><small><span>Brand Identity</span><span>·</span><span>2026</span></small></div><span class="plus">+</span></div></a>
-    <a class="wk-card fade" href="/projects/studio-116/" data-tags="social naming packaging toolkits" data-name="studio 116"><div class="img par" style="background-image:url(/images/projects/studio-116/cover.jpg)"></div><div class="meta"><div><b>Studio 116</b><small><span>Content Systems</span><span>·</span><span>2025</span></small></div><span class="plus">+</span></div></a>
-    <p class="wk-empty" id="wkEmpty">No projects match that filter.</p>
-  </div>
+<h1 class="sr-only" style="position:absolute;left:-9999px">Work</h1>
+<section class="wk-grid" id="all">
+  <article class="wk-item fade"><a class="wk-card wk-pic" href="/projects/mira-eyewear/" aria-label="Mira Eyewear"><div class="img par" style="background-image:url(/images/projects/mira-eyewear/cover.jpg)"></div></a><a class="wk-cap" href="/projects/mira-eyewear/" tabindex="-1"><b>Mira Eyewear</b><p>Campaign photography for the launch of an eyewear brand’s first shield silhouette.</p><span class="wk-tags"><span>Campaign</span><span>Social</span></span></a></article>
+  <article class="wk-item fade"><a class="wk-card wk-pic" href="/projects/neoyokoto/" aria-label="NeoYokoto"><div class="img par" style="background-image:url(/images/projects/neoyokoto/cover.jpg)"></div></a><a class="wk-cap" href="/projects/neoyokoto/" tabindex="-1"><b>NeoYokoto</b><p>Naming, identity and launch campaign for a streetwear label built on the ordinary.</p><span class="wk-tags"><span>Naming</span><span>Toolkits</span><span>Packaging</span></span></a></article>
+  <article class="wk-item fade"><a class="wk-card wk-pic" href="/projects/meridian-automotive/" aria-label="Meridian Automotive"><div class="img par" style="background-image:url(/images/projects/meridian-automotive/cover.jpg)"></div></a><a class="wk-cap" href="/projects/meridian-automotive/" tabindex="-1"><b>Meridian Automotive</b><p>Launch film and stills for a limited-edition run of ninety cars.</p><span class="wk-tags"><span>Naming</span><span>Social</span></span></a></article>
+  <article class="wk-item fade"><a class="wk-card wk-pic" href="/projects/pulse-club/" aria-label="Pulse Club"><div class="img par" style="background-image:url(/images/projects/pulse-club/cover.jpg)"></div></a><a class="wk-cap" href="/projects/pulse-club/" tabindex="-1"><b>Pulse Club</b><p>Naming, identity and launch campaign for a gym built around showing up.</p><span class="wk-tags"><span>Campaign</span><span>Packaging</span><span>Social</span><span>Toolkits</span><span>Naming</span><span>Animation</span></span></a></article>
+  <article class="wk-item fade"><a class="wk-card wk-pic" href="/projects/basalt/" aria-label="Basalt"><div class="img par" style="background-image:url(/images/projects/basalt/cover.jpg)"></div></a><a class="wk-cap" href="/projects/basalt/" tabindex="-1"><b>Basalt</b><p>Campaign photography for a winter collection, shot as choreography.</p><span class="wk-tags"><span>Campaign</span><span>Social</span></span></a></article>
+  <article class="wk-item fade"><a class="wk-card wk-pic" href="/projects/kano/" aria-label="Kano"><div class="img par" style="background-image:url(/images/projects/kano/cover.jpg)"></div></a><a class="wk-cap" href="/projects/kano/" tabindex="-1"><b>Kano</b><p>Naming and identity for a flower studio that treats arrangements as sculpture.</p><span class="wk-tags"><span>Naming</span><span>Toolkits</span><span>Social</span><span>Packaging</span></span></a></article>
+  <article class="wk-item fade"><a class="wk-card wk-pic" href="/projects/russells/" aria-label="Russells"><div class="img par" style="background-image:url(/images/projects/russells/cover.jpg)"></div></a><a class="wk-cap" href="/projects/russells/" tabindex="-1"><b>Russells</b><p>Naming, identity and own-label packaging for a dog store and grooming studio.</p><span class="wk-tags"><span>Animation</span><span>Campaign</span><span>Packaging</span><span>Toolkits</span><span>Social</span></span></a></article>
+  <article class="wk-item fade"><a class="wk-card wk-pic" href="/projects/studio-116/" aria-label="Studio 116"><div class="img par" style="background-image:url(/images/projects/studio-116/cover.jpg)"></div></a><a class="wk-cap" href="/projects/studio-116/" tabindex="-1"><b>Studio 116</b><p>Identity for an interior architecture practice in Luxembourg.</p><span class="wk-tags"><span>Social</span><span>Naming</span><span>Packaging</span><span>Toolkits</span></span></a></article>
 </section>
 </main>
 <footer class="sec footer" id="contact">
@@ -124,6 +99,5 @@ addEventListener('pageswap',e=>{const vt=e.viewTransition;if(vt){vt.ready.catch(
   <div class="legal"><div><a href="#">Terms of service</a><a href="#">Privacy Policy</a></div><span>© 2026 Uprizz®. All rights reserved.</span></div>
 </footer>
 <script src="/js/main.js?v=104cd89d"></script>
-<script src="/js/work.js?v=c19eb1d7"></script>
 </body>
 </html>

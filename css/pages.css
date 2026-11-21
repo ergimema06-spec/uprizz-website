@@ -8,35 +8,19 @@
 .down.ink:before{background:var(--ink)}
 .down.ink:after{border-color:var(--ink)}
 
-/* ---------- Work page: hero ---------- */
-.wk-hero{position:relative;overflow:hidden;padding:200px var(--pad) 110px;display:grid;grid-template-columns:1fr 1fr;align-items:end;gap:40px}
-.wk-hero h1{font-family:var(--display);font-weight:300;font-size:clamp(48px,6.35vw,96px);line-height:1;letter-spacing:-.035em;position:relative;z-index:1}
-.wk-hero h1 .l{display:block;overflow:hidden;padding-bottom:.06em}
-.wk-hero h1 .l span{display:inline-block;transform:translateY(105%);transition:transform 1.2s var(--ease)}
-.wk-hero.in h1 .l span{transform:none}
-.wk-hero.in h1 .l:nth-child(2) span{transition-delay:.1s}
-.wk-side{display:grid;grid-template-columns:1fr 40px;align-items:end;gap:24px;position:relative;z-index:1}
-.wk-side .yr{display:block;text-align:right;font-size:11px;margin-bottom:6px;max-width:250px}
-.wk-side p{font-size:13px;line-height:18px;max-width:250px}
-.wk-blob{position:absolute;left:0;top:0;width:150px;height:150px;border-radius:46px;pointer-events:none;z-index:2;
-  background:radial-gradient(closest-side,#fff 62%,rgba(255,255,255,0) 100%);mix-blend-mode:difference;filter:url(#grain);
-  opacity:0;transition:opacity .6s;will-change:transform}
-.wk-blob.b2{width:120px;height:120px;border-radius:38px}
-.wk-hero:hover .wk-blob{opacity:1}
-
-/* ---------- Work page: filter bar + list ---------- */
-.wk-bar{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:1px solid var(--line);padding-bottom:14px}
-.wk-bar h2{font-family:var(--display);font-weight:300;font-size:32px;line-height:38px;letter-spacing:-.02em}
-.wk-tools{display:flex;justify-content:flex-end;align-items:center;gap:28px;padding:28px 0 32px}
-.wk-select{position:relative;font-size:12px}
-.wk-select select{appearance:none;-webkit-appearance:none;background:transparent;border:0;font:inherit;color:var(--ink);padding:6px 20px 6px 0;cursor:pointer}
-.wk-select:after{content:"";position:absolute;right:3px;top:50%;width:5px;height:5px;border-right:1.2px solid var(--ink);border-bottom:1.2px solid var(--ink);transform:translateY(-70%) rotate(45deg);pointer-events:none}
-.wk-search{display:flex;align-items:center;gap:8px;font-size:12px;width:120px}
-.wk-search svg{width:11px;height:11px;stroke:var(--muted);fill:none;stroke-width:2;flex:none}
-.wk-search input{width:100%;font-size:12px}
-.wk-search input::placeholder{color:var(--muted)}
-.wk-list{display:flex;flex-direction:column;gap:8px;padding-bottom:140px}
-.wk-empty{display:none;padding:80px 0;text-align:center;color:var(--muted)}
+/* ---------- Work page: simple two-column grid ----------
+   Picture, then the name and a one-line summary underneath; the scope tags appear on hover. */
+.wk-grid{display:grid;grid-template-columns:1fr 1fr;column-gap:15px;row-gap:72px;padding:150px var(--pad) 160px}
+.wk-item{min-width:0}
+.wk-item .wk-pic{aspect-ratio:4/3;border-radius:12px}
+.wk-item .wk-pic:after{display:none}
+.wk-cap{display:block;padding-top:12px;font-size:13px;line-height:18px}
+.wk-cap b{display:block;font-weight:500;color:var(--ink)}
+.wk-cap p{color:var(--muted);margin:1px 0 0}
+.wk-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;opacity:0;transform:translateY(-4px);transition:opacity .4s var(--ease),transform .4s var(--ease)}
+.wk-tags span{font-size:11px;line-height:16px;padding:3px 9px;border-radius:999px;background:var(--card);color:var(--muted)}
+@media (hover:hover){.wk-item:hover .wk-tags{opacity:1;transform:none}}
+@media (hover:none){.wk-tags{opacity:1;transform:none}}
 
 /* Big project card (Work page + "Next project") */
 .wk-card{position:relative;display:block;aspect-ratio:1384/857;border-radius:20px;overflow:hidden;background:#ddd}
@@ -48,7 +32,6 @@
 .wk-card .meta small{display:flex;gap:10px;font-size:11px;color:#e5e5e5;margin-top:2px}
 .wk-card .plus{width:22px;height:22px;border-radius:5px;background:#fff;color:#111;display:grid;place-items:center;font-size:15px;line-height:1;transition:transform .5s var(--ease)}
 @media (hover:hover){.wk-card:hover .plus{transform:rotate(90deg)}}
-.wk-card.hide{display:none}
 
 /* ---------- Project page: top ---------- */
 /* Project page (structure like together.agency case studies):
@@ -89,13 +72,9 @@
 
 /* ---------- Phones ---------- */
 @media (max-width:700px){
-  .wk-hero{grid-template-columns:1fr;padding:150px var(--pad) 70px;gap:28px}
-  .wk-hero h1{font-size:48px}
-  .wk-side .yr{text-align:left}
-  .wk-blob{display:none}
-  .wk-tools{justify-content:space-between}
+  .wk-grid{grid-template-columns:1fr;row-gap:44px;padding:110px var(--pad) 90px}
   .wk-card{aspect-ratio:4/5}
-  .wk-list{padding-bottom:90px}
+  .wk-item .wk-pic{aspect-ratio:4/3}
   .pj-head{grid-template-columns:1fr;align-content:end;padding:110px 0 28px;row-gap:10px}
   .pj-cover{aspect-ratio:4/5}
   .pj-rows{padding-top:64px}
