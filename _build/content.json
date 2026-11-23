@@ -1,6 +1,6 @@
 {
   "seo": {
-    "title": "Uprizz | Everything first-time founders need to launch, in one order",
+    "title": "Uprizz — Everything first-time founders need to launch, in one order",
     "description": "Uprizz gives first-time founders everything they need to launch in one order: brand, design and a live business in 48 hours, made by real designers. Pay once, no subscription."
   },
   "hero": {
@@ -58,7 +58,7 @@
         "label": "Price",
         "values": [
           "Free - $50",
-          "From $299",
+          "From $1399",
           "$4000+"
         ]
       },
@@ -148,78 +148,49 @@
         "name": "Basic",
         "price": "$299",
         "highlight": false,
-        "features_title": "Basic includes:",
+        "features_title": "Standard contains:",
         "features": [
-          "1 logo concept included",
-          "Logo transparency",
-          "Vector / source file",
-          "Printable file",
-          "2 revisions included",
-          "2 days delivery"
+          "Up to 45 studio hours per month",
+          "One active request at a time",
+          "Progress updates every 48 hours or sooner",
+          "Unlimited revisions until it's right",
+          "Pause anytime — unused days roll over"
         ],
         "bonus": "",
         "button_text": "Start Now",
-        "button_link": "/brief/?plan=Basic",
-        "excluded": [
-          "Complete brand guidelines",
-          "Social media creatives",
-          "Email marketing design",
-          "Ad banners and creatives",
-          "Packaging and merchandising",
-          "Live website"
-        ],
-        "spots": ""
+        "button_link": "/brief/?plan=Basic"
       },
       {
         "name": "Standard",
         "price": "$899",
         "highlight": true,
-        "features_title": "Standard includes:",
+        "features_title": "Standard contains:",
         "features": [
-          "3 logo concepts in total",
-          "Complete brand guidelines",
-          "Branding",
-          "10 social media creatives",
-          "Email marketing design",
-          "5 Google ad banners",
-          "5 static ad creatives",
-          "Packaging and merchandising",
-          "Pattern, icons and UI branding assets",
-          "5 business day delivery",
-          "Unlimited revisions to refine your chosen concept"
+          "Up to 70 studio hours per month",
+          "Two active requests in parallel",
+          "Progress updates every 48 hours or sooner",
+          "Unlimited revisions until it's right",
+          "Priority scheduling"
         ],
-        "bonus": "",
+        "bonus": "A monthly shoot day in-studio",
         "button_text": "Start Now",
-        "button_link": "/brief/?plan=Standard",
-        "excluded": [
-          "Live website"
-        ],
-        "spots": "Only 3 spots left"
+        "button_link": "/brief/?plan=Standard"
       },
       {
         "name": "Premium",
         "price": "$1,290",
         "highlight": false,
-        "features_title": "Premium includes:",
+        "features_title": "Standard contains:",
         "features": [
-          "Live website",
-          "3 logo concepts in total",
-          "Complete brand guidelines",
-          "Branding",
-          "10 social media creatives",
-          "Email marketing design",
-          "5 Google ad banners",
-          "5 static ad creatives",
-          "Packaging and merchandising",
-          "Pattern, icons and UI branding assets",
-          "5 business day delivery",
-          "Unlimited revisions to refine your chosen concept"
+          "Up to 45 studio hours per month",
+          "One active request at a time",
+          "Progress updates every 48 hours or sooner",
+          "Unlimited revisions until it's right",
+          "Pause anytime — unused days roll over"
         ],
         "bonus": "",
         "button_text": "Start Now",
-        "button_link": "/brief/?plan=Premium",
-        "excluded": [],
-        "spots": "Only 1 spot left"
+        "button_link": "/brief/?plan=Premium"
       }
     ]
   },
@@ -243,7 +214,7 @@
       {
         "name": "Aisha Rahman",
         "role": "CMO, Atlas Ventures",
-        "quote": "They presented one direction, not three. I pushed back on that in week one. By week six I understood it. Every decision since has been faster because of it.",
+        "quote": "They presented one direction, not three. I pushed back on that in week one. By week six I understood it — every decision since has been faster because of it.",
         "avatar": "images/cms/aisha-rahman-avatar-mwpgndrf.jpg",
         "photo": ""
       },
@@ -257,7 +228,7 @@
       {
         "name": "Mara Silva",
         "role": "Founder, Basalt Outerwear",
-        "quote": "The brand film paid for itself at the trade show. Buyers kept asking who made it. Calm process, early delivery, zero drama.",
+        "quote": "The brand film paid for itself at the trade show — buyers kept asking who made it. Calm process, early delivery, zero drama.",
         "avatar": "images/cms/mara-silva-avatar-mwpgnppa.jpg",
         "photo": ""
       }
@@ -268,32 +239,28 @@
     "title_italic": "answered.",
     "items": [
       {
-        "question": "How does it work?",
-        "answer": "Pick a package and pay once, right on the site. Then fill in a short brief about your business, your audience and the feel you want. Our designers review it and get back to you within 24 hours, and you receive your files on the delivery date of your package."
+        "question": "How does the retainer actually work?",
+        "answer": "You get a monthly block of studio hours and a request queue. We work one request at a time (two on Pro), send progress every 48 hours, and revise until it's right. No scoping calls for every task — you brief, we build."
       },
       {
-        "question": "What's the difference between Basic, Standard and Premium?",
-        "answer": "Basic gets you a professional logo: one concept, every file format you need and two revisions, delivered in 2 days. Standard is a complete brand: three logo concepts, brand guidelines, social media, ad and email designs, packaging and brand assets, delivered in 5 business days. Premium is everything in Standard plus a live website."
+        "question": "What's the difference between Standard and Pro?",
+        "answer": "Hours and speed. Pro carries 70 hours to Standard's 45, runs two requests in parallel, gets priority scheduling, and includes a monthly shoot day in-studio."
       },
       {
-        "question": "Is this a subscription?",
-        "answer": "No. You pay once for your package. There are no monthly fees, no hidden costs and nothing to cancel."
+        "question": "Can I pause my retainer?",
+        "answer": "Anytime. Unused days roll over, and you resume exactly where you left off. There's no minimum term."
       },
       {
-        "question": "How do revisions work?",
-        "answer": "Basic includes 2 rounds of revisions. Standard and Premium include unlimited revisions to refine the concept you choose, so we keep going until it feels right."
+        "question": "What if the first month isn't working out?",
+        "answer": "If the first week doesn't deliver, the rest of the month is refunded. We'd rather earn the retainer than hold you to it."
       },
       {
-        "question": "How do I pay?",
-        "answer": "By card or PayPal on our secure checkout, without leaving the site. Prefer a bank transfer? Email heyuprizz@gmail.com and we'll send you an invoice."
+        "question": "Do you work with remote clients?",
+        "answer": "Yes — most projects run fully remote with weekly review calls. Shoots happen in our studio or on location; product can be shipped to us."
       },
       {
-        "question": "Do you work with founders outside our city?",
-        "answer": "Yes. Everything runs online, so we work with founders anywhere. You send your brief, we share the designs and your feedback, and you receive all files digitally."
-      },
-      {
-        "question": "What do I receive at the end?",
-        "answer": "Every file you need to use your brand straight away: your logo with a transparent background, vector and source files, and print-ready files. Standard and Premium also include your brand guidelines and all the designs listed in your package. Everything is yours to keep."
+        "question": "What do we receive at handover?",
+        "answer": "Everything: source files, brand guidelines, edited imagery, editable templates, and a walkthrough call with your team. The goal is that you don't need us for daily work."
       }
     ]
   },
@@ -317,8 +284,7 @@
       }
     ],
     "form_title": "Start a Conversation",
-    "quote_button": "Start your launch",
-    "quote_link": "#pricing",
+    "quote_button": "Get a quote",
     "copyright": "© 2026 Uprizz®. All rights reserved.",
     "terms_url": "#",
     "privacy_url": "#"
